@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('sucursales', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('franquicia_id')
+                ->constrained('franquicias')
+                ->onDelete('cascade');
+
+            $table->string('nombre', 150);
+            $table->string('direccion', 255);
+            $table->string('ciudad', 100);
+            $table->string('telefono', 20)->nullable();
+            $table->boolean('activa')->default(true);
+
             $table->timestamps();
         });
     }

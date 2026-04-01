@@ -13,7 +13,14 @@ return new class extends Migration
     {
         Schema::create('horarios_sucursal', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+
+            $table->foreignId('sucursal_id')
+                ->constrained('sucursales')
+                ->onDelete('cascade');
+
+            $table->string('dia_semana', 20);
+            $table->time('hora_apertura');
+            $table->time('hora_cierre');
         });
     }
 

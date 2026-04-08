@@ -281,14 +281,14 @@ class DatabaseSeeder extends Seeder
             ['pago_id' => 7, 'fecha' => '2026-01-15', 'total' => 1529.00],
             ['pago_id' => 8, 'fecha' => '2026-03-20', 'total' => 599.00],
         ]);
- /*
+ 
         // 26. CLASES
         DB::table('clases')->insert([
-            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Yoga Matutino', 'capacidad' => 15, 'fecha_hora_inicio' => '2026-04-09 07:00:00'],
-            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Spinning Intenso', 'capacidad' => 20, 'fecha_hora_inicio' => '2026-04-09 09:00:00'],
-            ['entrenador_id' => 4, 'sucursal_id' => 2, 'nombre' => 'CrossFit Básico', 'capacidad' => 12, 'fecha_hora_inicio' => '2026-04-09 08:00:00'],
-            ['entrenador_id' => 4, 'sucursal_id' => 2, 'nombre' => 'Pilates', 'capacidad' => 10, 'fecha_hora_inicio' => '2026-04-10 10:00:00'],
-            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Zumba', 'capacidad' => 25, 'fecha_hora_inicio' => '2026-04-10 18:00:00'],
+            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Yoga Matutino', 'capacidad' => 15, 'fecha' => '2026-04-09 07:00:00'],
+            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Spinning Intenso', 'capacidad' => 20, 'fecha' => '2026-04-09 09:00:00'],
+            ['entrenador_id' => 4, 'sucursal_id' => 2, 'nombre' => 'CrossFit Básico', 'capacidad' => 12, 'fecha' => '2026-04-09 08:00:00'],
+            ['entrenador_id' => 4, 'sucursal_id' => 2, 'nombre' => 'Pilates', 'capacidad' => 10, 'fecha' => '2026-04-10 10:00:00'],
+            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Zumba', 'capacidad' => 25, 'fecha' => '2026-04-10 18:00:00'],
         ]);
  
         // 27. RESERVAS DE CLASE
@@ -302,7 +302,7 @@ class DatabaseSeeder extends Seeder
             ['clase_id' => 5, 'miembro_id' => 2, 'estado' => 'confirmada'],
             ['clase_id' => 5, 'miembro_id' => 4, 'estado' => 'confirmada'],
         ]);
- */
+ 
         // 28. CHECKINS
         DB::table('checkins')->insert([
             ['miembro_id' => 1, 'fecha' => '2026-04-01 08:30:00'],
@@ -314,7 +314,7 @@ class DatabaseSeeder extends Seeder
             ['miembro_id' => 5, 'fecha' => '2026-04-01 07:00:00'],
             ['miembro_id' => 7, 'fecha' => '2026-04-02 06:30:00'],
         ]);
-/*
+
         // 29. EVALUACIONES FÍSICAS
         DB::table('evaluaciones_fisicas')->insert([
             ['miembro_id' => 1, 'fecha' => '2026-03-01', 'resultado' => 'IMC: 24.5, Grasa: 18%', 'observaciones' => 'Buen estado general, mejorar resistencia'],
@@ -323,7 +323,7 @@ class DatabaseSeeder extends Seeder
             ['miembro_id' => 5, 'fecha' => '2026-03-10', 'resultado' => 'IMC: 23.8, Grasa: 16%', 'observaciones' => 'Muy buena condición física'],
             ['miembro_id' => 7, 'fecha' => '2026-01-15', 'resultado' => 'IMC: 25.0, Grasa: 19%', 'observaciones' => 'Estado físico normal, incrementar masa muscular'],
         ]);
- 
+/* 
         // 30. RUTINAS
         DB::table('rutinas')->insert([
             ['miembro_id' => 1, 'entrenador_id' => 2, 'nombre' => 'Rutina Pérdida de Peso', 'fecha_inicio' => '2026-03-01'],

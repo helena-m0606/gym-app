@@ -314,7 +314,7 @@ class DatabaseSeeder extends Seeder
             ['miembro_id' => 5, 'fecha' => '2026-04-01 07:00:00'],
             ['miembro_id' => 7, 'fecha' => '2026-04-02 06:30:00'],
         ]);
-
+/*
         // 29. EVALUACIONES FÍSICAS
         DB::table('evaluaciones_fisicas')->insert([
             ['miembro_id' => 1, 'fecha' => '2026-03-01', 'resultado' => 'IMC: 24.5, Grasa: 18%', 'observaciones' => 'Buen estado general, mejorar resistencia'],
@@ -323,7 +323,7 @@ class DatabaseSeeder extends Seeder
             ['miembro_id' => 5, 'fecha' => '2026-03-10', 'resultado' => 'IMC: 23.8, Grasa: 16%', 'observaciones' => 'Muy buena condición física'],
             ['miembro_id' => 7, 'fecha' => '2026-01-15', 'resultado' => 'IMC: 25.0, Grasa: 19%', 'observaciones' => 'Estado físico normal, incrementar masa muscular'],
         ]);
-/* 
+ 
         // 30. RUTINAS
         DB::table('rutinas')->insert([
             ['miembro_id' => 1, 'entrenador_id' => 2, 'nombre' => 'Rutina Pérdida de Peso', 'fecha_inicio' => '2026-03-01'],

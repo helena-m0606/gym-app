@@ -314,14 +314,14 @@ class DatabaseSeeder extends Seeder
             ['miembro_id' => 5, 'fecha' => '2026-04-01 07:00:00'],
             ['miembro_id' => 7, 'fecha' => '2026-04-02 06:30:00'],
         ]);
-/*
+
         // 29. EVALUACIONES FÍSICAS
         DB::table('evaluaciones_fisicas')->insert([
-            ['miembro_id' => 1, 'fecha' => '2026-03-01', 'resultado' => 'IMC: 24.5, Grasa: 18%', 'observaciones' => 'Buen estado general, mejorar resistencia'],
-            ['miembro_id' => 2, 'fecha' => '2026-03-15', 'resultado' => 'IMC: 22.1, Grasa: 22%', 'observaciones' => 'Excelente estado físico'],
-            ['miembro_id' => 3, 'fecha' => '2026-02-01', 'resultado' => 'IMC: 26.3, Grasa: 21%', 'observaciones' => 'Reducir porcentaje de grasa'],
-            ['miembro_id' => 5, 'fecha' => '2026-03-10', 'resultado' => 'IMC: 23.8, Grasa: 16%', 'observaciones' => 'Muy buena condición física'],
-            ['miembro_id' => 7, 'fecha' => '2026-01-15', 'resultado' => 'IMC: 25.0, Grasa: 19%', 'observaciones' => 'Estado físico normal, incrementar masa muscular'],
+            ['miembro_id' => 1, 'fecha' => '2026-03-01', 'resultados' => '{"imc": 24.5, "grasa": "18%"}', 'observaciones' => 'Buen estado general, mejorar resistencia'],
+            ['miembro_id' => 2, 'fecha' => '2026-03-15', 'resultados' => '{"imc": 22.1, "grasa": "22%"}', 'observaciones' => 'Excelente estado físico'],
+            ['miembro_id' => 3, 'fecha' => '2026-02-01', 'resultados' => '{"imc": 26.3, "grasa": "21%"}', 'observaciones' => 'Reducir porcentaje de grasa'],
+            ['miembro_id' => 5, 'fecha' => '2026-03-10', 'resultados' => '{"imc": 23.8, "grasa": "16%"}', 'observaciones' => 'Muy buena condición física'],
+            ['miembro_id' => 7, 'fecha' => '2026-01-15', 'resultados' => '{"imc": 25.0, "grasa": "19%"}', 'observaciones' => 'Incrementar masa muscular'],
         ]);
  
         // 30. RUTINAS
@@ -335,21 +335,21 @@ class DatabaseSeeder extends Seeder
  
         // 31. RUTINA_EJERCICIO
         DB::table('rutina_ejercicio')->insert([
-            ['rutina_id' => 1, 'ejercicio_id' => 2, 'repeticiones' => 15, 'descanso_segundos' => 60],
-            ['rutina_id' => 1, 'ejercicio_id' => 9, 'repeticiones' => 12, 'descanso_segundos' => 60],
-            ['rutina_id' => 1, 'ejercicio_id' => 8, 'repeticiones' => 30, 'descanso_segundos' => 45],
-            ['rutina_id' => 2, 'ejercicio_id' => 6, 'repeticiones' => 12, 'descanso_segundos' => 60],
-            ['rutina_id' => 2, 'ejercicio_id' => 7, 'repeticiones' => 12, 'descanso_segundos' => 60],
-            ['rutina_id' => 2, 'ejercicio_id' => 8, 'repeticiones' => 45, 'descanso_segundos' => 30],
-            ['rutina_id' => 3, 'ejercicio_id' => 1, 'repeticiones' => 8, 'descanso_segundos' => 90],
-            ['rutina_id' => 3, 'ejercicio_id' => 2, 'repeticiones' => 8, 'descanso_segundos' => 90],
-            ['rutina_id' => 3, 'ejercicio_id' => 3, 'repeticiones' => 6, 'descanso_segundos' => 120],
-            ['rutina_id' => 4, 'ejercicio_id' => 1, 'repeticiones' => 10, 'descanso_segundos' => 90],
-            ['rutina_id' => 4, 'ejercicio_id' => 2, 'repeticiones' => 10, 'descanso_segundos' => 90],
-            ['rutina_id' => 4, 'ejercicio_id' => 4, 'repeticiones' => 8, 'descanso_segundos' => 90],
-            ['rutina_id' => 5, 'ejercicio_id' => 8, 'repeticiones' => 60, 'descanso_segundos' => 30],
-            ['rutina_id' => 5, 'ejercicio_id' => 9, 'repeticiones' => 10, 'descanso_segundos' => 60],
-            ['rutina_id' => 5, 'ejercicio_id' => 5, 'repeticiones' => 10, 'descanso_segundos' => 90],
+            ['rutina_id' => 1, 'ejercicio_id' => 2, 'series' => 3, 'repeticiones' => 15, 'descanso_segundos' => 60],
+            ['rutina_id' => 1, 'ejercicio_id' => 9, 'series' => 3, 'repeticiones' => 12, 'descanso_segundos' => 60],
+            ['rutina_id' => 1, 'ejercicio_id' => 8, 'series' => 3, 'repeticiones' => 30, 'descanso_segundos' => 45],
+            ['rutina_id' => 2, 'ejercicio_id' => 6, 'series' => 4, 'repeticiones' => 12, 'descanso_segundos' => 60],
+            ['rutina_id' => 2, 'ejercicio_id' => 7, 'series' => 4, 'repeticiones' => 12, 'descanso_segundos' => 60],
+            ['rutina_id' => 2, 'ejercicio_id' => 8, 'series' => 3, 'repeticiones' => 45, 'descanso_segundos' => 30],
+            ['rutina_id' => 3, 'ejercicio_id' => 1, 'series' => 4, 'repeticiones' => 8, 'descanso_segundos' => 90],
+            ['rutina_id' => 3, 'ejercicio_id' => 2, 'series' => 4, 'repeticiones' => 8, 'descanso_segundos' => 90],
+            ['rutina_id' => 3, 'ejercicio_id' => 3, 'series' => 3, 'repeticiones' => 6, 'descanso_segundos' => 120],
+            ['rutina_id' => 4, 'ejercicio_id' => 1, 'series' => 4, 'repeticiones' => 10, 'descanso_segundos' => 90],
+            ['rutina_id' => 4, 'ejercicio_id' => 2, 'series' => 4, 'repeticiones' => 10, 'descanso_segundos' => 90],
+            ['rutina_id' => 4, 'ejercicio_id' => 4, 'series' => 3, 'repeticiones' => 8, 'descanso_segundos' => 90],
+            ['rutina_id' => 5, 'ejercicio_id' => 8, 'series' => 3, 'repeticiones' => 60, 'descanso_segundos' => 30],
+            ['rutina_id' => 5, 'ejercicio_id' => 9, 'series' => 3, 'repeticiones' => 10, 'descanso_segundos' => 60],
+            ['rutina_id' => 5, 'ejercicio_id' => 5, 'series' => 3, 'repeticiones' => 10, 'descanso_segundos' => 90],
         ]);
  
         // 32. PROGRESO DE MIEMBRO
@@ -361,7 +361,7 @@ class DatabaseSeeder extends Seeder
             ['miembro_id' => 3, 'fecha' => '2026-04-01', 'metricas' => '{"peso": 88, "grasa": 21, "musculo": 41}'],
             ['miembro_id' => 5, 'fecha' => '2026-03-10', 'metricas' => '{"peso": 78, "grasa": 17, "musculo": 42}'],
         ]);
-*/ 
+ 
         // 33. NOTIFICACIONES
         DB::table('notificaciones')->insert([
             ['miembro_id' => 1, 'mensaje' => 'Tu membresía vence en 5 días. ¡Renueva ahora!', 'fecha' => '2026-03-26', 'leida' => false],

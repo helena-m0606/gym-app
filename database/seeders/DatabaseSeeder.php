@@ -3,15 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         User::firstOrCreate(
@@ -21,7 +17,6 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password123'),
             ]
         );
-
 
 
         // 1. FRANQUICIAS
@@ -60,10 +55,13 @@ class DatabaseSeeder extends Seeder
             ['rol_id' => 1, 'permiso_id' => 5], ['rol_id' => 1, 'permiso_id' => 6],
             ['rol_id' => 1, 'permiso_id' => 7], ['rol_id' => 1, 'permiso_id' => 8],
             ['rol_id' => 1, 'permiso_id' => 9], ['rol_id' => 1, 'permiso_id' => 10],
+
             ['rol_id' => 2, 'permiso_id' => 1], ['rol_id' => 2, 'permiso_id' => 3],
             ['rol_id' => 2, 'permiso_id' => 4], ['rol_id' => 2, 'permiso_id' => 10],
+
             ['rol_id' => 3, 'permiso_id' => 1], ['rol_id' => 3, 'permiso_id' => 2],
             ['rol_id' => 3, 'permiso_id' => 3], ['rol_id' => 3, 'permiso_id' => 5],
+
             ['rol_id' => 4, 'permiso_id' => 1], ['rol_id' => 4, 'permiso_id' => 3],
             ['rol_id' => 4, 'permiso_id' => 5], ['rol_id' => 4, 'permiso_id' => 7],
             ['rol_id' => 4, 'permiso_id' => 9],

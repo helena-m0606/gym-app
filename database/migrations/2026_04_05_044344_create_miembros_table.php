@@ -17,7 +17,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('nombre', 150);
-            $table->string('email', 150)->nullable();
+            $table->string('email', 150)->unique();
             $table->string('telefono', 20)->nullable();
             $table->date('fecha_nacimiento')->nullable();
             $table->string('genero', 20)->nullable();

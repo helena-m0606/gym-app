@@ -6,8 +6,8 @@
 -- DROP TABLE public.categorias_equipo;
 
 CREATE TABLE public.categorias_equipo (
-	id bigserial NOT NULL,
-	nombre varchar(100) NOT NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
 	CONSTRAINT categorias_equipo_pkey PRIMARY KEY (id)
 );
 
@@ -19,8 +19,8 @@ CREATE TABLE public.categorias_equipo (
 -- DROP TABLE public.ejercicios;
 
 CREATE TABLE public.ejercicios (
-	id bigserial NOT NULL,
-	nombre varchar(150) NOT NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
 	descripcion text NULL,
 	CONSTRAINT ejercicios_pkey PRIMARY KEY (id)
 );
@@ -33,12 +33,12 @@ CREATE TABLE public.ejercicios (
 -- DROP TABLE public.franquicias;
 
 CREATE TABLE public.franquicias (
-	id bigserial NOT NULL,
-	nombre varchar(150) NOT NULL,
-	razon_social varchar(150) NOT NULL,
-	rfc varchar(20) NOT NULL,
-	created_at timestamp(0) NULL,
-	updated_at timestamp(0) NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
+	razon_social varchar(50) NOT NULL,
+	rfc varchar(12) NOT NULL UNIQUE,
+	created_at timestamp(0) NOT NULL DEFAULT,
+	updated_at timestamp(0) NOT NULL DEFAULT,
 	CONSTRAINT franquicias_pkey PRIMARY KEY (id),
 	CONSTRAINT franquicias_rfc_unique UNIQUE (rfc)
 );
@@ -51,8 +51,8 @@ CREATE TABLE public.franquicias (
 -- DROP TABLE public.permisos;
 
 CREATE TABLE public.permisos (
-	id bigserial NOT NULL,
-	nombre varchar(100) NOT NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
 	created_at timestamp(0) NULL,
 	updated_at timestamp(0) NULL,
 	CONSTRAINT permisos_pkey PRIMARY KEY (id)
@@ -66,10 +66,10 @@ CREATE TABLE public.permisos (
 -- DROP TABLE public.productos;
 
 CREATE TABLE public.productos (
-	id bigserial NOT NULL,
-	nombre varchar(150) NOT NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
 	precio numeric(10, 2) NOT NULL,
-	stock int4 DEFAULT 0 NOT NULL,
+	stock int4 DEFAULT 0 NOT NULL DEFAULT,
 	CONSTRAINT productos_pkey PRIMARY KEY (id)
 );
 
@@ -81,8 +81,8 @@ CREATE TABLE public.productos (
 -- DROP TABLE public.promociones;
 
 CREATE TABLE public.promociones (
-	id bigserial NOT NULL,
-	nombre varchar(150) NOT NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
 	descuento_porcentaje numeric(5, 2) NOT NULL,
 	fecha_inicio date NOT NULL,
 	fecha_fin date NOT NULL,
@@ -97,10 +97,10 @@ CREATE TABLE public.promociones (
 -- DROP TABLE public.proveedores;
 
 CREATE TABLE public.proveedores (
-	id bigserial NOT NULL,
-	nombre varchar(150) NOT NULL,
-	telefono varchar(20) NULL,
-	email varchar(150) NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
+	telefono varchar(10) NOT NULL,
+	email varchar(50) NOT NULL,
 	CONSTRAINT proveedores_pkey PRIMARY KEY (id)
 );
 
@@ -112,9 +112,9 @@ CREATE TABLE public.proveedores (
 -- DROP TABLE public.roles;
 
 CREATE TABLE public.roles (
-	id bigserial NOT NULL,
-	nombre varchar(100) NOT NULL,
-	descripcion text NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
+	descripcion text,
 	created_at timestamp(0) NULL,
 	updated_at timestamp(0) NULL,
 	CONSTRAINT roles_pkey PRIMARY KEY (id)
@@ -128,8 +128,8 @@ CREATE TABLE public.roles (
 -- DROP TABLE public.tipos_membresia;
 
 CREATE TABLE public.tipos_membresia (
-	id bigserial NOT NULL,
-	nombre varchar(100) NOT NULL,
+	id bigserial PRIMARY KEY,
+	nombre varchar(50) NOT NULL,
 	duracion_dias int4 NOT NULL,
 	precio numeric(10, 2) NOT NULL,
 	CONSTRAINT tipos_membresia_pkey PRIMARY KEY (id)
@@ -143,12 +143,12 @@ CREATE TABLE public.tipos_membresia (
 -- DROP TABLE public.users;
 
 CREATE TABLE public.users (
-	id bigserial NOT NULL,
-	"name" varchar(255) NOT NULL,
-	email varchar(255) NOT NULL,
+	id bigserial PRIMARY KEEY,
+	"name" varchar(50) NOT NULL,
+	email varchar(50) NOT NULL,
 	email_verified_at timestamp(0) NULL,
-	"password" varchar(255) NOT NULL,
-	remember_token varchar(100) NULL,
+	"password" varchar(50) NOT NULL,
+	remember_token varchar(50) NULL,
 	created_at timestamp(0) NULL,
 	updated_at timestamp(0) NULL,
 	two_factor_secret text NULL,
@@ -166,7 +166,7 @@ CREATE TABLE public.users (
 -- DROP TABLE public.compras;
 
 CREATE TABLE public.compras (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	proveedor_id int8 NOT NULL,
 	fecha date DEFAULT CURRENT_DATE NOT NULL,
 	total numeric(10, 2) DEFAULT '0'::numeric NOT NULL,
@@ -197,12 +197,12 @@ CREATE TABLE public.rol_permiso (
 -- DROP TABLE public.sucursales;
 
 CREATE TABLE public.sucursales (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	franquicia_id int8 NOT NULL,
-	nombre varchar(150) NOT NULL,
+	nombre varchar(50) NOT NULL,
 	direccion varchar(255) NOT NULL,
-	ciudad varchar(100) NOT NULL,
-	telefono varchar(20) NULL,
+	ciudad varchar(50) NOT NULL,
+	telefono varchar(10) NULL,
 	activa bool DEFAULT true NOT NULL,
 	created_at timestamp(0) NULL,
 	updated_at timestamp(0) NULL,
@@ -218,12 +218,12 @@ CREATE TABLE public.sucursales (
 -- DROP TABLE public.empleados;
 
 CREATE TABLE public.empleados (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	sucursal_id int8 NOT NULL,
-	nombre varchar(150) NOT NULL,
-	email varchar(150) NOT NULL,
-	telefono varchar(20) NULL,
-	salario numeric(10, 2) NOT NULL,
+	nombre varchar(50) NOT NULL,
+	email varchar(50) NOT NULL,
+	telefono varchar(10) NULL,
+	salario numeric(10, 2) CHECK(salario >=0)NOT NULL,
 	activo bool DEFAULT true NOT NULL,
 	metadata json NULL,
 	created_at timestamp(0) NULL,
@@ -241,10 +241,10 @@ CREATE TABLE public.empleados (
 -- DROP TABLE public.equipos;
 
 CREATE TABLE public.equipos (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	sucursal_id int8 NOT NULL,
 	categoria_id int8 NOT NULL,
-	nombre varchar(150) NOT NULL,
+	nombre varchar(50) NOT NULL,
 	estado varchar(50) DEFAULT 'activo'::character varying NOT NULL,
 	CONSTRAINT equipos_pkey PRIMARY KEY (id),
 	CONSTRAINT equipos_categoria_id_foreign FOREIGN KEY (categoria_id) REFERENCES public.categorias_equipo(id) ON DELETE CASCADE,
@@ -259,9 +259,9 @@ CREATE TABLE public.equipos (
 -- DROP TABLE public.horarios_sucursal;
 
 CREATE TABLE public.horarios_sucursal (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	sucursal_id int8 NOT NULL,
-	dia_semana varchar(20) NOT NULL,
+	dia_semana varchar(10) NOT NULL,
 	hora_apertura time(0) NOT NULL,
 	hora_cierre time(0) NOT NULL,
 	CONSTRAINT horarios_sucursal_pkey PRIMARY KEY (id),
@@ -276,7 +276,7 @@ CREATE TABLE public.horarios_sucursal (
 -- DROP TABLE public.mantenimientos;
 
 CREATE TABLE public.mantenimientos (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	equipo_id int8 NOT NULL,
 	fecha date NOT NULL,
 	descripcion text NOT NULL,
@@ -293,13 +293,13 @@ CREATE TABLE public.mantenimientos (
 -- DROP TABLE public.miembros;
 
 CREATE TABLE public.miembros (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	sucursal_id int8 NOT NULL,
-	nombre varchar(150) NOT NULL,
-	email varchar(150) NULL,
-	telefono varchar(20) NULL,
+	nombre varchar(50) NOT NULL,
+	email varchar(50) NULL,
+	telefono varchar(10) NULL,
 	fecha_nacimiento date NULL,
-	genero varchar(20) NULL,
+	genero varchar(10) CHECK(genero IN ('M','F','Otro'))NULL,
 	estado bool DEFAULT true NOT NULL,
 	datos_adicionales jsonb DEFAULT '{}'::jsonb NOT NULL,
 	created_at timestamp(0) NULL,
@@ -316,7 +316,7 @@ CREATE TABLE public.miembros (
 -- DROP TABLE public.notificaciones;
 
 CREATE TABLE public.notificaciones (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	miembro_id int8 NOT NULL,
 	mensaje text NOT NULL,
 	fecha timestamp(0) DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -333,7 +333,7 @@ CREATE TABLE public.notificaciones (
 -- DROP TABLE public.progreso_miembro;
 
 CREATE TABLE public.progreso_miembro (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	miembro_id int8 NOT NULL,
 	fecha date DEFAULT CURRENT_DATE NOT NULL,
 	metricas jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -349,10 +349,10 @@ CREATE TABLE public.progreso_miembro (
 -- DROP TABLE public.rutinas;
 
 CREATE TABLE public.rutinas (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	miembro_id int8 NOT NULL,
 	entrenador_id int8 NOT NULL,
-	nombre varchar(150) NOT NULL,
+	nombre varchar(50) NOT NULL,
 	fecha_inicio date DEFAULT CURRENT_DATE NOT NULL,
 	CONSTRAINT rutinas_pkey PRIMARY KEY (id),
 	CONSTRAINT rutinas_entrenador_id_foreign FOREIGN KEY (entrenador_id) REFERENCES public.empleados(id) ON DELETE CASCADE,
@@ -367,7 +367,7 @@ CREATE TABLE public.rutinas (
 -- DROP TABLE public.ventas_productos;
 
 CREATE TABLE public.ventas_productos (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	miembro_id int8 NOT NULL,
 	producto_id int8 NOT NULL,
 	cantidad int4 NOT NULL,
@@ -385,7 +385,7 @@ CREATE TABLE public.ventas_productos (
 -- DROP TABLE public.asistencias_empleado;
 
 CREATE TABLE public.asistencias_empleado (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	empleado_id int8 NOT NULL,
 	fecha date NOT NULL,
 	hora_entrada time(0) NULL,
@@ -402,7 +402,7 @@ CREATE TABLE public.asistencias_empleado (
 -- DROP TABLE public.checkins;
 
 CREATE TABLE public.checkins (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	miembro_id int8 NOT NULL,
 	fecha timestamp(0) DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	CONSTRAINT checkins_pkey PRIMARY KEY (id),
@@ -417,10 +417,10 @@ CREATE TABLE public.checkins (
 -- DROP TABLE public.clases;
 
 CREATE TABLE public.clases (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	sucursal_id int8 NOT NULL,
 	entrenador_id int8 NOT NULL,
-	nombre varchar(150) NOT NULL,
+	nombre varchar(50) NOT NULL,
 	capacidad int4 NOT NULL,
 	fecha timestamp(0) NOT NULL,
 	CONSTRAINT clases_pkey PRIMARY KEY (id),
@@ -436,11 +436,11 @@ CREATE TABLE public.clases (
 -- DROP TABLE public.contacto_emergencia;
 
 CREATE TABLE public.contacto_emergencia (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	miembro_id int8 NOT NULL,
-	nombre varchar(150) NOT NULL,
-	telefono varchar(20) NOT NULL,
-	relacion varchar(100) NOT NULL,
+	nombre varchar(50) NOT NULL,
+	telefono varchar(10) NOT NULL,
+	relacion varchar(50) NOT NULL,
 	CONSTRAINT contacto_emergencia_pkey PRIMARY KEY (id),
 	CONSTRAINT contacto_emergencia_miembro_id_foreign FOREIGN KEY (miembro_id) REFERENCES public.miembros(id) ON DELETE CASCADE
 );
@@ -453,7 +453,7 @@ CREATE TABLE public.contacto_emergencia (
 -- DROP TABLE public.detalle_compra;
 
 CREATE TABLE public.detalle_compra (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	compra_id int8 NOT NULL,
 	equipo_id int8 NOT NULL,
 	cantidad int4 NOT NULL,
@@ -486,7 +486,7 @@ CREATE TABLE public.empleado_rol (
 -- DROP TABLE public.evaluaciones_fisicas;
 
 CREATE TABLE public.evaluaciones_fisicas (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	miembro_id int8 NOT NULL,
 	fecha date DEFAULT CURRENT_DATE NOT NULL,
 	resultados jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -503,7 +503,7 @@ CREATE TABLE public.evaluaciones_fisicas (
 -- DROP TABLE public.membresias;
 
 CREATE TABLE public.membresias (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	miembro_id int8 NOT NULL,
 	tipo_membresia_id int8 NOT NULL,
 	fecha_inicio date NOT NULL,
@@ -522,7 +522,7 @@ CREATE TABLE public.membresias (
 -- DROP TABLE public.pagos;
 
 CREATE TABLE public.pagos (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	membresia_id int8 NOT NULL,
 	monto numeric(10, 2) NOT NULL,
 	fecha_pago date DEFAULT CURRENT_DATE NOT NULL,
@@ -540,7 +540,7 @@ CREATE TABLE public.pagos (
 -- DROP TABLE public.reservas_clase;
 
 CREATE TABLE public.reservas_clase (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	clase_id int8 NOT NULL,
 	miembro_id int8 NOT NULL,
 	estado varchar(50) DEFAULT 'reservado'::character varying NOT NULL,
@@ -575,7 +575,7 @@ CREATE TABLE public.rutina_ejercicio (
 -- DROP TABLE public.facturas;
 
 CREATE TABLE public.facturas (
-	id bigserial NOT NULL,
+	id bigserial PRIMARY KEY,
 	pago_id int8 NOT NULL,
 	fecha timestamp(0) DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	total numeric(10, 2) NOT NULL,

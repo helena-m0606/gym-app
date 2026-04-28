@@ -1,4 +1,3 @@
-
 -- public.categorias_equipo definition
 
 -- Drop table

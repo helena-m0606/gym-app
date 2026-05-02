@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MiembroController extends Controller
 {
@@ -11,7 +12,9 @@ class MiembroController extends Controller
      */
     public function index()
     {
-        //
+        $miembros = DB::table('miembros')->get();
+
+        return response()->json($miembros);
     }
 
     /**
@@ -19,7 +22,7 @@ class MiembroController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json(['message' => 'Formulario no implementado']);
     }
 
     /**
@@ -27,7 +30,19 @@ class MiembroController extends Controller
      */
     public function store(Request $request)
     {
-        //
+            $data = $request->only([
+            'sucursal_id',
+            'nombre',
+            'email',
+            'telefono',
+            'fecha_nacimiento',
+            'genero'
+        ]);
+
+        $data['created_at'] = now();
+        $data['updated_at'] = now();
+
+        DB::table('miembros')->insert($data);
     }
 
     /**
@@ -51,14 +66,31 @@ class MiembroController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+            $data = $request->only([
+            'sucursal_id',
+            'nombre',
+            'email',
+            'telefono',
+            'fecha_nacimiento',
+            'genero'
+        ]);
+
+        $data['updated_at'] = now();
+
+        DB::table('miembros')
+            ->where('id', $id)
+            ->update($data);
+
+        return response()->json(['message' => 'Miembro actualizado']);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
-        //
+        DB::table('miembros')->where('id', $id)->delete();
+
+        return response()->json(['message' => 'Miembro eliminado']);
     }
 }

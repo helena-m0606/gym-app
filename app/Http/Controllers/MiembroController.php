@@ -30,19 +30,29 @@ class MiembroController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+                'sucursal_id' => 'required|integer',
+                'nombre' => 'required|string|max:150',
+                'email' => 'required|email|max:150'
+            ]);
+
             $data = $request->only([
-            'sucursal_id',
-            'nombre',
-            'email',
-            'telefono',
-            'fecha_nacimiento',
-            'genero'
-        ]);
+                'sucursal_id',
+                'nombre',
+                'email',
+                'telefono',
+                'fecha_nacimiento',
+                'genero'
+            ]);
 
-        $data['created_at'] = now();
-        $data['updated_at'] = now();
+            $data['created_at'] = now();
+            $data['updated_at'] = now();
 
-        DB::table('miembros')->insert($data);
+            DB::table('miembros')->insert($data);
+
+            return response()->json([
+                'message' => 'Miembro creado correctamente'
+            ]);
     }
 
     /**

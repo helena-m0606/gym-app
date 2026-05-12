@@ -3,12 +3,14 @@
 use App\Http\Controllers\MiembroController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\FranquiciaController;
-use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Features;
 
-Route::inertia('/', 'welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/', function () {
+    return Inertia::render('dashboard');
+});
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
@@ -31,5 +33,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('franquicias', [FranquiciaController::class, 'store'])
     ->name('franquicias.store');
 });
-
 require __DIR__.'/settings.php';

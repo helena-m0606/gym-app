@@ -99,5 +99,3 @@ export default function Dashboard() {
                 </div>
             </section>
         </GymLayout>
-    );
-}

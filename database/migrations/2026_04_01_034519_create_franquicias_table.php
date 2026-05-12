@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('franquicias', function (Blueprint $table) {
             $table->id();
             
-            $table->string('nombre', 150);
-            $table->string('razon_social', 150);
-            $table->string('rfc', 20)->unique();
+            $table->string('nombre', 50);
+            $table->string('razon_social', 50);
+            $table->string('rfc', 12)->unique();
             
             $table->timestamps();
         });

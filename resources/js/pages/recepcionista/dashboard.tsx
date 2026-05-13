@@ -8,7 +8,32 @@ const menuItems = [
     { label: 'Pagos', href: '/recepcionista/pagos', icon: '💰' },
 ];
 
-export default function RecepcionistaDashboard() {
+type Checkin = {
+    nombre: string;
+    fecha: string;
+};
+
+type Membresia = {
+    nombre: string;
+    fecha_fin: string;
+    activa: boolean;
+};
+
+type Props = {
+    checkinsHoy: number;
+    membresiasPorVencer: number;
+    nuevosEsteMes: number;
+    ultimosCheckins: Checkin[];
+    membresiasVencer: Membresia[];
+};
+
+export default function RecepcionistaDashboard({
+    checkinsHoy,
+    membresiasPorVencer,
+    nuevosEsteMes,
+    ultimosCheckins,
+    membresiasVencer,
+}: Props) {
     const currentPath = window.location.pathname;
 
     return (
@@ -51,15 +76,15 @@ export default function RecepcionistaDashboard() {
                     <section className="grid grid-cols-3 gap-5">
                         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                             <p className="text-gray-500">Check-ins Hoy</p>
-                            <h3 className="mt-3 text-4xl font-bold text-green-500">47</h3>
+                            <h3 className="mt-3 text-4xl font-bold text-green-500">{checkinsHoy}</h3>
                         </div>
                         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                             <p className="text-gray-500">Membresías por Vencer</p>
-                            <h3 className="mt-3 text-4xl font-bold text-yellow-500">8</h3>
+                            <h3 className="mt-3 text-4xl font-bold text-yellow-500">{membresiasPorVencer}</h3>
                         </div>
                         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                             <p className="text-gray-500">Nuevos este Mes</p>
-                            <h3 className="mt-3 text-4xl font-bold text-orange-500">12</h3>
+                            <h3 className="mt-3 text-4xl font-bold text-orange-500">{nuevosEsteMes}</h3>
                         </div>
                     </section>
 
@@ -76,18 +101,12 @@ export default function RecepcionistaDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr className="border-t border-gray-100">
-                                        <td className="p-5 font-medium">Pedro Sánchez</td>
-                                        <td>08:30 AM</td>
-                                    </tr>
-                                    <tr className="border-t border-gray-100">
-                                        <td className="p-5 font-medium">Laura Vega</td>
-                                        <td>10:00 AM</td>
-                                    </tr>
-                                    <tr className="border-t border-gray-100">
-                                        <td className="p-5 font-medium">Miguel Ruiz</td>
-                                        <td>07:45 AM</td>
-                                    </tr>
+                                    {ultimosCheckins.map((checkin, i) => (
+                                        <tr key={i} className="border-t border-gray-100">
+                                            <td className="p-5 font-medium">{checkin.nombre}</td>
+                                            <td>{new Date(checkin.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
@@ -105,21 +124,20 @@ export default function RecepcionistaDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr className="border-t border-gray-100">
-                                        <td className="p-5 font-medium">Pedro Sánchez</td>
-                                        <td>31/03/2026</td>
-                                        <td className="text-red-500">Vencida</td>
-                                    </tr>
-                                    <tr className="border-t border-gray-100">
-                                        <td className="p-5 font-medium">Valeria Moreno</td>
-                                        <td>02/03/2026</td>
-                                        <td className="text-red-500">Vencida</td>
-                                    </tr>
-                                    <tr className="border-t border-gray-100">
-                                        <td className="p-5 font-medium">Fernando Castro</td>
-                                        <td>09/04/2026</td>
-                                        <td className="text-yellow-500">Por vencer</td>
-                                    </tr>
+                                    {membresiasVencer.map((m, i) => {
+                                        const vence = new Date(m.fecha_fin);
+                                        const hoy = new Date();
+                                        const diff = Math.ceil((vence.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                                        const estado = diff < 0 ? 'Vencida' : diff <= 7 ? 'Por vencer' : 'Activa';
+                                        const color = diff < 0 ? 'text-red-500' : diff <= 7 ? 'text-yellow-500' : 'text-green-500';
+                                        return (
+                                            <tr key={i} className="border-t border-gray-100">
+                                                <td className="p-5 font-medium">{m.nombre}</td>
+                                                <td>{vence.toLocaleDateString('es-MX')}</td>
+                                                <td className={color}>{estado}</td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

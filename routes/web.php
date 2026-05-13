@@ -3,6 +3,7 @@
 use App\Http\Controllers\MiembroController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\FranquiciaController;
+use App\Http\Controllers\RecepcionistaController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,10 +34,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('franquicias', [FranquiciaController::class, 'store'])
     ->name('franquicias.store');
 
-
-    Route::get('recepcionista/dashboard', function () {
-    return Inertia::render('recepcionista/dashboard');
-})->name('recepcionista.dashboard');
+    Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboard'])
+    ->name('recepcionista.dashboard');
 
 
 });

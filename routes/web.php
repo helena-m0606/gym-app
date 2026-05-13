@@ -32,5 +32,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('franquicias', [FranquiciaController::class, 'store'])
     ->name('franquicias.store');
+
+
+    Route::get('recepcionista/dashboard', function () {
+    return Inertia::render('recepcionista/dashboard');
+})->name('recepcionista.dashboard');
+
+
 });
 require __DIR__.'/settings.php';

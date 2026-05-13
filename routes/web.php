@@ -4,6 +4,7 @@ use App\Http\Controllers\MiembroController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\FranquiciaController;
 use App\Http\Controllers\RecepcionistaController;
+use App\Http\Controllers\EntrenadorController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,6 +38,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboard'])
     ->name('recepcionista.dashboard');
 
+    Route::get('entrenador/dashboard', [EntrenadorController::class, 'dashboard'])
+    ->name('entrenador.dashboard');
 
 });
 require __DIR__.'/settings.php';

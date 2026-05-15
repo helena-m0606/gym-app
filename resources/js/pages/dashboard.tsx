@@ -1,3 +1,5 @@
+import { Link } from '@inertiajs/react';
+
 import GymLayout from '@/layouts/gym-layout';
 
 export default function Dashboard() {
@@ -6,13 +8,16 @@ export default function Dashboard() {
             title="Dashboard General"
             subtitle="Sistema de administración del gimnasio."
         >
-            <div className="mb-8 flex justify-end">
-                <button className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600">
+            <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <Link
+                    href="/miembros"
+                    className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600"
+                >
                     + Nuevo Miembro
-                </button>
+                </Link>
             </div>
 
-            <section className="grid grid-cols-3 gap-5">
+            <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <p className="text-gray-500">Miembros Activos</p>
                     <h3 className="mt-3 text-4xl font-bold text-orange-500">
@@ -35,7 +40,7 @@ export default function Dashboard() {
                 </div>
             </section>
 
-            <section className="mt-8 grid grid-cols-2 gap-5">
+            <section className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
                 <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
                     <div className="border-b border-gray-200 p-5 font-semibold">
                         Clases del Día

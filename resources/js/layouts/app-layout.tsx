@@ -27,21 +27,21 @@ export default function AppLayout({ children }: Props) {
                         </Link>
 
                         <Link
-                            href="/miembros-page"
+                            href="/miembros"
                             className="hover:text-cyan-400 transition"
                         >
                             Miembros
                         </Link>
 
                         <Link
-                            href="/membresias-page"
+                            href="/membresias"
                             className="hover:text-cyan-400 transition"
                         >
                             Membresías
                         </Link>
 
                         <Link
-                            href="/pagos-page"
+                            href="/pagos"
                             className="hover:text-cyan-400 transition"
                         >
                             Pagos

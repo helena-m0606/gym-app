@@ -55,7 +55,7 @@ export default function MiembrosIndex({
                     Registrar nuevo miembro
                 </h3>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <select
                             value={data.sucursal_id}
@@ -186,7 +186,7 @@ export default function MiembrosIndex({
                     Lista de Miembros
                 </div>
 
-                <table className="w-full text-left text-sm">
+                <table className="min-w-[900px] w-full text-left text-sm">
                     <thead className="bg-gray-50 text-gray-500">
                         <tr>
                             <th className="p-5">Nombre</th>

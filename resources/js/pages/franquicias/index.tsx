@@ -36,7 +36,7 @@ export default function FranquiciasIndex({
             >
                 <h3 className="mb-5 text-lg font-semibold">Registrar franquicia</h3>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div>
                         <input
                             type="text"
@@ -79,12 +79,12 @@ export default function FranquiciasIndex({
                 </button>
             </form>
 
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                 <div className="border-b border-gray-200 p-5 font-semibold">
                     Lista de Franquicias
                 </div>
 
-                <table className="w-full text-left text-sm">
+                <table className="min-w-[650px] w-full text-left text-sm">
                     <thead className="bg-gray-50 text-gray-500">
                         <tr>
                             <th className="p-5">Nombre</th>

@@ -6,6 +6,8 @@ use App\Http\Controllers\FranquiciaController;
 use App\Http\Controllers\RecepcionistaController;
 use App\Http\Controllers\EntrenadorController;
 use App\Http\Controllers\MiembroPerfilController;
+use App\Http\Controllers\MembresiaController;
+use App\Http\Controllers\PagoController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -31,19 +33,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('sucursales.store');
 
     Route::get('franquicias', [FranquiciaController::class, 'index'])
-    ->name('franquicias.index');
+        ->name('franquicias.index');
 
     Route::post('franquicias', [FranquiciaController::class, 'store'])
-    ->name('franquicias.store');
+        ->name('franquicias.store');
+
+    Route::get('membresias', [MembresiaController::class, 'index'])
+        ->name('membresias.index');
+
+    Route::post('membresias', [MembresiaController::class, 'store'])
+        ->name('membresias.store');
+
+    Route::get('pagos', [PagoController::class, 'index'])
+        ->name('pagos.index');
+
+    Route::post('pagos', [PagoController::class, 'store'])
+        ->name('pagos.store');
 
     Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboard'])
-    ->name('recepcionista.dashboard');
+        ->name('recepcionista.dashboard');
 
     Route::get('entrenador/dashboard', [EntrenadorController::class, 'dashboard'])
-    ->name('entrenador.dashboard');
+        ->name('entrenador.dashboard');
 
     Route::get('miembro/dashboard', [MiembroPerfilController::class, 'dashboard'])
-    ->name('miembro.dashboard');
-
+        ->name('miembro.dashboard');
 });
+
 require __DIR__.'/settings.php';

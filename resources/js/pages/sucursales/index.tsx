@@ -54,7 +54,7 @@ export default function SucursalesIndex({
                     Registrar nueva sucursal
                 </h3>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <select
                             value={data.franquicia_id}
@@ -96,7 +96,7 @@ export default function SucursalesIndex({
                         />
                     </div>
 
-                    <div className="col-span-2">
+                    <div className="md:col-span-2">
                         <input
                             type="text"
                             placeholder="Dirección"
@@ -141,12 +141,12 @@ export default function SucursalesIndex({
                 </button>
             </form>
 
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                 <div className="border-b border-gray-200 p-5 font-semibold">
                     Lista de Sucursales
                 </div>
 
-                <table className="w-full text-left text-sm">
+                <table className="min-w-[800px] w-full text-left text-sm">
                     <thead className="bg-gray-50 text-gray-500">
                         <tr>
                             <th className="p-5">Sucursal</th>

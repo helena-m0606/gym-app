@@ -24,13 +24,13 @@ export default function GymLayout({ children, title, subtitle }: GymLayoutProps)
 
     return (
         <div className="min-h-screen bg-[#f3f4f6] text-gray-900">
-            <div className="flex min-h-screen">
-                <aside className="w-64 border-r border-gray-200 bg-white p-6 shadow-sm">
+            <div className="min-h-screen lg:flex">
+    <aside className="border-b border-gray-200 bg-white p-4 shadow-sm lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r lg:p-6">
                     <h1 className="mb-10 text-2xl font-bold tracking-widest">
                         <span className="text-orange-500">GYM</span>APP
                     </h1>
 
-                    <nav className="space-y-2 text-sm">
+                    <nav className="flex gap-2 overflow-x-auto text-sm lg:block lg:space-y-2 lg:overflow-visible">
                         {menuItems.map((item) => {
                             const isActive = currentPath.startsWith(item.href);
 
@@ -40,8 +40,8 @@ export default function GymLayout({ children, title, subtitle }: GymLayoutProps)
                                     href={item.href}
                                     className={
                                         isActive
-                                            ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
-                                            : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                            ? 'whitespace-nowrap rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600 lg:block'
+                                            : 'whitespace-nowrap rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900 lg:block'
                                     }
                                 >
                                     <span className="mr-2">{item.icon}</span>
@@ -52,7 +52,7 @@ export default function GymLayout({ children, title, subtitle }: GymLayoutProps)
                     </nav>
                 </aside>
 
-                <main className="flex-1 p-10">
+                <main className="flex-1 p-4 sm:p-6 lg:p-10">
                     {(title || subtitle) && (
                         <div className="mb-8">
                             <span className="rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-600">

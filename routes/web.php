@@ -3,6 +3,9 @@
 use App\Http\Controllers\MiembroController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\FranquiciaController;
+use App\Http\Controllers\RecepcionistaController;
+use App\Http\Controllers\EntrenadorController;
+use App\Http\Controllers\MiembroPerfilController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\PagoController;
 
@@ -29,6 +32,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('sucursales', [SucursalController::class, 'store'])
         ->name('sucursales.store');
 
+    Route::get('franquicias', [FranquiciaController::class, 'index'])
+        ->name('franquicias.index');
+
+    Route::post('franquicias', [FranquiciaController::class, 'store'])
+        ->name('franquicias.store');
+
     Route::get('membresias', [MembresiaController::class, 'index'])
         ->name('membresias.index');
 
@@ -40,5 +49,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('pagos', [PagoController::class, 'store'])
         ->name('pagos.store');
+
+    Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboard'])
+        ->name('recepcionista.dashboard');
+
+    Route::get('entrenador/dashboard', [EntrenadorController::class, 'dashboard'])
+        ->name('entrenador.dashboard');
+
+    Route::get('miembro/dashboard', [MiembroPerfilController::class, 'dashboard'])
+        ->name('miembro.dashboard');
 });
+
 require __DIR__.'/settings.php';

@@ -13,11 +13,13 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('dashboard');
+    return redirect('/login');
 });
 
-
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/redirect', \App\Http\Controllers\Auth\LoginRedirectController::class)
+        ->name('redirect');
+
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
     Route::get('miembros', [MiembroController::class, 'index'])

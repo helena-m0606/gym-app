@@ -14,7 +14,33 @@ const menuItems = [
     { label: 'Equipos', href: '/equipos', icon: '🛠️' },
 ];
 
-export default function Dashboard() {
+type Clase = {
+    nombre: string;
+    fecha: string;
+    capacidad: number;
+};
+
+type Pago = {
+    nombre: string;
+    monto: number;
+    estado: string;
+};
+
+type Props = {
+    miembrosActivos: number;
+    checkinsHoy: number;
+    pagosPendientes: number;
+    clasesHoy: Clase[];
+    pagosRecientes: Pago[];
+};
+
+export default function Dashboard({
+    miembrosActivos,
+    checkinsHoy,
+    pagosPendientes,
+    clasesHoy,
+    pagosRecientes,
+}: Props) {
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -35,40 +61,41 @@ export default function Dashboard() {
             <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <p className="text-gray-500">Miembros Activos</p>
-                    <h3 className="mt-3 text-4xl font-bold text-orange-500">24</h3>
+                    <h3 className="mt-3 text-4xl font-bold text-orange-500">{miembrosActivos}</h3>
                 </div>
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <p className="text-gray-500">Check-ins Hoy</p>
-                    <h3 className="mt-3 text-4xl font-bold text-green-500">47</h3>
+                    <h3 className="mt-3 text-4xl font-bold text-green-500">{checkinsHoy}</h3>
                 </div>
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <p className="text-gray-500">Pagos Pendientes</p>
-                    <h3 className="mt-3 text-4xl font-bold text-yellow-500">8</h3>
+                    <p className="text-gray-500">Membresías Vencidas</p>
+                    <h3 className="mt-3 text-4xl font-bold text-yellow-500">{pagosPendientes}</h3>
                 </div>
             </section>
 
             <section className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
                 <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-                    <div className="border-b border-gray-200 p-5 font-semibold">Clases del Día</div>
+                    <div className="border-b border-gray-200 p-5 font-semibold">Clases de Hoy</div>
                     <table className="w-full text-left text-sm">
                         <thead className="text-gray-500">
                             <tr>
                                 <th className="p-5">Clase</th>
                                 <th>Hora</th>
-                                <th>Asistentes</th>
+                                <th>Capacidad</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="border-t border-gray-100">
-                                <td className="p-5 font-medium">Yoga Matutino</td>
-                                <td>07:00 AM</td>
-                                <td>12/15</td>
-                            </tr>
-                            <tr className="border-t border-gray-100">
-                                <td className="p-5 font-medium">Spinning</td>
-                                <td>09:00 AM</td>
-                                <td>8/20</td>
-                            </tr>
+                            {clasesHoy.length > 0 ? clasesHoy.map((clase, i) => (
+                                <tr key={i} className="border-t border-gray-100">
+                                    <td className="p-5 font-medium">{clase.nombre}</td>
+                                    <td>{new Date(clase.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</td>
+                                    <td>{clase.capacidad}</td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td className="p-5 text-gray-400" colSpan={3}>No hay clases hoy</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -84,16 +111,15 @@ export default function Dashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="border-t border-gray-100">
-                                <td className="p-5 font-medium">Pedro S.</td>
-                                <td>$599</td>
-                                <td className="text-green-500">Pagado</td>
-                            </tr>
-                            <tr className="border-t border-gray-100">
-                                <td className="p-5 font-medium">Laura V.</td>
-                                <td>$599</td>
-                                <td className="text-yellow-500">Pendiente</td>
-                            </tr>
+                            {pagosRecientes.map((pago, i) => (
+                                <tr key={i} className="border-t border-gray-100">
+                                    <td className="p-5 font-medium">{pago.nombre}</td>
+                                    <td>${pago.monto}</td>
+                                    <td className={pago.estado === 'pagado' ? 'text-green-500' : 'text-yellow-500'}>
+                                        {pago.estado}
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>

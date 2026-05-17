@@ -22,10 +22,10 @@ export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, 
 
     return (
         <div className="min-h-screen bg-[#f3f4f6] text-gray-900">
-            <div className="min-h-screen lg:flex">
+            <div className="lg:flex">
 
                 {/* SIDEBAR DESKTOP */}
-                <aside className="hidden lg:flex lg:flex-col lg:w-64 border-r border-gray-200 bg-white p-6 shadow-sm">
+                <aside className="hidden lg:flex lg:flex-col lg:w-64 border-r border-gray-200 bg-white p-6 shadow-sm sticky top-0 h-screen overflow-y-auto">
                     <h1 className="mb-10 text-2xl font-bold tracking-widest">
                         <span className="text-orange-500">GYM</span>APP
                     </h1>
@@ -128,7 +128,7 @@ export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, 
                     </div>
                 )}
 
-                <main className="flex-1 p-4 sm:p-6 lg:p-10">
+                <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto">
                     <div className="mb-8">
                         <span className={`rounded-full border px-4 py-2 text-sm ${rolColor}`}>
                             {rolLabel}

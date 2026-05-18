@@ -37,17 +37,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('sucursales', [SucursalController::class, 'store'])
         ->name('sucursales.store');
 
-
     Route::get('franquicias', [FranquiciaController::class, 'index'])
         ->name('franquicias.index');
 
     Route::post('franquicias', [FranquiciaController::class, 'store'])
         ->name('franquicias.store');
 
-    Route::put('franquicias/{franquicia}', [FranquiciaController::class, 'update'])   // 👈
+    Route::put('franquicias/{franquicia}', [FranquiciaController::class, 'update'])
         ->name('franquicias.update');
         
-    Route::delete('franquicias/{franquicia}', [FranquiciaController::class, 'destroy']) // 👈
+    Route::delete('franquicias/{franquicia}', [FranquiciaController::class, 'destroy'])
         ->name('franquicias.destroy');
 
     Route::get('membresias', [MembresiaController::class, 'index'])

@@ -41,4 +41,27 @@ class SucursalController extends Controller
 
         return redirect()->route('sucursales.index');
     }
+
+    public function update(Request $request, Sucursal $sucursal)
+    {
+        $validated = $request->validate([
+            'franquicia_id' => 'required|exists:franquicias,id',
+            'nombre'        => 'required|string|max:50',
+            'direccion'     => 'required|string|max:100',
+            'ciudad'        => 'required|string|max:50',
+            'telefono'      => 'nullable|string|max:10',
+            'activa'        => 'boolean',
+        ]);
+
+        $sucursal->update($validated);
+
+        return redirect()->back();
+    }
+
+    public function destroy(Sucursal $sucursal)
+    {
+        $sucursal->delete();
+
+        return redirect()->back();
+    }
 }

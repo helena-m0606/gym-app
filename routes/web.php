@@ -18,59 +18,70 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/redirect', \App\Http\Controllers\Auth\LoginRedirectController::class)
-        ->name('redirect');
+Route::get('/redirect', \App\Http\Controllers\Auth\LoginRedirectController::class)
+    ->name('redirect');
 
-    Route::get('dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard');
 
-    Route::get('miembros', [MiembroController::class, 'index'])
-        ->name('miembros.index');
+Route::get('miembros', [MiembroController::class, 'index'])
+    ->name('miembros.index');
 
-    Route::post('miembros', [MiembroController::class, 'store'])
-        ->name('miembros.store');
+Route::post('miembros', [MiembroController::class, 'store'])
+    ->name('miembros.store');
 
-    Route::get('sucursales', [SucursalController::class, 'index'])
-        ->name('sucursales.index');
+Route::put('miembros/{miembro}', [MiembroController::class, 'update'])
+    ->name('miembros.update');
 
-    Route::post('sucursales', [SucursalController::class, 'store'])
-        ->name('sucursales.store');
+Route::delete('miembros/{miembro}', [MiembroController::class, 'destroy']) 
+    ->name('miembros.destroy');
 
+Route::get('miembro/dashboard', [MiembroPerfilController::class, 'dashboard'])
+    ->name('miembro.dashboard');
 
-    Route::get('franquicias', [FranquiciaController::class, 'index'])
-        ->name('franquicias.index');
+Route::get('sucursales', [SucursalController::class, 'index'])
+    ->name('sucursales.index');
 
-    Route::post('franquicias', [FranquiciaController::class, 'store'])
-        ->name('franquicias.store');
+Route::post('sucursales', [SucursalController::class, 'store'])
+    ->name('sucursales.store');
 
-    Route::put('franquicias/{franquicia}', [FranquiciaController::class, 'update'])   // 👈
-        ->name('franquicias.update');
-        
-    Route::delete('franquicias/{franquicia}', [FranquiciaController::class, 'destroy']) // 👈
-        ->name('franquicias.destroy');
+Route::put('sucursales/{sucursal}', [SucursalController::class, 'update'])  
+    ->name('sucursales.update');
+    
+Route::delete('sucursales/{sucursal}', [SucursalController::class, 'destroy'])
+    ->name('sucursales.destroy');
 
     
+Route::get('franquicias', [FranquiciaController::class, 'index'])
+    ->name('franquicias.index');
 
-    Route::get('membresias', [MembresiaController::class, 'index'])
-        ->name('membresias.index');
+Route::post('franquicias', [FranquiciaController::class, 'store'])
+    ->name('franquicias.store');
 
-    Route::post('membresias', [MembresiaController::class, 'store'])
-        ->name('membresias.store');
+Route::put('franquicias/{franquicia}', [FranquiciaController::class, 'update'])   
+    ->name('franquicias.update');
+    
+Route::delete('franquicias/{franquicia}', [FranquiciaController::class, 'destroy'])
+    ->name('franquicias.destroy');
 
-    Route::get('pagos', [PagoController::class, 'index'])
-        ->name('pagos.index');
+Route::get('membresias', [MembresiaController::class, 'index'])
+    ->name('membresias.index');
 
-    Route::post('pagos', [PagoController::class, 'store'])
-        ->name('pagos.store');
+Route::post('membresias', [MembresiaController::class, 'store'])
+    ->name('membresias.store');
 
-    Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboard'])
-        ->name('recepcionista.dashboard');
+Route::get('pagos', [PagoController::class, 'index'])
+    ->name('pagos.index');
 
-    Route::get('entrenador/dashboard', [EntrenadorController::class, 'dashboard'])
-        ->name('entrenador.dashboard');
+Route::post('pagos', [PagoController::class, 'store'])
+    ->name('pagos.store');
 
-    Route::get('miembro/dashboard', [MiembroPerfilController::class, 'dashboard'])
-        ->name('miembro.dashboard');
+Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboard'])
+    ->name('recepcionista.dashboard');
+
+Route::get('entrenador/dashboard', [EntrenadorController::class, 'dashboard'])
+    ->name('entrenador.dashboard');
+
 });
 
 require __DIR__.'/settings.php';

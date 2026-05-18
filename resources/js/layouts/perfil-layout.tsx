@@ -27,7 +27,7 @@ export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, 
                 {/* SIDEBAR DESKTOP */}
                 <aside className="hidden lg:flex lg:flex-col lg:w-64 border-r border-gray-200 bg-white p-6 shadow-sm sticky top-0 h-screen overflow-y-auto">
                     <h1 className="mb-10 text-2xl font-bold tracking-widest">
-                        <span className="text-orange-500">GYM</span>APP
+                        <span className="text-orange-500">Titan</span>GYM
                     </h1>
                     <nav className="space-y-2 text-sm flex-1">
                         {menuItems.map((item) => {
@@ -70,7 +70,7 @@ export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, 
                             ☰
                         </button>
                         <h1 className="text-xl font-bold tracking-widest">
-                            <span className="text-orange-500">GYM</span>APP
+                            <span className="text-orange-500">Titan</span>GYM
                         </h1>
                     </div>
                 </div>
@@ -85,7 +85,7 @@ export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, 
                         <div className="relative z-50 w-64 bg-white h-full shadow-xl flex flex-col p-6">
                             <div className="flex items-center justify-between mb-8">
                                 <h1 className="text-xl font-bold tracking-widest">
-                                    <span className="text-orange-500">GYM</span>APP
+                                    <span className="text-orange-500">Titan</span>GYM
                                 </h1>
                                 <button
                                     onClick={() => setMenuAbierto(false)}

@@ -23,7 +23,6 @@ type Franquicia = {
     rfc: string;
 };
 
-// ── Icono lápiz ──────────────────────────────────────────────────────────────
 function IconEdit() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -34,7 +33,6 @@ function IconEdit() {
     );
 }
 
-// ── Icono papelera ────────────────────────────────────────────────────────────
 function IconTrash() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -47,7 +45,7 @@ function IconTrash() {
     );
 }
 
-// ── Modal base ────────────────────────────────────────────────────────────────
+// Modal base
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
     if (!open) return null;
     return (
@@ -66,7 +64,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function FranquiciasIndex({ franquicias }: { franquicias: Franquicia[] }) {
-    // ── Crear ──────────────────────────────────────────────────────────────────
+    // ── Crear ──
     const { data, setData, post, processing, errors, reset } = useForm({
         nombre: '',
         razon_social: '',
@@ -78,7 +76,7 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
         post('/franquicias', { onSuccess: () => reset() });
     }
 
-    // ── Editar ─────────────────────────────────────────────────────────────────
+    // ── Editar ──
     const [editTarget, setEditTarget] = useState<Franquicia | null>(null);
     const editForm = useForm({ nombre: '', razon_social: '', rfc: '' });
 
@@ -95,7 +93,7 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
         });
     }
 
-    // ── Eliminar ───────────────────────────────────────────────────────────────
+    // ── Eliminar ───
     const [deleteTarget, setDeleteTarget] = useState<Franquicia | null>(null);
     const [deleting, setDeleting] = useState(false);
 
@@ -107,8 +105,6 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
             onError: () => setDeleting(false),
         });
     }
-
-    // ──────────────────────────────────────────────────────────────────────────
     return (
         <PerfilLayout
             menuItems={menuItems}

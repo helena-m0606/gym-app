@@ -14,7 +14,7 @@ const menuItems = [
     { label: 'Rutinas', href: '/rutinas', icon: '📈' },
     { label: 'Productos', href: '/productos', icon: '🛒' },
     { label: 'Equipos', href: '/equipos', icon: '🛠️' },
-];
+    ]; 
 
 type Sucursal = {
     id: number;

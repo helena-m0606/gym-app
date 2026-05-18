@@ -9,6 +9,7 @@ use App\Http\Controllers\MiembroPerfilController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GerenteController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -62,6 +63,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('miembro/dashboard', [MiembroPerfilController::class, 'dashboard'])
         ->name('miembro.dashboard');
+
+    Route::get('gerente/dashboard', [GerenteController::class, 'dashboard'])
+        ->name('gerente.dashboard');
 });
 
 require __DIR__.'/settings.php';

@@ -10,6 +10,7 @@ use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GerenteController;
+use App\Http\Controllers\EmpleadoController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,8 +29,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('miembros', [MiembroController::class, 'index'])
         ->name('miembros.index');
 
-    Route::post('miembros', [MiembroController::class, 'store'])
-        ->name('miembros.store');
+    Route::get('empleados', [EmpleadoController::class, 'index'])
+        ->name('empleados.index');
+
+    Route::post('empleados', [EmpleadoController::class, 'store'])
+        ->name('empleados.store');
+
+    Route::put('empleados/{id}', [EmpleadoController::class, 'update']) // 👈 RUTA PARA EDITAR
+        ->name('empleados.update');
+
+    Route::delete('empleados/{id}', [EmpleadoController::class, 'destroy']) // 👈 RUTA PARA ELIMINAR
+        ->name('empleados.destroy');
+
+    Route::post('empleados', [EmpleadoController::class, 'store'])
+        ->name('empleados.store');
 
     Route::get('sucursales', [SucursalController::class, 'index'])
         ->name('sucursales.index');

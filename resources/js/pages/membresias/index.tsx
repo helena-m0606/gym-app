@@ -2,18 +2,33 @@ import { useState } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import PerfilLayout from '@/layouts/perfil-layout';
 
-const menuItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-    { label: 'Miembros', href: '/miembros', icon: '👥' },
-    { label: 'Sucursales', href: '/sucursales', icon: '🏢' },
-    { label: 'Franquicias', href: '/franquicias', icon: '🏬' },
-    { label: 'Membresías', href: '/membresias', icon: '💳' },
-    { label: 'Pagos', href: '/pagos', icon: '💰' },
-    { label: 'Clases', href: '/clases', icon: '🏋️' },
-    { label: 'Rutinas', href: '/rutinas', icon: '📈' },
-    { label: 'Productos', href: '/productos', icon: '🛒' },
-    { label: 'Equipos', href: '/equipos', icon: '🛠️' },
-];
+type Membresia = {
+    id: number;
+    miembro: string;
+    tipo: string;
+    precio: number;
+    fecha_inicio: string;
+    fecha_fin: string;
+    activa: boolean;
+};
+
+type TipoMembresia = {
+    id: number;
+    nombre: string;
+    precio: number;
+    duracion_dias: number;
+};
+
+type Miembro = {
+    id: number;
+    nombre: string;
+};
+
+type Props = {
+    membresias: Membresia[];
+    tiposMembresia: TipoMembresia[];
+    miembros: Miembro[];
+};
 
 function IconEdit() {
     return (
@@ -49,34 +64,6 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
     );
 }
 
-type Membresia = {
-    id: number;
-    miembro: string;
-    tipo: string;
-    precio: number;
-    fecha_inicio: string;
-    fecha_fin: string;
-    activa: boolean;
-};
-
-type TipoMembresia = {
-    id: number;
-    nombre: string;
-    precio: number;
-    duracion_dias: number;
-};
-
-type Miembro = {
-    id: number;
-    nombre: string;
-};
-
-type Props = {
-    membresias: Membresia[];
-    tiposMembresia: TipoMembresia[];
-    miembros: Miembro[];
-};
-
 export default function MembresiasIndex({ membresias, tiposMembresia, miembros }: Props) {
     const [editando, setEditando] = useState<Membresia | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Membresia | null>(null);
@@ -84,6 +71,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
     const [editandoTipo, setEditandoTipo] = useState<TipoMembresia | null>(null);
     const [deleteTipoTarget, setDeleteTipoTarget] = useState<TipoMembresia | null>(null);
     const [deletingTipo, setDeletingTipo] = useState(false);
+    
     const [busqueda, setBusqueda] = useState('');
     const [filtroTipo, setFiltroTipo] = useState('');
     const [filtroEstado, setFiltroEstado] = useState('');
@@ -174,15 +162,26 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
 
     const hoy = new Date();
 
+    // Lógica compartida de filtrado para reutilizar en móvil y web
+    const membresiasFiltradas = membresias.filter((m) => {
+        const vence = new Date(m.fecha_fin);
+        const diff = Math.ceil((vence.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+        const estadoTexto = diff < 0 ? 'vencida' : diff <= 7 ? 'por vencer' : 'activa';
+        return (
+            m.miembro.toLowerCase().includes(busqueda.toLowerCase()) &&
+            (filtroTipo === '' || m.tipo === filtroTipo) &&
+            (filtroEstado === '' || estadoTexto === filtroEstado)
+        );
+    });
+
     return (
         <PerfilLayout
-            menuItems={menuItems}
             rolLabel="🏆 Administrador — Acceso Total"
             rolColor="border-blue-200 bg-blue-50 text-blue-600"
             title="Membresías"
             subtitle="Gestión de planes y membresías de los miembros."
         >
-            {/* ── TIPOS DE MEMBRESÍA ── */}
+            {/* ── 1. SECCIÓN: TIPOS DE MEMBRESÍA (PLANES) ── */}
             <div className="mb-10">
                 <h2 className="mb-4 text-xl font-bold text-gray-800">Tipos de Membresía</h2>
 
@@ -196,6 +195,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                                 value={tipoForm.data.nombre}
                                 onChange={(e) => tipoForm.setData('nombre', e.target.value)}
                                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                required
                             />
                             {tipoForm.errors.nombre && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.nombre}</p>}
                         </div>
@@ -206,6 +206,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                                 value={tipoForm.data.duracion_dias}
                                 onChange={(e) => tipoForm.setData('duracion_dias', e.target.value)}
                                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                required
                             />
                             {tipoForm.errors.duracion_dias && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.duracion_dias}</p>}
                         </div>
@@ -216,6 +217,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                                 value={tipoForm.data.precio}
                                 onChange={(e) => tipoForm.setData('precio', e.target.value)}
                                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                required
                             />
                             {tipoForm.errors.precio && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.precio}</p>}
                         </div>
@@ -228,9 +230,30 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                     </button>
                 </form>
 
-                <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+                {/* 📱 Tipos en Móvil */}
+                <div className="space-y-3 md:hidden">
+                    {tiposMembresia.map((t) => (
+                        <div key={t.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm flex justify-between items-center">
+                            <div>
+                                <h4 className="font-bold text-gray-900 text-sm">{t.nombre}</h4>
+                                <p className="text-xs text-gray-400 mt-0.5">{t.duracion_dias} días — <span className="font-semibold text-gray-700">${t.precio}</span></p>
+                            </div>
+                            <div className="flex gap-1">
+                                <button onClick={() => abrirEditarTipo(t)} className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-500 active:bg-blue-50 active:text-blue-500">
+                                    <IconEdit />
+                                </button>
+                                <button onClick={() => setDeleteTipoTarget(t)} className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
+                                    <IconTrash />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* 💻 Tipos en Escritorio */}
+                <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                     <div className="border-b border-gray-200 p-5 font-semibold">Lista de Tipos</div>
-                    <table className="min-w-[600px] w-full text-left text-sm">
+                    <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50 text-gray-500">
                             <tr>
                                 <th className="p-5">Nombre</th>
@@ -243,18 +266,14 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                             {tiposMembresia.map((t) => (
                                 <tr key={t.id} className="border-t border-gray-100 hover:bg-gray-50/60">
                                     <td className="p-5 font-medium">{t.nombre}</td>
-                                    <td>{t.duracion_dias} días</td>
-                                    <td>${t.precio}</td>
+                                    <td className="text-gray-600">{t.duracion_dias} días</td>
+                                    <td className="font-medium text-gray-900">${t.precio}</td>
                                     <td className="pr-5">
                                         <div className="flex items-center justify-center gap-2">
-                                            <button onClick={() => abrirEditarTipo(t)}
-                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                                title="Editar">
+                                            <button onClick={() => abrirEditarTipo(t)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500" title="Editar">
                                                 <IconEdit />
                                             </button>
-                                            <button onClick={() => setDeleteTipoTarget(t)}
-                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                                title="Eliminar">
+                                            <button onClick={() => setDeleteTipoTarget(t)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500" title="Eliminar">
                                                 <IconTrash />
                                             </button>
                                         </div>
@@ -266,7 +285,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </div>
             </div>
 
-            {/* ── MEMBRESÍAS DE MIEMBROS ── */}
+            {/* ── 2. SECCIÓN: MEMBRESÍAS DE MIEMBROS ── */}
             <div>
                 <h2 className="mb-4 text-xl font-bold text-gray-800">Membresías de Miembros</h2>
 
@@ -281,7 +300,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                     <select
                         value={filtroTipo}
                         onChange={(e) => setFiltroTipo(e.target.value)}
-                        className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400"
+                        className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600"
                     >
                         <option value="">Todos los tipos</option>
                         {tiposMembresia.map((t) => (
@@ -291,7 +310,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                     <select
                         value={filtroEstado}
                         onChange={(e) => setFiltroEstado(e.target.value)}
-                        className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400"
+                        className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600"
                     >
                         <option value="">Todos los estados</option>
                         <option value="activa">Activa</option>
@@ -300,79 +319,121 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                     </select>
                 </div>
 
-                <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+                {/* 📱 Suscripciones en Móvil (Tarjetas) */}
+                <div className="space-y-4 md:hidden">
+                    {membresiasFiltradas.length > 0 ? (
+                        membresiasFiltradas.map((m) => {
+                            const vence = new Date(m.fecha_fin);
+                            const diff = Math.ceil((vence.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                            const vencida = diff < 0;
+                            const porVencer = diff >= 0 && diff <= 7;
+
+                            return (
+                                <div key={m.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+                                    <div className="flex justify-between items-start gap-2">
+                                        <div>
+                                            <h4 className="font-bold text-gray-900 text-base leading-tight">{m.miembro}</h4>
+                                            <p className="text-xs text-gray-400 mt-1">Plan: <span className="font-medium text-gray-600">{m.tipo}</span> — ${m.precio}</p>
+                                        </div>
+                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${
+                                            vencida ? 'bg-red-50 text-red-700 border border-red-100' :
+                                            porVencer ? 'bg-yellow-50 text-yellow-700 border border-yellow-100' :
+                                            'bg-green-50 text-green-700 border border-green-100'
+                                        }`}>
+                                            {vencida ? 'Vencida' : porVencer ? 'Por vencer' : 'Activa'}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 text-xs text-gray-600">
+                                        <div>
+                                            <span className="block text-gray-400 font-medium mb-0.5">Fecha Inicio</span>
+                                            {new Date(m.fecha_inicio).toLocaleDateString('es-MX')}
+                                        </div>
+                                        <div>
+                                            <span className="block text-gray-400 font-medium mb-0.5">Fecha Vence</span>
+                                            <span className={vencida ? 'text-red-600 font-semibold' : porVencer ? 'text-yellow-600 font-semibold' : 'text-gray-700'}>
+                                                {vence.toLocaleDateString('es-MX')}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
+                                        <button onClick={() => abrirEditar(m)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 active:bg-blue-50 active:text-blue-500">
+                                            <IconEdit />
+                                        </button>
+                                        <button onClick={() => setDeleteTarget(m)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
+                                            <IconTrash />
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
+                            No se encontraron registros coincidentes.
+                        </div>
+                    )}
+                </div>
+
+                {/* 💻 Suscripciones en Escritorio (Tabla Agrupada) */}
+                <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                     <div className="border-b border-gray-200 p-5 font-semibold">Lista de Membresías</div>
-                    <table className="min-w-[900px] w-full text-left text-sm">
+                    <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50 text-gray-500">
                             <tr>
-                                <th className="p-5">Miembro</th>
-                                <th>Tipo</th>
+                                <th className="p-5">Miembro / Plan</th>
                                 <th>Precio</th>
-                                <th>Inicio</th>
-                                <th>Vence</th>
+                                <th>Vigencia (Inicio - Fin)</th>
                                 <th>Estado</th>
                                 <th className="pr-5 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {membresias
-                                .filter((m) => {
-                                    const vence = new Date(m.fecha_fin);
-                                    const diff = Math.ceil((vence.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
-                                    const estadoTexto = diff < 0 ? 'vencida' : diff <= 7 ? 'por vencer' : 'activa';
-                                    return (
-                                        m.miembro.toLowerCase().includes(busqueda.toLowerCase()) &&
-                                        (filtroTipo === '' || m.tipo === filtroTipo) &&
-                                        (filtroEstado === '' || estadoTexto === filtroEstado)
-                                    );
-                                })
-                                .map((m) => {
-                                    const vence = new Date(m.fecha_fin);
-                                    const diff = Math.ceil((vence.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
-                                    const vencida = diff < 0;
-                                    const porVencer = diff >= 0 && diff <= 7;
+                            {membresiasFiltradas.map((m) => {
+                                const vence = new Date(m.fecha_fin);
+                                const diff = Math.ceil((vence.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                                const vencida = diff < 0;
+                                const porVencer = diff >= 0 && diff <= 7;
 
-                                    return (
-                                        <tr key={m.id} className="border-t border-gray-100 hover:bg-gray-50/60">
-                                            <td className="p-5 font-medium">{m.miembro}</td>
-                                            <td>{m.tipo}</td>
-                                            <td>${m.precio}</td>
-                                            <td>{new Date(m.fecha_inicio).toLocaleDateString('es-MX')}</td>
-                                            <td>{vence.toLocaleDateString('es-MX')}</td>
-                                            <td>
-                                                <span className={
-                                                    vencida
-                                                        ? 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600'
-                                                        : porVencer
-                                                        ? 'rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-600'
-                                                        : 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
-                                                }>
-                                                    {vencida ? 'Vencida' : porVencer ? 'Por vencer' : 'Activa'}
-                                                </span>
-                                            </td>
-                                            <td className="pr-5">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <button onClick={() => abrirEditar(m)}
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                                        title="Editar">
-                                                        <IconEdit />
-                                                    </button>
-                                                    <button onClick={() => setDeleteTarget(m)}
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                                        title="Eliminar">
-                                                        <IconTrash />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                return (
+                                    <tr key={m.id} className="border-t border-gray-100 hover:bg-gray-50/60">
+                                        {/* 🎯 Agrupamos Miembro y Tipo de plan abajo en chiquito */}
+                                        <td className="p-5">
+                                            <div className="font-medium text-gray-900">{m.miembro}</div>
+                                            <div className="text-xs text-gray-400 mt-0.5">{m.tipo}</div>
+                                        </td>
+                                        <td className="text-gray-900 font-medium">${m.precio}</td>
+                                        <td className="text-gray-600">
+                                            {new Date(m.fecha_inicio).toLocaleDateString('es-MX')} — {vence.toLocaleDateString('es-MX')}
+                                        </td>
+                                        <td>
+                                            <span className={
+                                                vencida ? 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600' :
+                                                porVencer ? 'rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-600' :
+                                                'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
+                                            }>
+                                                {vencida ? 'Vencida' : porVencer ? 'Por vencer' : 'Activa'}
+                                            </span>
+                                        </td>
+                                        <td className="pr-5">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <button onClick={() => abrirEditar(m)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500" title="Editar">
+                                                    <IconEdit />
+                                                </button>
+                                                <button onClick={() => setDeleteTarget(m)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500" title="Eliminar">
+                                                    <IconTrash />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            {/* MODAL EDITAR MEMBRESÍA */}
+            {/* ── MODAL EDITAR MEMBRESÍA ── */}
             <Modal open={!!editando} onClose={() => setEditando(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar membresía — {editando?.miembro}</h3>
                 <form onSubmit={guardarEdicion} className="space-y-4">
@@ -381,7 +442,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                         <select
                             value={editForm.data.tipo_membresia_id}
                             onChange={(e) => editForm.setData('tipo_membresia_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700"
                         >
                             {tiposMembresia.map((t) => (
                                 <option key={t.id} value={t.id}>{t.nombre} — ${t.precio}</option>
@@ -397,10 +458,10 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 pt-1">
                         <input type="checkbox" id="activa" checked={editForm.data.activa}
-                            onChange={(e) => editForm.setData('activa', e.target.checked)} className="rounded" />
-                        <label htmlFor="activa" className="text-sm text-gray-600">Membresía activa</label>
+                            onChange={(e) => editForm.setData('activa', e.target.checked)} className="rounded border-gray-300 text-orange-500 focus:ring-orange-400" />
+                        <label htmlFor="activa" className="text-sm text-gray-600 font-medium">Membresía activa</label>
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
                         <button type="button" onClick={() => setEditando(null)}
@@ -415,9 +476,9 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </form>
             </Modal>
 
-            {/* MODAL ELIMINAR MEMBRESÍA */}
+            {/* ── MODAL ELIMINAR MEMBRESÍA ── */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
                     <IconTrash />
                 </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar membresía</h3>
@@ -438,7 +499,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </div>
             </Modal>
 
-            {/* MODAL EDITAR TIPO */}
+            {/* ── MODAL EDITAR TIPO ── */}
             <Modal open={!!editandoTipo} onClose={() => setEditandoTipo(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar tipo — {editandoTipo?.nombre}</h3>
                 <form onSubmit={guardarEdicionTipo} className="space-y-4">
@@ -448,17 +509,19 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                             onChange={(e) => editTipoForm.setData('nombre', e.target.value)}
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
                     </div>
-                    <div>
-                        <label className="mb-1 block text-xs font-medium text-gray-500">Duración en días</label>
-                        <input type="number" value={editTipoForm.data.duracion_dias}
-                            onChange={(e) => editTipoForm.setData('duracion_dias', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
-                    </div>
-                    <div>
-                        <label className="mb-1 block text-xs font-medium text-gray-500">Precio</label>
-                        <input type="number" value={editTipoForm.data.precio}
-                            onChange={(e) => editTipoForm.setData('precio', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="mb-1 block text-xs font-medium text-gray-500">Duración en días</label>
+                            <input type="number" value={editTipoForm.data.duracion_dias}
+                                onChange={(e) => editTipoForm.setData('duracion_dias', e.target.value)}
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
+                        </div>
+                        <div>
+                            <label className="mb-1 block text-xs font-medium text-gray-500">Precio</label>
+                            <input type="number" value={editTipoForm.data.precio}
+                                onChange={(e) => editTipoForm.setData('precio', e.target.value)}
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
+                        </div>
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
                         <button type="button" onClick={() => setEditandoTipo(null)}
@@ -473,9 +536,9 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </form>
             </Modal>
 
-            {/* MODAL ELIMINAR TIPO */}
+            {/* ── MODAL ELIMINAR TIPO ── */}
             <Modal open={!!deleteTipoTarget} onClose={() => setDeleteTipoTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
                     <IconTrash />
                 </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar tipo</h3>

@@ -1,24 +1,50 @@
 import { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
-type MenuItem = {
-    label: string;
-    href: string;
-    icon: string;
-};
+// 🏢 EL MENÚ SE QUEDA AQUÍ DE RAÍZ Y PARA SIEMPRE (Global para todo el ERP)
+const globalMenuItems = [
+    { label: 'Dashboard', href: '/dashboard', icon: '📊' },
+    { label: 'Miembros', href: '/miembros', icon: '👥' },
+    { label: 'Sucursales', href: '/sucursales', icon: '🏢' },
+    { label: 'Franquicias', href: '/franquicias', icon: '🏬' },
+    { label: 'Membresías', href: '/membresias', icon: '💳' },
+    { label: 'Pagos', href: '/pagos', icon: '💰' },
+    { label: 'Clases', href: '/clases', icon: '🏋️' },
+    { label: 'Rutinas', href: '/rutinas', icon: '📈' },
+    { label: 'Productos', href: '/productos', icon: '🛒' },
+    { label: 'Equipos', href: '/equipos', icon: '🛠️' },
+];
 
 type PerfilLayoutProps = {
     children: React.ReactNode;
-    menuItems: MenuItem[];
     rolLabel: string;
     rolColor: string;
     title?: string;
     subtitle?: string;
+    // 💡 Dejamos menuItems opcional por si otras vistas aún lo mandan, para que no truene nada
+    menuItems?: any[]; 
 };
 
-export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, title, subtitle }: PerfilLayoutProps) {
-    const currentPath = window.location.pathname;
+export default function PerfilLayout({ children, rolLabel, rolColor, title, subtitle }: PerfilLayoutProps) {
+    // Usamos el hook de Inertia para saber en qué URL estamos parados actualmente
+    const { url } = usePage();
     const [menuAbierto, setMenuAbierto] = useState(false);
+
+    // 💼 Componente interno del botón de Empleados
+    const BotonEmpleados = ({ onClick }: { onClick?: () => void }) => (
+        <Link
+            href="/empleados"
+            onClick={onClick}
+            className={
+                url.startsWith('/empleados')
+                    ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
+                    : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            }
+        >
+            <span className="mr-2">💼</span>
+            Empleados
+        </Link>
+    );
 
     return (
         <div className="min-h-screen bg-[#f3f4f6] text-gray-900">
@@ -30,21 +56,27 @@ export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, 
                         <span className="text-orange-500">GYM</span>APP
                     </h1>
                     <nav className="space-y-2 text-sm flex-1">
-                        {menuItems.map((item) => {
-                            const isActive = currentPath.startsWith(item.href);
+                        {globalMenuItems.map((item) => {
+                            if (item.href === '/empleados') return null;
+
+                            const isActive = url.startsWith(item.href);
                             return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={
-                                        isActive
-                                            ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
-                                            : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                                    }
-                                >
-                                    <span className="mr-2">{item.icon}</span>
-                                    {item.label}
-                                </Link>
+                                <div key={item.href} className="space-y-2">
+                                    <Link
+                                        href={item.href}
+                                        className={
+                                            isActive
+                                                ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
+                                                : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                        }
+                                    >
+                                        <span className="mr-2">{item.icon}</span>
+                                        {item.label}
+                                    </Link>
+
+                                    {/* Mantiene a empleados fijo abajo de miembros */}
+                                    {item.href === '/miembros' && <BotonEmpleados />}
+                                </div>
                             );
                         })}
                     </nav>
@@ -75,7 +107,7 @@ export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, 
                     </div>
                 </div>
 
-                {/* DRAWER OVERLAY */}
+                {/* DRAWER OVERLAY (EL MENÚ DE TU CAPTURA) */}
                 {menuAbierto && (
                     <div className="lg:hidden fixed inset-0 z-50 flex">
                         <div
@@ -95,22 +127,31 @@ export default function PerfilLayout({ children, menuItems, rolLabel, rolColor, 
                                 </button>
                             </div>
                             <nav className="space-y-1 text-sm flex-1">
-                                {menuItems.map((item) => {
-                                    const isActive = currentPath.startsWith(item.href);
+                                {/* 🎯 CORREGIDO: Aquí mapea ahora la lista global fija */}
+                                {globalMenuItems.map((item) => {
+                                    if (item.href === '/empleados') return null;
+
+                                    const isActive = url.startsWith(item.href);
                                     return (
-                                        <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            onClick={() => setMenuAbierto(false)}
-                                            className={
-                                                isActive
-                                                    ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
-                                                    : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100'
-                                            }
-                                        >
-                                            <span className="mr-2">{item.icon}</span>
-                                            {item.label}
-                                        </Link>
+                                        <div key={item.href} className="space-y-1">
+                                            <Link
+                                                href={item.href}
+                                                onClick={() => setMenuAbierto(false)}
+                                                className={
+                                                    isActive
+                                                        ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
+                                                        : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100'
+                                                }
+                                            >
+                                                <span className="mr-2">{item.icon}</span>
+                                                {item.label}
+                                            </Link>
+
+                                            {/* Empleados también fijo en el menú móvil */}
+                                            {item.href === '/miembros' && (
+                                                <BotonEmpleados onClick={() => setMenuAbierto(false)} />
+                                            )}
+                                        </div>
                                     );
                                 })}
                             </nav>

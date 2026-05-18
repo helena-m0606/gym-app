@@ -77,6 +77,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('pagos', [PagoController::class, 'store'])
         ->name('pagos.store');
 
+    Route::put('pagos/{id}', [PagoController::class, 'update'])
+        ->name('pagos.update');
+
+    Route::delete('pagos/{id}', [PagoController::class, 'destroy'])
+        ->name('pagos.destroy');
+
     Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboard'])
         ->name('recepcionista.dashboard');
 

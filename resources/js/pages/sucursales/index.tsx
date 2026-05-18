@@ -1,6 +1,18 @@
 import { useForm } from '@inertiajs/react';
+import PerfilLayout from '@/layouts/perfil-layout';
 
-import GymLayout from '@/layouts/gym-layout';
+const menuItems = [
+    { label: 'Dashboard', href: '/dashboard', icon: '📊' },
+    { label: 'Miembros', href: '/miembros', icon: '👥' },
+    { label: 'Sucursales', href: '/sucursales', icon: '🏢' },
+    { label: 'Franquicias', href: '/franquicias', icon: '🏬' },
+    { label: 'Membresías', href: '/membresias', icon: '💳' },
+    { label: 'Pagos', href: '/pagos', icon: '💰' },
+    { label: 'Clases', href: '/clases', icon: '🏋️' },
+    { label: 'Rutinas', href: '/rutinas', icon: '📈' },
+    { label: 'Productos', href: '/productos', icon: '🛒' },
+    { label: 'Equipos', href: '/equipos', icon: '🛠️' },
+];
 
 type Franquicia = {
     id: number;
@@ -14,7 +26,6 @@ type Sucursal = {
     ciudad: string;
     telefono: string | null;
     activa: boolean;
-
     franquicia: Franquicia;
 };
 
@@ -35,14 +46,16 @@ export default function SucursalesIndex({
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-
         post('/sucursales', {
             onSuccess: () => reset(),
         });
     }
 
     return (
-        <GymLayout
+        <PerfilLayout
+            menuItems={menuItems}
+            rolLabel="🏆 Administrador — Acceso Total"
+            rolColor="border-blue-200 bg-blue-50 text-blue-600"
             title="Sucursales"
             subtitle="Administración de sucursales del gimnasio."
         >
@@ -50,37 +63,24 @@ export default function SucursalesIndex({
                 onSubmit={submit}
                 className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
             >
-                <h3 className="mb-5 text-lg font-semibold">
-                    Registrar nueva sucursal
-                </h3>
+                <h3 className="mb-5 text-lg font-semibold">Registrar nueva sucursal</h3>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <select
                             value={data.franquicia_id}
-                            onChange={(e) =>
-                                setData('franquicia_id', e.target.value)
-                            }
+                            onChange={(e) => setData('franquicia_id', e.target.value)}
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         >
-                            <option value="">
-                                Seleccionar franquicia
-                            </option>
-
+                            <option value="">Seleccionar franquicia</option>
                             {franquicias.map((franquicia) => (
-                                <option
-                                    key={franquicia.id}
-                                    value={franquicia.id}
-                                >
+                                <option key={franquicia.id} value={franquicia.id}>
                                     {franquicia.nombre}
                                 </option>
                             ))}
                         </select>
-
                         {errors.franquicia_id && (
-                            <p className="mt-1 text-xs text-red-500">
-                                {errors.franquicia_id}
-                            </p>
+                            <p className="mt-1 text-xs text-red-500">{errors.franquicia_id}</p>
                         )}
                     </div>
 
@@ -89,9 +89,7 @@ export default function SucursalesIndex({
                             type="text"
                             placeholder="Nombre de la sucursal"
                             value={data.nombre}
-                            onChange={(e) =>
-                                setData('nombre', e.target.value)
-                            }
+                            onChange={(e) => setData('nombre', e.target.value)}
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         />
                     </div>
@@ -101,9 +99,7 @@ export default function SucursalesIndex({
                             type="text"
                             placeholder="Dirección"
                             value={data.direccion}
-                            onChange={(e) =>
-                                setData('direccion', e.target.value)
-                            }
+                            onChange={(e) => setData('direccion', e.target.value)}
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         />
                     </div>
@@ -113,9 +109,7 @@ export default function SucursalesIndex({
                             type="text"
                             placeholder="Ciudad"
                             value={data.ciudad}
-                            onChange={(e) =>
-                                setData('ciudad', e.target.value)
-                            }
+                            onChange={(e) => setData('ciudad', e.target.value)}
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         />
                     </div>
@@ -125,9 +119,7 @@ export default function SucursalesIndex({
                             type="text"
                             placeholder="Teléfono"
                             value={data.telefono}
-                            onChange={(e) =>
-                                setData('telefono', e.target.value)
-                            }
+                            onChange={(e) => setData('telefono', e.target.value)}
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         />
                     </div>
@@ -142,10 +134,7 @@ export default function SucursalesIndex({
             </form>
 
             <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-                <div className="border-b border-gray-200 p-5 font-semibold">
-                    Lista de Sucursales
-                </div>
-
+                <div className="border-b border-gray-200 p-5 font-semibold">Lista de Sucursales</div>
                 <table className="min-w-[800px] w-full text-left text-sm">
                     <thead className="bg-gray-50 text-gray-500">
                         <tr>
@@ -156,38 +145,19 @@ export default function SucursalesIndex({
                             <th>Estado</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         {sucursales.map((sucursal) => (
-                            <tr
-                                key={sucursal.id}
-                                className="border-t border-gray-100"
-                            >
-                                <td className="p-5 font-medium">
-                                    {sucursal.nombre}
-                                </td>
-
-                                <td>
-                                    {sucursal.franquicia?.nombre}
-                                </td>
-
+                            <tr key={sucursal.id} className="border-t border-gray-100">
+                                <td className="p-5 font-medium">{sucursal.nombre}</td>
+                                <td>{sucursal.franquicia?.nombre}</td>
                                 <td>{sucursal.ciudad}</td>
-
+                                <td>{sucursal.telefono ?? 'Sin teléfono'}</td>
                                 <td>
-                                    {sucursal.telefono ?? 'Sin teléfono'}
-                                </td>
-
-                                <td>
-                                    <span
-                                        className={
-                                            sucursal.activa
-                                                ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
-                                                : 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600'
-                                        }
-                                    >
-                                        {sucursal.activa
-                                            ? 'Activa'
-                                            : 'Inactiva'}
+                                    <span className={sucursal.activa
+                                        ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
+                                        : 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600'
+                                    }>
+                                        {sucursal.activa ? 'Activa' : 'Inactiva'}
                                     </span>
                                 </td>
                             </tr>
@@ -195,6 +165,6 @@ export default function SucursalesIndex({
                     </tbody>
                 </table>
             </div>
-        </GymLayout>
+        </PerfilLayout>
     );
 }

@@ -8,17 +8,21 @@ use App\Http\Controllers\EntrenadorController;
 use App\Http\Controllers\MiembroPerfilController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\DashboardController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('dashboard');
+    return redirect('/login');
 });
 
-
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('/redirect', \App\Http\Controllers\Auth\LoginRedirectController::class)
+        ->name('redirect');
+
+    Route::get('dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     Route::get('miembros', [MiembroController::class, 'index'])
         ->name('miembros.index');

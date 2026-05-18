@@ -10,7 +10,7 @@ class MiembroController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Miembros/Index', [
+        return Inertia::render('Miembros/index', [
 
             'miembros' => Miembro::with('sucursal')
                 ->latest()

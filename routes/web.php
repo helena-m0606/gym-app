@@ -50,13 +50,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('franquicias/{franquicia}', [FranquiciaController::class, 'destroy']) // 👈
         ->name('franquicias.destroy');
 
-    
-
     Route::get('membresias', [MembresiaController::class, 'index'])
         ->name('membresias.index');
 
     Route::post('membresias', [MembresiaController::class, 'store'])
         ->name('membresias.store');
+
+    Route::delete('membresias/{id}', [MembresiaController::class, 'destroy'])
+        ->name('membresias.destroy');
+
+    Route::put('membresias/{id}', [MembresiaController::class, 'update'])
+        ->name('membresias.update');
+
+    Route::post('tipos-membresia', [MembresiaController::class, 'storeTipo'])
+        ->name('tipos_membresia.store');
+
+    Route::put('tipos-membresia/{id}', [MembresiaController::class, 'updateTipo'])
+        ->name('tipos_membresia.update');
+
+    Route::delete('tipos-membresia/{id}', [MembresiaController::class, 'destroyTipo'])
+        ->name('tipos_membresia.destroy');
 
     Route::get('pagos', [PagoController::class, 'index'])
         ->name('pagos.index');

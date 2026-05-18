@@ -27,4 +27,24 @@ class FranquiciaController extends Controller
 
         return redirect()->route('franquicias.index');
     }
+
+    public function update(Request $request, Franquicia $franquicia)
+    {
+        $validated = $request->validate([
+            'nombre'       => 'required|string|max:255',
+            'razon_social' => 'required|string|max:255',
+            'rfc'          => 'required|string|max:13',
+        ]);
+
+        $franquicia->update($validated);
+
+        return redirect()->back();
+    }
+
+    public function destroy(Franquicia $franquicia)
+    {
+        $franquicia->delete();
+
+        return redirect()->back();
+    }
 }

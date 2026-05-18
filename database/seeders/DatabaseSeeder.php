@@ -134,6 +134,7 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Verano Activo', 'descuento_porcentaje' => 15.00, 'fecha_inicio' => '2026-06-01', 'fecha_fin' => '2026-08-31'],
             ['nombre' => 'Regreso a Clases', 'descuento_porcentaje' => 10.00, 'fecha_inicio' => '2026-08-01', 'fecha_fin' => '2026-08-31'],
             ['nombre' => 'Black Friday', 'descuento_porcentaje' => 30.00, 'fecha_inicio' => '2026-11-25', 'fecha_fin' => '2026-11-30'],
+            ['nombre' => 'Descuento Especial','descuento_porcentaje' => 10.00,'fecha_inicio' => '2026-01-01','fecha_fin' => '2030-12-31',]
         ]);
 
         // 7. CATEGORÍAS DE EQUIPO

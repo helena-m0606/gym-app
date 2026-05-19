@@ -52,7 +52,8 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
 
                 {/* SIDEBAR DESKTOP */}
                 <aside className="hidden lg:flex lg:flex-col lg:w-64 border-r border-gray-200 bg-white p-6 shadow-sm sticky top-0 h-screen overflow-y-auto">
-                    <h1 className="mb-10 text-2xl font-bold tracking-widest">
+                    <h1 className="mb-10 flex items-center gap-2 text-2xl font-bold tracking-widest">
+                        <img src="/TittanGYM.png" alt="Logo" className="h-8 w-8 object-contain" />
                         <span className="text-orange-500">Titan</span>GYM
                     </h1>
                     <nav className="space-y-2 text-sm flex-1">
@@ -101,7 +102,8 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
                         >
                             ☰
                         </button>
-                        <h1 className="text-xl font-bold tracking-widest">
+                       <h1 className="flex items-center gap-2 text-xl font-bold tracking-widest">
+                            <img src="/TittanGYM.png" alt="Logo" className="h-7 w-7 object-contain" />
                             <span className="text-orange-500">Titan</span>GYM
                         </h1>
                     </div>
@@ -116,7 +118,8 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
                         />
                         <div className="relative z-50 w-64 bg-white h-full shadow-xl flex flex-col p-6">
                             <div className="flex items-center justify-between mb-8">
-                                <h1 className="text-xl font-bold tracking-widest">
+                                <h1 className="flex items-center gap-2 text-xl font-bold tracking-widest">
+                                    <img src="/TittanGYM.png" alt="Logo" className="h-7 w-7 object-contain" />
                                     <span className="text-orange-500">Titan</span>GYM
                                 </h1>
                                 <button

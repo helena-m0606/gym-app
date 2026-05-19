@@ -39,9 +39,6 @@ class DashboardController extends Controller
             ->sum('monto');
 
         $fechaLocal = Carbon::now('America/Mexico_City');
-        $diasIngles = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        $diasEspanol = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        $diaDeHoy = str_replace($diasIngles, $diasEspanol, $fechaLocal->format('l'));
 
         $clasesRaw = DB::table('clases')
             ->join('empleados', 'clases.entrenador_id', '=', 'empleados.id')
@@ -55,7 +52,7 @@ class DashboardController extends Controller
                 'empleados.nombre as entrenador_nombre',
                 'sucursales.nombre as sucursal_nombre'
             )
-            ->whereRaw('clases.fecha ILIKE ?', ["%{$diaDeHoy}%"])
+            ->whereDate('clases.fecha', today())
             ->get();
 
         $clasesHoy = $clasesRaw->map(function($clase) use ($fechaLocal) {

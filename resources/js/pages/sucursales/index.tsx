@@ -31,7 +31,6 @@ type Sucursal = {
     franquicia: Franquicia;
 };
 
-// ── Icono lápiz ───────────────────────────────────────────────────────────────
 function IconEdit() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -42,7 +41,6 @@ function IconEdit() {
     );
 }
 
-// ── Icono papelera ────────────────────────────────────────────────────────────
 function IconTrash() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -55,11 +53,10 @@ function IconTrash() {
     );
 }
 
-// ── Modal base ────────────────────────────────────────────────────────────────
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
     if (!open) return null;
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
             <div className="relative z-10 w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
                 {children}
@@ -75,7 +72,6 @@ export default function SucursalesIndex({
     sucursales: Sucursal[];
     franquicias: Franquicia[];
 }) {
-    // ── Crear ──────────────────────────────────────────────────────────────────
     const { data, setData, post, processing, errors, reset } = useForm({
         franquicia_id: '',
         nombre: '',
@@ -89,7 +85,6 @@ export default function SucursalesIndex({
         post('/sucursales', { onSuccess: () => reset() });
     }
 
-    // ── Editar ─────────────────────────────────────────────────────────────────
     const [editTarget, setEditTarget] = useState<Sucursal | null>(null);
     const editForm = useForm({
         franquicia_id: '',
@@ -102,7 +97,7 @@ export default function SucursalesIndex({
 
     function openEdit(s: Sucursal) {
         editForm.setData({
-            franquicia_id: String(s.franquicia.id),
+            franquicia_id: String(s.franquicia?.id ?? ''),
             nombre: s.nombre,
             direccion: s.direccion,
             ciudad: s.ciudad,
@@ -120,7 +115,6 @@ export default function SucursalesIndex({
         });
     }
 
-    // ── Eliminar ───────────────────────────────────────────────────────────────
     const [deleteTarget, setDeleteTarget] = useState<Sucursal | null>(null);
     const [deleting, setDeleting] = useState(false);
 
@@ -133,7 +127,6 @@ export default function SucursalesIndex({
         });
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -143,12 +136,8 @@ export default function SucursalesIndex({
             subtitle="Administración de sucursales del gimnasio."
         >
             {/* ── Formulario crear ── */}
-            <form
-                onSubmit={submit}
-                className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-            >
+            <form onSubmit={submit} className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                 <h3 className="mb-5 text-lg font-semibold">Registrar nueva sucursal</h3>
-
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <select
@@ -163,7 +152,6 @@ export default function SucursalesIndex({
                         </select>
                         {errors.franquicia_id && <p className="mt-1 text-xs text-red-500">{errors.franquicia_id}</p>}
                     </div>
-
                     <div>
                         <input
                             type="text"
@@ -173,7 +161,6 @@ export default function SucursalesIndex({
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         />
                     </div>
-
                     <div className="md:col-span-2">
                         <input
                             type="text"
@@ -183,7 +170,6 @@ export default function SucursalesIndex({
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         />
                     </div>
-
                     <div>
                         <input
                             type="text"
@@ -193,7 +179,6 @@ export default function SucursalesIndex({
                             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
                         />
                     </div>
-
                     <div>
                         <input
                             type="text"
@@ -204,66 +189,112 @@ export default function SucursalesIndex({
                         />
                     </div>
                 </div>
-
                 <button
                     disabled={processing}
-                    className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
+                    className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
                 >
                     {processing ? 'Guardando...' : 'Guardar Sucursal'}
                 </button>
             </form>
 
-            {/* ── Tabla ── */}
-            <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+            {/* ── Contenedor principal de la Lista ── */}
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
                 <div className="border-b border-gray-200 p-5 font-semibold">Lista de Sucursales</div>
-                <table className="min-w-[800px] w-full text-left text-sm">
-                    <thead className="bg-gray-50 text-gray-500">
-                        <tr>
-                            <th className="p-5">Sucursal</th>
-                            <th>Franquicia</th>
-                            <th>Ciudad</th>
-                            <th>Teléfono</th>
-                            <th>Estado</th>
-                            <th className="pr-5 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sucursales.map((s) => (
-                            <tr key={s.id} className="border-t border-gray-100 hover:bg-gray-50/60">
-                                <td className="p-5 font-medium">{s.nombre}</td>
-                                <td>{s.franquicia?.nombre}</td>
-                                <td>{s.ciudad}</td>
-                                <td>{s.telefono ?? 'Sin teléfono'}</td>
-                                <td>
-                                    <span className={s.activa
-                                        ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
-                                        : 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600'
-                                    }>
-                                        {s.activa ? 'Activa' : 'Inactiva'}
-                                    </span>
-                                </td>
-                                <td className="pr-5">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <button
-                                            onClick={() => openEdit(s)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                            title="Editar"
-                                        >
-                                            <IconEdit />
-                                        </button>
-                                        <button
-                                            onClick={() => setDeleteTarget(s)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                            title="Eliminar"
-                                        >
-                                            <IconTrash />
-                                        </button>
-                                    </div>
-                                </td>
+
+                {/* 🎯 VISTA MÓVIL: Formato de tarjetas apiladas */}
+                <div className="block md:hidden divide-y divide-gray-100">
+                    {sucursales.map((s) => (
+                        <div key={s.id} className="p-5 space-y-2.5">
+                            <div className="flex items-center justify-between">
+                                <span className="font-bold text-gray-800 text-base">{s.nombre}</span>
+                                <span className={s.activa
+                                    ? 'rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-600'
+                                    : 'rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-600'
+                                }>
+                                    {s.activa ? 'Activa' : 'Inactiva'}
+                                </span>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                <span className="font-medium text-gray-400">Franquicia:</span> {s.franquicia?.nombre ?? 'N/A'}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                <span className="font-medium text-gray-400">Ciudad:</span> {s.ciudad}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                <span className="font-medium text-gray-400">Dirección:</span> {s.direccion}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                <span className="font-medium text-gray-400">Teléfono:</span> {s.telefono ?? 'Sin teléfono'}
+                            </div>
+                            <div className="flex justify-end gap-2 pt-2 border-t border-gray-50">
+                                <button
+                                    onClick={() => openEdit(s)}
+                                    className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition"
+                                >
+                                    <IconEdit />
+                                </button>
+                                <button
+                                    onClick={() => setDeleteTarget(s)}
+                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                                >
+                                    <IconTrash />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* 🎯 VISTA DESKTOP: Tabla para pantallas de escritorio */}
+                <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                        <thead className="bg-gray-50 text-gray-500">
+                            <tr>
+                                <th className="p-5">Sucursal</th>
+                                <th>Franquicia</th>
+                                <th>Ciudad</th>
+                                <th>Teléfono</th>
+                                <th>Estado</th>
+                                <th className="pr-5 text-center">Acciones</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {sucursales.map((s) => (
+                                <tr key={s.id} className="hover:bg-gray-50/60 transition">
+                                    <td className="p-5 font-medium text-gray-800">{s.nombre}</td>
+                                    <td>{s.franquicia?.nombre}</td>
+                                    <td>{s.ciudad}</td>
+                                    <td>{s.telefono ?? 'Sin teléfono'}</td>
+                                    <td>
+                                        <span className={s.activa
+                                            ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
+                                            : 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600'
+                                        }>
+                                            {s.activa ? 'Activa' : 'Inactiva'}
+                                        </span>
+                                    </td>
+                                    <td className="pr-5">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <button
+                                                onClick={() => openEdit(s)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
+                                                title="Editar"
+                                            >
+                                                <IconEdit />
+                                            </button>
+                                            <button
+                                                onClick={() => setDeleteTarget(s)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
+                                                title="Eliminar"
+                                            >
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* ── Modal Editar ── */}

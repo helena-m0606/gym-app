@@ -45,17 +45,11 @@ function IconTrash() {
     );
 }
 
-// Modal base
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
     if (!open) return null;
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-                onClick={onClose}
-            />
-            {/* Panel */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
             <div className="relative z-10 w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
                 {children}
             </div>
@@ -64,7 +58,6 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function FranquiciasIndex({ franquicias }: { franquicias: Franquicia[] }) {
-    // ── Crear ──
     const { data, setData, post, processing, errors, reset } = useForm({
         nombre: '',
         razon_social: '',
@@ -76,7 +69,6 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
         post('/franquicias', { onSuccess: () => reset() });
     }
 
-    // ── Editar ──
     const [editTarget, setEditTarget] = useState<Franquicia | null>(null);
     const editForm = useForm({ nombre: '', razon_social: '', rfc: '' });
 
@@ -93,7 +85,6 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
         });
     }
 
-    // ── Eliminar ───
     const [deleteTarget, setDeleteTarget] = useState<Franquicia | null>(null);
     const [deleting, setDeleting] = useState(false);
 
@@ -105,6 +96,7 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
             onError: () => setDeleting(false),
         });
     }
+
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -114,12 +106,8 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
             subtitle="Administración de franquicias."
         >
             {/* ── Formulario crear ── */}
-            <form
-                onSubmit={submit}
-                className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-            >
+            <form onSubmit={submit} className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                 <h3 className="mb-5 text-lg font-semibold">Registrar franquicia</h3>
-
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div>
                         <input
@@ -152,63 +140,94 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                         {errors.rfc && <p className="mt-1 text-xs text-red-500">{errors.rfc}</p>}
                     </div>
                 </div>
-
                 <button
                     disabled={processing}
-                    className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
+                    className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
                 >
                     {processing ? 'Guardando...' : 'Guardar Franquicia'}
                 </button>
             </form>
 
-            {/* ── Tabla ── */}
-            <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+            {/* ── Contenedor principal de la Lista ── */}
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
                 <div className="border-b border-gray-200 p-5 font-semibold">
                     Lista de Franquicias
                 </div>
 
-                <table className="min-w-[700px] w-full text-left text-sm">
-                    <thead className="bg-gray-50 text-gray-500">
-                        <tr>
-                            <th className="p-5">Nombre</th>
-                            <th>Razón social</th>
-                            <th>RFC</th>
-                            <th className="pr-5 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {franquicias.map((f) => (
-                            <tr key={f.id} className="border-t border-gray-100 hover:bg-gray-50/60">
-                                <td className="p-5 font-medium">{f.nombre}</td>
-                                <td>{f.razon_social}</td>
-                                <td>{f.rfc}</td>
-                                <td className="pr-5">
-                                    <div className="flex items-center justify-center gap-2">
-                                        {/* Editar */}
-                                        <button
-                                            onClick={() => openEdit(f)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                            title="Editar"
-                                        >
-                                            <IconEdit />
-                                        </button>
-                                        {/* Eliminar */}
-                                        <button
-                                            onClick={() => setDeleteTarget(f)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                            title="Eliminar"
-                                        >
-                                            <IconTrash />
-                                        </button>
-                                    </div>
-                                </td>
+                {/* 🎯 VISTA MÓVIL: Se activa en pantallas chicas (hidden md:block) */}
+                <div className="block md:hidden divide-y divide-gray-100">
+                    {franquicias.map((f) => (
+                        <div key={f.id} className="p-5 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <span className="font-bold text-gray-800 text-base">{f.nombre}</span>
+                                <div className="flex gap-1">
+                                    <button
+                                        onClick={() => openEdit(f)}
+                                        className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition"
+                                    >
+                                        <IconEdit />
+                                    </button>
+                                    <button
+                                        onClick={() => setDeleteTarget(f)}
+                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                                    >
+                                        <IconTrash />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                <span className="font-medium text-gray-400">Razón Social:</span> {f.razon_social}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                <span className="font-medium text-gray-400">RFC:</span> <span className="font-mono bg-gray-50 px-1.5 py-0.5 rounded text-xs">{f.rfc}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* 🎯 VISTA DESKTOP: Oculta en móviles, se dibuja en pantallas grandes (hidden md:block) */}
+                <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                        <thead className="bg-gray-50 text-gray-500">
+                            <tr>
+                                <th className="p-5">Nombre</th>
+                                <th>Razón social</th>
+                                <th>RFC</th>
+                                <th className="pr-5 text-center">Acciones</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {franquicias.map((f) => (
+                                <tr key={f.id} className="hover:bg-gray-50/60 transition">
+                                    <td className="p-5 font-medium text-gray-800">{f.nombre}</td>
+                                    <td>{f.razon_social}</td>
+                                    <td className="font-mono text-xs">{f.rfc}</td>
+                                    <td className="pr-5">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <button
+                                                onClick={() => openEdit(f)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
+                                                title="Editar"
+                                            >
+                                                <IconEdit />
+                                            </button>
+                                            <button
+                                                onClick={() => setDeleteTarget(f)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
+                                                title="Eliminar"
+                                            >
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* ── Modal Editar ── */}
+            {/* ── Modales existentes (Idénticos) ── */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar franquicia</h3>
                 <form onSubmit={submitEdit} className="space-y-4">
@@ -242,7 +261,6 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                         />
                         {editForm.errors.rfc && <p className="mt-1 text-xs text-red-500">{editForm.errors.rfc}</p>}
                     </div>
-
                     <div className="flex justify-end gap-3 pt-2">
                         <button
                             type="button"
@@ -262,20 +280,16 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                 </form>
             </Modal>
 
-            {/* ── Modal Eliminar ── */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                {/* Ícono de advertencia */}
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
                     <IconTrash />
                 </div>
-
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar franquicia</h3>
                 <p className="mb-6 text-sm text-gray-500">
                     ¿Estás seguro de que deseas eliminar{' '}
                     <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
                     Esta acción no se puede deshacer.
                 </p>
-
                 <div className="flex justify-end gap-3">
                     <button
                         onClick={() => setDeleteTarget(null)}

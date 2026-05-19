@@ -9,12 +9,8 @@ use Inertia\Inertia;
 
 class EmpleadoController extends Controller
 {
-    /**
-     * Mostrar la lista de empleados y las sucursales disponibles.
-     */
     public function index()
     {
-        // Consulta limpia a PostgreSQL cruzando empleados con usuarios y sucursales
         $empleados = DB::table('empleados')
             ->join('users', 'empleados.user_id', '=', 'users.id')
             ->join('sucursales', 'empleados.sucursal_id', '=', 'sucursales.id')
@@ -31,22 +27,17 @@ class EmpleadoController extends Controller
             ->orderBy('empleados.nombre', 'asc')
             ->get();
 
-        // Cargamos las sucursales para los selectores de los modales
         $sucursales = DB::table('sucursales')
             ->select('id', 'nombre')
             ->orderBy('nombre', 'asc')
             ->get();
 
-        // 🎯 APUNTANDO CORRECTAMENTE A: resources/js/pages/empleado/index.tsx
-        return Inertia::render('empleado/index', [
+        return Inertia::render('Empleado/index', [
             'empleados' => $empleados,
             'sucursales' => $sucursales,
         ]);
     }
 
-    /**
-     * Registrar un nuevo empleado en el staff.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -57,7 +48,6 @@ class EmpleadoController extends Controller
             'sucursal_id' => 'required|exists:sucursales,id',
         ]);
 
-        // Asignación de salario base automático según el puesto contratado
         $salario = match ($request->rol) {
             'recepcionista' => 6000.00,
             'entrenador'    => 8000.00,
@@ -65,9 +55,7 @@ class EmpleadoController extends Controller
             default         => 0.00,
         };
 
-        // Transacción para asegurar la consistencia de datos en ambas tablas
         DB::transaction(function () use ($request, $salario) {
-            // 1. Insertar el registro de acceso en la tabla users
             $userId = DB::table('users')->insertGetId([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -77,7 +65,6 @@ class EmpleadoController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // 2. Insertar el perfil laboral en la tabla empleados vinculado al user_id
             DB::table('empleados')->insert([
                 'user_id' => $userId,
                 'sucursal_id' => $request->sucursal_id,
@@ -92,9 +79,6 @@ class EmpleadoController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * Actualizar los datos de un empleado existente (Puesto, Sucursal, Nombre, Salario o Contraseña).
-     */
     public function update(Request $request, $id)
     {
         $empleado = DB::table('empleados')->where('id', $id)->first();
@@ -103,7 +87,6 @@ class EmpleadoController extends Controller
             return redirect()->back()->withErrors(['error' => 'Empleado no encontrado']);
         }
 
-        // La regla del password ahora es opcional ('nullable') pero si se escribe, debe tener mínimo 8 caracteres
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $empleado->user_id,
@@ -114,7 +97,6 @@ class EmpleadoController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $empleado, $id) {
-            // 1. Preparar los datos básicos del usuario
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
@@ -122,17 +104,14 @@ class EmpleadoController extends Controller
                 'updated_at' => now(),
             ];
 
-            // 🔑 Si el administrador escribió algo en el campo password, lo agregamos encriptado
             if ($request->filled('password')) {
                 $userData['password'] = Hash::make($request->password);
             }
 
-            // Actualizar datos en la tabla users
             DB::table('users')
                 ->where('id', $empleado->user_id)
                 ->update($userData);
 
-            // 2. Actualizar datos laborales en la tabla empleados
             DB::table('empleados')
                 ->where('id', $id)
                 ->update([
@@ -147,18 +126,13 @@ class EmpleadoController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * Dar de baja a un empleado (Remueve perfil del staff y credenciales de acceso).
-     */
     public function destroy($id)
     {
         $empleado = DB::table('empleados')->where('id', $id)->first();
 
         if ($empleado) {
             DB::transaction(function () use ($empleado, $id) {
-                // Borramos primero el perfil de empleado
                 DB::table('empleados')->where('id', $id)->delete();
-                // Borramos las credenciales para liberar el correo electrónico único
                 DB::table('users')->where('id', $empleado->user_id)->delete();
             });
         }

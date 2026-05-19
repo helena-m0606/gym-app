@@ -9,7 +9,6 @@ class MiembroPerfilController extends Controller
 {
     public function dashboard()
     {
-        // Por ahora usamos el primer miembro como ejemplo
         $miembro = DB::table('miembros')->first();
 
         $checkinsMes = DB::table('checkins')
@@ -46,7 +45,7 @@ class MiembroPerfilController extends Controller
             ->limit(2)
             ->get();
 
-        return Inertia::render('miembro/dashboard', [
+        return Inertia::render('Miembro-Perfil/dashboard', [
             'miembro' => $miembro,
             'checkinsMes' => $checkinsMes,
             'membresia' => $membresia,

@@ -28,14 +28,13 @@ class MembresiaController extends Controller
         $tiposMembresia = DB::table('tipos_membresia')->get();
         $miembros = DB::table('miembros')->where('estado', true)->get();
 
-        return Inertia::render('membresias/index', [
+        return Inertia::render('Membresia/index', [
             'membresias' => $membresias,
             'tiposMembresia' => $tiposMembresia,
             'miembros' => $miembros,
         ]);
     }
 
-    // CRUD MEMBRESÍAS DE MIEMBROS
     public function store(Request $request)
     {
         $request->validate([

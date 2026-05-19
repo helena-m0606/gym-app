@@ -9,7 +9,6 @@ class GerenteController extends Controller
 {
     public function dashboard()
     {
-        // Obtener la sucursal del gerente via su empleado vinculado
         $empleado = DB::table('empleados')
             ->where('user_id', auth()->id())
             ->first();

@@ -10,7 +10,7 @@ class MiembroController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Miembros/Index', [
+        return Inertia::render('Miembro/Index', [
 
             'miembros' => Miembro::with('sucursal')
                 ->latest()
@@ -43,7 +43,7 @@ class MiembroController extends Controller
             'estado' => true,
         ]);
 
-        return redirect()->route('miembros.index');
+        return redirect()->route('Miembro.index');
     }
 
     public function update(Request $request, Miembro $miembro)
@@ -60,14 +60,14 @@ class MiembroController extends Controller
 
         $miembro->update($validated);
 
-        return redirect()->route('miembros.index');
+        return redirect()->route('Miembro.index');
     }
 
     public function destroy(Miembro $miembro)
     {
         $miembro->delete();
 
-        return redirect()->route('miembros.index');
+        return redirect()->route('Miembro.index');
     }
 }
 

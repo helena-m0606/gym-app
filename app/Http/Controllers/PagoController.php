@@ -10,7 +10,6 @@ class PagoController extends Controller
 {
     public function index()
     {
-        // 1. Cargamos el historial de pagos para la tabla
         $pagos = DB::table('pagos')
             ->join('membresias', 'pagos.membresia_id', '=', 'membresias.id')
             ->join('miembros', 'membresias.miembro_id', '=', 'miembros.id')
@@ -27,11 +26,9 @@ class PagoController extends Controller
             ->orderBy('pagos.fecha_pago', 'desc')
             ->get();
 
-        // 2. Cargamos los catálogos necesarios para la venta rápida
         $miembros = DB::table('miembros')->select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $tiposMembresia = DB::table('tipos_membresia')->select('id', 'nombre', 'precio', 'duracion_dias')->get();
         
-        // Cargamos las promociones vigentes al día de hoy
         $hoy = date('Y-m-d');
         $promociones = DB::table('promociones')
             ->select('id', 'nombre', 'descuento_porcentaje')
@@ -39,7 +36,7 @@ class PagoController extends Controller
             ->where('fecha_fin', '>=', $hoy)
             ->get();
 
-        return Inertia::render('pagos/index', [
+        return Inertia::render('Pago/index', [
             'pagos' => $pagos,
             'miembros' => $miembros,
             'tiposMembresia' => $tiposMembresia,
@@ -64,7 +61,6 @@ class PagoController extends Controller
 
         DB::transaction(function () use ($request, $fechaInicio, $fechaFin) {
             
-            // 1. Creamos o actualizamos la membresía del miembro
             $membresiaExistente = DB::table('membresias')->where('miembro_id', $request->miembro_id)->first();
 
             if ($membresiaExistente) {
@@ -85,14 +81,12 @@ class PagoController extends Controller
                 ]);
             }
 
-            // 2. Si se aplicó una promoción válida, guardamos el registro en la intermedia de Claude
             if ($request->promocion_id) {
                 DB::table('membresia_promocion')->updateOrInsert(
                     ['membresia_id' => $membresiaId, 'promocion_id' => $request->promocion_id]
                 );
             }
 
-            // 3. Registramos el pago definitivo con el precio ya descontado que mandó el frontend
             DB::table('pagos')->insert([
                 'membresia_id' => $membresiaId,
                 'monto' => $request->monto,

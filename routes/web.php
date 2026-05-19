@@ -9,9 +9,9 @@ use App\Http\Controllers\MiembroPerfilController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\DashboardController;
-// 🎯 RESTAURADO: Imports de tus controladores backend
 use App\Http\Controllers\ClaseController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\RutinaController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -104,9 +104,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('empleados/{empleado}', [EmpleadoController::class, 'update'])
         ->name('empleados.update');
-        
+
     Route::delete('empleados/{empleado}', [EmpleadoController::class, 'destroy'])
         ->name('empleados.destroy');
+
+    Route::get('rutinas', [RutinaController::class, 'index'])
+        ->name('rutinas.index');
+    
+    Route::post('rutinas', [RutinaController::class, 'store'])
+        ->name('rutinas.store');
+    
+    Route::put('rutinas/{rutina}', [RutinaController::class, 'update'])
+        ->name('rutinas.update');
+    
+    Route::delete('rutinas/{rutina}', [RutinaController::class, 'destroy'])
+        ->name('rutinas.destroy');
+
 });
 
 require __DIR__.'/settings.php';

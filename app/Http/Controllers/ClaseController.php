@@ -8,12 +8,8 @@ use Inertia\Inertia;
 
 class ClaseController extends Controller
 {
-    /**
-     * Mostrar la lista de clases configuradas y catálogos de apoyo.
-     */
     public function index()
     {
-        // Cruzamos clases con empleados y sucursales usando los nombres reales de tus columnas
         $clases = DB::table('clases')
             ->join('empleados', 'clases.entrenador_id', '=', 'empleados.id')
             ->join('sucursales', 'clases.sucursal_id', '=', 'sucursales.id')
@@ -30,7 +26,6 @@ class ClaseController extends Controller
             ->orderBy('clases.nombre', 'asc')
             ->get();
 
-        // Instructores disponibles (Se añade empleados.sucursal_id para que React pueda filtrar en cascada)
         $entrenadores = DB::table('empleados')
             ->join('users', 'empleados.user_id', '=', 'users.id')
             ->where('users.rol', '=', 'entrenador')
@@ -38,22 +33,18 @@ class ClaseController extends Controller
             ->orderBy('empleados.nombre', 'asc')
             ->get();
 
-        // Sucursales activas
         $sucursales = DB::table('sucursales')
             ->select('id', 'nombre')
             ->orderBy('nombre', 'asc')
             ->get();
 
-        return Inertia::render('clase/index', [
+        return Inertia::render('Clase/index', [
             'clases' => $clases,
             'entrenadores' => $entrenadores,
             'sucursales' => $sucursales,
         ]);
     }
 
-    /**
-     * Registrar una nueva clase.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -64,7 +55,6 @@ class ClaseController extends Controller
             'cupo_maximo' => 'required|integer|min:1',
         ]);
 
-        // 🎯 CORREGIDO: Eliminadas las columnas created_at y updated_at
         DB::table('clases')->insert([
             'nombre' => $request->nombre,
             'entrenador_id' => $request->entrenador_id,
@@ -76,9 +66,6 @@ class ClaseController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * Actualizar una clase existente.
-     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -89,7 +76,6 @@ class ClaseController extends Controller
             'cupo_maximo' => 'required|integer|min:1',
         ]);
 
-        // 🎯 CORREGIDO: Eliminada la columna updated_at
         DB::table('clases')
             ->where('id', $id)
             ->update([
@@ -103,9 +89,6 @@ class ClaseController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * Eliminar una clase de la agenda.
-     */
     public function destroy($id)
     {
         DB::table('clases')->where('id', $id)->delete();

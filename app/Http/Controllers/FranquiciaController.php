@@ -10,7 +10,7 @@ class FranquiciaController extends Controller
 {
     public function index()
     {
-        return Inertia::render('franquicias/index', [
+        return Inertia::render('Franquicia/index', [
             'franquicias' => Franquicia::latest()->get(),
         ]);
     }
@@ -25,7 +25,7 @@ class FranquiciaController extends Controller
 
         Franquicia::create($validated);
 
-        return redirect()->route('franquicias.index');
+        return redirect()->route('Franquicia.index');
     }
 
     public function update(Request $request, Franquicia $franquicia)

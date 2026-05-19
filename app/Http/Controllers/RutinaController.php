@@ -10,14 +10,12 @@ class RutinaController extends Controller
 {
     public function index()
     {
-        // 1. Catálogo de rutinas incluyendo el nombre del empleado/entrenador mediante leftJoin
         $rutinasBase = DB::table('rutinas')
             ->leftJoin('empleados', 'rutinas.entrenador_id', '=', 'empleados.id')
             ->select('rutinas.id', 'rutinas.nombre', 'rutinas.entrenador_id', 'empleados.nombre as entrenador_nombre')
             ->orderBy('rutinas.id', 'desc')
             ->get();
 
-        // 2. Ejercicios mapeados desde la tabla pivote (sin descanso_segundos)
         $ejerciciosMapeados = DB::table('rutina_ejercicio')
             ->join('ejercicios', 'rutina_ejercicio.ejercicio_id', '=', 'ejercicios.id')
             ->select(
@@ -30,7 +28,6 @@ class RutinaController extends Controller
             ->get()
             ->groupBy('rutina_id');
 
-        // 3. Estructuramos la colección final con la forma que espera React
         $rutinasFinales = $rutinasBase->map(function ($rutina) use ($ejerciciosMapeados) {
             $ejercicios = collect($ejerciciosMapeados->get($rutina->id) ?? [])->map(function ($ej) {
                 return [
@@ -71,17 +68,14 @@ class RutinaController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-            // Buscamos un miembro_id para cumplir con la restricción NOT NULL de tu BD
             $miembroId = DB::table('miembros')->value('id') ?? 1;
 
-            // Insertar cabecera de la rutina
             $rutinaId = DB::table('rutinas')->insertGetId([
                 'nombre' => $request->nombre,
                 'entrenador_id' => $request->entrenador_id,
                 'miembro_id' => $miembroId,
             ]);
 
-            // Mapear e insertar pivotes
             $pivoteData = [];
             foreach ($request->ejercicios as $ej) {
                 $pivoteData[] = [
@@ -102,11 +96,33 @@ class RutinaController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:100',
+            'entrenador_id' => 'required|exists:empleados,id',
+            'ejercicios' => 'required|array|min:1',
+            'ejercicios.*.ejercicio_id' => 'required|exists:ejercicios,id',
+            'ejercicios.*.series' => 'required|integer|min:1',
+            'ejercicios.*.repeticiones' => 'required|integer|min:1',
         ]);
 
-        DB::table('rutinas')->where('id', $id)->update([
-            'nombre' => $request->nombre,
-        ]);
+        DB::transaction(function () use ($request, $id) {
+            DB::table('rutinas')->where('id', $id)->update([
+                'nombre' => $request->nombre,
+                'entrenador_id' => $request->entrenador_id,
+            ]);
+
+            DB::table('rutina_ejercicio')->where('rutina_id', $id)->delete();
+
+            $pivoteData = [];
+            foreach ($request->ejercicios as $ej) {
+                $pivoteData[] = [
+                    'rutina_id' => $id,
+                    'ejercicio_id' => $ej['ejercicio_id'],
+                    'series' => $ej['series'],
+                    'repeticiones' => $ej['repeticiones'],
+                ];
+            }
+
+            DB::table('rutina_ejercicio')->insert($pivoteData);
+        });
 
         return redirect()->route('rutinas.index');
     }

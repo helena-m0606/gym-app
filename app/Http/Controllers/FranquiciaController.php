@@ -25,7 +25,7 @@ class FranquiciaController extends Controller
 
         Franquicia::create($validated);
 
-        return redirect()->route('Franquicia.index');
+        return redirect()->route('franquicias.index');
     }
 
     public function update(Request $request, Franquicia $franquicia)

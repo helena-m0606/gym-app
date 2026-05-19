@@ -52,7 +52,6 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function FranquiciasIndex({ franquicias }: { franquicias: Franquicia[] }) {
-    // 🎯 Integrado: Control de visibilidad del formulario de Helena
     const [showForm, setShowForm] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -90,7 +89,6 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
         });
     }
 
-    // 🎯 Integrado: Variable limpia de estilos de Helena
     const inputCls = 'w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400';
 
     return (
@@ -99,9 +97,8 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
             rolLabel="🏆 Administrador — Acceso Total"
             rolColor="border-blue-200 bg-blue-50 text-blue-600"
             title="Franquicias"
-            subtitle="Administración de franquicias."
+            subtitle="Administración de franquicias del gimnasio."
         >
-            {/* ── 🎯 Botón / Formulario Crear Integrado Estéticamente ── */}
             <div className="mb-8">
                 {!showForm ? (
                     <button onClick={() => setShowForm(true)}
@@ -141,13 +138,11 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                 )}
             </div>
 
-            {/* ── Contenedor principal de la Lista responsiva ── */}
             <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
                 <div className="border-b border-gray-200 p-5 font-semibold">
                     Lista de Franquicias
                 </div>
 
-                {/* 🎯 VISTA MÓVIL: Tarjetas */}
                 <div className="block md:hidden divide-y divide-gray-100">
                     {franquicias.length === 0 ? (
                         <div className="p-5 text-center text-sm text-gray-400">No hay franquicias registradas.</div>
@@ -172,7 +167,6 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                     )}
                 </div>
 
-                {/* 🎯 VISTA DESKTOP: Tabla */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50 text-gray-500">
@@ -206,7 +200,6 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                 </div>
             </div>
 
-            {/* Modales */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar franquicia</h3>
                 <form onSubmit={submitEdit} className="space-y-4">

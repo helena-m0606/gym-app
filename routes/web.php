@@ -29,16 +29,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('dashboard');
 
     Route::get('miembros', [MiembroController::class, 'index'])
-        ->name('miembros.index');
+        ->name('Miembro.index');
 
     Route::post('miembros', [MiembroController::class, 'store'])
-        ->name('miembros.store');
+        ->name('Miembro.store');
 
     Route::put('miembros/{miembro}', [MiembroController::class, 'update'])
-        ->name('miembros.update');
+        ->name('Miembro.update');
 
     Route::delete('miembros/{miembro}', [MiembroController::class, 'destroy']) 
-        ->name('miembros.destroy');
+        ->name('Miembro.destroy');
 
     Route::get('miembro/dashboard', [MiembroPerfilController::class, 'dashboard'])
         ->name('miembro.dashboard');
@@ -121,18 +121,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('rutinas/{rutina}', [RutinaController::class, 'destroy'])
         ->name('rutinas.destroy');
 
-Route::get('productos', [ProductoController::class, 'index'])
-    ->name('productos.index');
+    Route::get('productos', [ProductoController::class, 'index'])
+        ->name('productos.index');
 
-Route::post('productos', [ProductoController::class, 'store'])
-    ->name('productos.store');
+    Route::post('productos', [ProductoController::class, 'store'])
+        ->name('productos.store');
 
-Route::put('productos/{producto}', [ProductoController::class, 'update'])
-    ->name('productos.update');
+    Route::put('productos/{producto}', [ProductoController::class, 'update'])
+        ->name('productos.update');
 
-Route::delete('productos/{producto}', [ProductoController::class, 'destroy'])
-    ->name('productos.destroy');
-
+    Route::delete('productos/{producto}', [ProductoController::class, 'destroy'])
+        ->name('productos.destroy');
 });
 
 require __DIR__.'/settings.php';

@@ -68,7 +68,8 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function Index({ miembros, sucursales }: { miembros: Miembro[]; sucursales: Sucursal[] }) {
-    // ── Crear Miembro ──
+    const [showForm, setShowForm] = useState(false);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         sucursal_id: '',
         nombre: '',
@@ -80,10 +81,9 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        post('/miembros', { onSuccess: () => reset() });
+        post('/miembros', { onSuccess: () => { reset(); setShowForm(false); } });
     }
 
-    // ── Editar Miembro ──
     const [editTarget, setEditTarget] = useState<Miembro | null>(null);
     const editForm = useForm({
         sucursal_id: '',
@@ -116,7 +116,6 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
         });
     }
 
-    // ── Eliminar Miembro ──
     const [deleteTarget, setDeleteTarget] = useState<Miembro | null>(null);
     const [deleting, setDeleting] = useState(false);
 
@@ -134,99 +133,108 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
             menuItems={menuItems}
             rolLabel="🏆 Administrador — Acceso Total"
             rolColor="border-blue-200 bg-blue-50 text-blue-600"
-            title="Gestión de Miembros"
+            title="Miembros"
             subtitle="Administración de miembros del gimnasio."
         >
-            {/* ── Formulario Crear ── */}
-            <form onSubmit={submit} className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h3 className="mb-5 text-lg font-semibold">Registrar nuevo miembro</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Nombre completo"
-                            value={data.nombre}
-                            onChange={(e) => setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
-                    </div>
+            <div className="mb-8">
+                {!showForm ? (
+                    <button onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 transition">
+                        + Añadir miembro
+                    </button>
+                ) : (
+                    <form onSubmit={submit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-800">Registrar nuevo miembro</h3>
+                            <button type="button" onClick={() => setShowForm(false)}
+                                className="text-sm font-medium text-gray-400 hover:text-gray-600 transition">Cancelar</button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Nombre completo"
+                                    value={data.nombre}
+                                    onChange={(e) => setData('nombre', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                />
+                                {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
+                            </div>
 
-                    <div>
-                        <input
-                            type="email"
-                            placeholder="Correo electrónico"
-                            value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
-                    </div>
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Correo electrónico"
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                />
+                                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+                            </div>
 
-                    <div>
-                        <select
-                            value={data.sucursal_id}
-                            onChange={(e) => setData('sucursal_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                            <div>
+                                <select
+                                    value={data.sucursal_id}
+                                    onChange={(e) => setData('sucursal_id', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                >
+                                    <option value="">Seleccionar sucursal</option>
+                                    {sucursales.map((s) => (
+                                        <option key={s.id} value={s.id}>{s.nombre}</option>
+                                    ))}
+                                </select>
+                                {errors.sucursal_id && <p className="mt-1 text-xs text-red-500">{errors.sucursal_id}</p>}
+                            </div>
+
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Teléfono (10 dígitos)"
+                                    value={data.telefono}
+                                    onChange={(e) => setData('telefono', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                />
+                                {errors.telefono && <p className="mt-1 text-xs text-red-500">{errors.telefono}</p>}
+                            </div>
+
+                            <div>
+                                <input
+                                    type="date"
+                                    value={data.fecha_nacimiento}
+                                    onChange={(e) => setData('fecha_nacimiento', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none focus:border-orange-400"
+                                />
+                            </div>
+
+                            <div>
+                                <select
+                                    value={data.genero}
+                                    onChange={(e) => setData('genero', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                >
+                                    <option value="">Género (Opcional)</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Femenino">Femenino</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button
+                            disabled={processing}
+                            className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition"
                         >
-                            <option value="">Seleccionar sucursal</option>
-                            {sucursales.map((s) => (
-                                <option key={s.id} value={s.id}>{s.nombre}</option>
-                            ))}
-                        </select>
-                        {errors.sucursal_id && <p className="mt-1 text-xs text-red-500">{errors.sucursal_id}</p>}
-                    </div>
+                            {processing ? 'Guardando...' : 'Guardar Miembro'}
+                        </button>
+                    </form>
+                )}
+            </div>
 
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Teléfono (10 dígitos)"
-                            value={data.telefono}
-                            onChange={(e) => setData('telefono', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {errors.telefono && <p className="mt-1 text-xs text-red-500">{errors.telefono}</p>}
-                    </div>
-
-                    <div>
-                        <input
-                            type="date"
-                            value={data.fecha_nacimiento}
-                            onChange={(e) => setData('fecha_nacimiento', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none focus:border-orange-400"
-                        />
-                    </div>
-
-                    <div>
-                        <select
-                            value={data.genero}
-                            onChange={(e) => setData('genero', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        >
-                            <option value="">Género (Opcional)</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Femenino">Femenino</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                </div>
-
-                {/* Botón grande responsivo estilo Helena */}
-                <button
-                    disabled={processing}
-                    className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
-                >
-                    {processing ? 'Guardando...' : 'Registrar Miembro'}
-                </button>
-            </form>
-
-            {/* ── Contenedor de la Lista ── */}
             <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
                 <div className="border-b border-gray-200 p-5 font-semibold">
                     Lista de Miembros Activos
                 </div>
 
-                {/* 🎯 VISTA MÓVIL: Formato Tarjetas (Cards) */}
                 <div className="block md:hidden divide-y divide-gray-100">
                     {miembros.length === 0 ? (
                         <div className="p-5 text-center text-sm text-gray-400">No hay miembros registrados.</div>
@@ -270,7 +278,6 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                     )}
                 </div>
 
-                {/* 🎯 VISTA DESKTOP: Tabla para computadoras */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50 text-gray-500">
@@ -332,7 +339,6 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                 </div>
             </div>
 
-            {/* ── Modal Editar ── */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar miembro</h3>
                 <form onSubmit={submitEdit} className="space-y-4">
@@ -428,7 +434,6 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                 </form>
             </Modal>
 
-            {/* ── Modal Eliminar ── */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
                     <IconTrash />

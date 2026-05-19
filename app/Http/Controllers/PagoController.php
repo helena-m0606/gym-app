@@ -57,10 +57,9 @@ class PagoController extends Controller
 
         $tipo = DB::table('tipos_membresia')->where('id', $request->tipo_membresia_id)->first();
         $fechaInicio = $request->fecha_pago;
-        $fechaFin = date('Y-m-d', strtotime($fechaInicio . " + {$tipo->duracion_dias} days"));
+        $fechaFin = date('Y-m-d', strtotime($fechaInicio . ' + ' . $tipo->duracion_dias . ' days'));
 
         DB::transaction(function () use ($request, $fechaInicio, $fechaFin) {
-            
             $membresiaExistente = DB::table('membresias')->where('miembro_id', $request->miembro_id)->first();
 
             if ($membresiaExistente) {

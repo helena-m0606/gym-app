@@ -71,6 +71,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function PagosIndex({ pagos, tiposMembresia, miembros, promociones }: Props) {
+    const [showForm, setShowForm] = useState(false);
     const [editando, setEditando] = useState<Pago | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Pago | null>(null);
     const [deleting, setDeleting] = useState(false);
@@ -119,7 +120,7 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        post('/pagos', { onSuccess: () => reset() });
+        post('/pagos', { onSuccess: () => { reset(); setShowForm(false); } });
     }
 
     function abrirEditar(p: Pago) {
@@ -165,84 +166,95 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
             title="Pagos"
             subtitle="Registro y control de pagos de membresías."
         >
-            {/* ── Formulario Registrar Pago ── */}
-            <form onSubmit={submit} className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h3 className="mb-5 text-lg font-semibold">Registrar nuevo pago</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-                    <div>
-                        <select
-                            value={data.miembro_id}
-                            onChange={(e) => setData('miembro_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
-                            required
+            <div className="mb-8">
+                {!showForm ? (
+                    <button onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 transition">
+                        + Registrar pago
+                    </button>
+                ) : (
+                    <form onSubmit={submit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-800">Registrar nuevo pago</h3>
+                            <button type="button" onClick={() => setShowForm(false)}
+                                className="text-sm font-medium text-gray-400 hover:text-gray-600 transition">Cancelar</button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+                            <div>
+                                <select
+                                    value={data.miembro_id}
+                                    onChange={(e) => setData('miembro_id', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
+                                    required
+                                >
+                                    <option value="">Seleccionar miembro</option>
+                                    {miembros?.map((m) => (
+                                        <option key={m.id} value={m.id}>{m.nombre}</option>
+                                    ))}
+                                </select>
+                                {errors.miembro_id && <p className="mt-1 text-xs text-red-500">{errors.miembro_id}</p>}
+                            </div>
+
+                            <div>
+                                <select
+                                    value={data.tipo_membresia_id}
+                                    onChange={(e) => setData('tipo_membresia_id', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
+                                    required
+                                >
+                                    <option value="">Tipo de membresía</option>
+                                    {tiposMembresia?.map((t) => (
+                                        <option key={t.id} value={t.id}>{t.nombre}</option>
+                                    ))}
+                                </select>
+                                {errors.tipo_membresia_id && <p className="mt-1 text-xs text-red-500">{errors.tipo_membresia_id}</p>}
+                            </div>
+
+                            <div>
+                                <select
+                                    value={data.promocion_id}
+                                    onChange={(e) => setData('promocion_id', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
+                                >
+                                    <option value="">Sin promoción (Precio base)</option>
+                                    {promociones?.map((p) => (
+                                        <option key={p.id} value={p.id}>{p.nombre} (-{Math.round(p.descuento_porcentaje)}%)</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Monto final"
+                                    value={data.monto ? `$${data.monto}` : ''}
+                                    readOnly
+                                    className="w-full rounded-xl border border-gray-100 bg-gray-50/70 px-4 py-3 text-sm font-semibold text-gray-700 outline-none select-none"
+                                />
+                            </div>
+
+                            <div>
+                                <select
+                                    value={data.metodo_pago}
+                                    onChange={(e) => setData('metodo_pago', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
+                                >
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="tarjeta">Tarjeta</option>
+                                    <option value="transferencia">Transferencia</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button
+                            disabled={processing}
+                            className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition"
                         >
-                            <option value="">Seleccionar miembro</option>
-                            {miembros?.map((m) => (
-                                <option key={m.id} value={m.id}>{m.nombre}</option>
-                            ))}
-                        </select>
-                        {errors.miembro_id && <p className="mt-1 text-xs text-red-500">{errors.miembro_id}</p>}
-                    </div>
+                            {processing ? 'Guardando...' : 'Guardar Pago'}
+                        </button>
+                    </form>
+                )}
+            </div>
 
-                    <div>
-                        <select
-                            value={data.tipo_membresia_id}
-                            onChange={(e) => setData('tipo_membresia_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
-                            required
-                        >
-                            <option value="">Tipo de membresía</option>
-                            {tiposMembresia?.map((t) => (
-                                <option key={t.id} value={t.id}>{t.nombre}</option>
-                            ))}
-                        </select>
-                        {errors.tipo_membresia_id && <p className="mt-1 text-xs text-red-500">{errors.tipo_membresia_id}</p>}
-                    </div>
-
-                    <div>
-                        <select
-                            value={data.promocion_id}
-                            onChange={(e) => setData('promocion_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
-                        >
-                            <option value="">Sin promoción (Precio base)</option>
-                            {promociones?.map((p) => (
-                                <option key={p.id} value={p.id}>{p.nombre} (-{Math.round(p.descuento_porcentaje)}%)</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Monto final"
-                            value={data.monto ? `$${data.monto}` : ''}
-                            readOnly
-                            className="w-full rounded-xl border border-gray-100 bg-gray-50/70 px-4 py-3 text-sm font-semibold text-gray-700 outline-none select-none"
-                        />
-                    </div>
-
-                    <div>
-                        <select
-                            value={data.metodo_pago}
-                            onChange={(e) => setData('metodo_pago', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
-                        >
-                            <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta</option>
-                            <option value="transferencia">Transferencia</option>
-                        </select>
-                    </div>
-                </div>
-                <button
-                    disabled={processing}
-                    className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
-                >
-                    {processing ? 'Guardando...' : 'Guardar Pago'}
-                </button>
-            </form>
-
-            {/* ── Filtros del Historial ── */}
             <div className="mb-4 flex flex-col gap-3 sm:flex-row">
                 <input
                     type="text"
@@ -272,9 +284,6 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
                 </select>
             </div>
 
-            {/* ========================================================================= */}
-            {/* 📱 1. VISTA MÓVIL: Tarjetas Apiladas (md:hidden)                           */}
-            {/* ========================================================================= */}
             <div className="space-y-4 md:hidden">
                 <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de Pagos</h3>
                 {pagosFiltrados.length > 0 ? (
@@ -286,9 +295,7 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
                                     <p className="text-xs text-gray-400 mt-1">Membresía: <span className="font-medium text-gray-600">{p.tipo_membresia}</span></p>
                                 </div>
                                 <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${
-                                    p.estado === 'pagado'
-                                        ? 'bg-green-50 text-green-700 border border-green-100'
-                                        : 'bg-yellow-50 text-yellow-700 border border-yellow-100'
+                                    p.estado === 'pagado' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-yellow-50 text-yellow-700 border border-yellow-100'
                                 }`}>
                                     {p.estado === 'pagado' ? 'Pagado' : 'Pendiente'}
                                 </span>
@@ -313,10 +320,10 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
                                     </span>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={() => abrirEditar(p)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 active:bg-blue-50 active:text-blue-500">
+                                    <button onClick={() => abrirEditar(p)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600">
                                         <IconEdit />
                                     </button>
-                                    <button onClick={() => setDeleteTarget(p)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
+                                    <button onClick={() => setDeleteTarget(p)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400">
                                         <IconTrash />
                                     </button>
                                 </div>
@@ -330,9 +337,6 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
                 )}
             </div>
 
-            {/* ========================================================================= */}
-            {/* 💻 2. VISTA ESCRITORIO: Tabla Clásica (hidden md:block)                    */}
-            {/* ========================================================================= */}
             <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                 <div className="border-b border-gray-200 p-5 font-semibold">Lista de Pagos</div>
                 <table className="w-full text-left text-sm">
@@ -350,7 +354,6 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
                         {pagosFiltrados.length > 0 ? (
                             pagosFiltrados.map((p) => (
                                 <tr key={p.id} className="border-t border-gray-100 hover:bg-gray-50/60">
-                                    {/* 🎯 Unificación de celda: Miembro y tipo de membresía en una sola columna */}
                                     <td className="p-5">
                                         <div className="font-medium text-gray-900">{p.miembro}</div>
                                         <div className="text-xs text-gray-400 mt-0.5">{p.tipo_membresia}</div>
@@ -360,9 +363,7 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
                                     <td className="capitalize text-gray-600">{p.metodo_pago}</td>
                                     <td>
                                         <span className={
-                                            p.estado === 'pagado'
-                                                ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
-                                                : 'rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-600'
+                                            p.estado === 'pagado' ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600' : 'rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-600'
                                         }>
                                             {p.estado === 'pagado' ? 'Pagado' : 'Pendiente'}
                                         </span>
@@ -390,7 +391,6 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
                 </table>
             </div>
 
-            {/* ── Modal Editar ── */}
             <Modal open={!!editando} onClose={() => setEditando(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar pago — {editando?.miembro}</h3>
                 <form onSubmit={guardarEdicion} className="space-y-4">
@@ -458,9 +458,8 @@ export default function PagosIndex({ pagos, tiposMembresia, miembros, promocione
                 </form>
             </Modal>
 
-            {/* ── Modal Eliminar ── */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
                     <IconTrash />
                 </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar registro de pago</h3>

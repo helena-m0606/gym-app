@@ -67,6 +67,7 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
     const editForm = useForm({ nombre: '', razon_social: '', rfc: '' });
 
     function openEdit(f: Franquicia) {
+        editForm.clearErrors();
         editForm.setData({ nombre: f.nombre, razon_social: f.razon_social, rfc: f.rfc });
         setEditTarget(f);
     }
@@ -99,6 +100,7 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
             title="Franquicias"
             subtitle="Administración de franquicias del gimnasio."
         >
+            {/* FORMULARIO */}
             <div className="mb-8">
                 {!showForm ? (
                     <button onClick={() => setShowForm(true)}
@@ -138,100 +140,142 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                 )}
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div className="border-b border-gray-200 p-5 font-semibold">
-                    Lista de Franquicias
-                </div>
-
-                <div className="block md:hidden divide-y divide-gray-100">
-                    {franquicias.length === 0 ? (
-                        <div className="p-5 text-center text-sm text-gray-400">No hay franquicias registradas.</div>
-                    ) : (
-                        franquicias.map((f) => (
-                            <div key={f.id} className="p-5 space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold text-gray-800 text-base">{f.nombre}</span>
-                                    <div className="flex gap-1">
-                                        <button onClick={() => openEdit(f)} className="p-2 text-gray-400 hover:text-blue-500 rounded-lg transition"><IconEdit /></button>
-                                        <button onClick={() => setDeleteTarget(f)} className="p-2 text-gray-400 hover:text-red-500 rounded-lg transition"><IconTrash /></button>
-                                    </div>
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">Razón Social:</span> {f.razon_social}
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">RFC:</span> <span className="font-mono bg-gray-50 px-1.5 py-0.5 rounded text-xs text-gray-700">{f.rfc}</span>
+            {/* VISTA MÓVIL */}
+            <div className="space-y-4 md:hidden">
+                <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de Franquicias</h3>
+                {franquicias.length > 0 ? (
+                    franquicias.map((f) => (
+                        <div key={f.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+                            <div className="flex justify-between items-start gap-2">
+                                <h4 className="font-bold text-gray-900 text-base leading-tight">{f.nombre}</h4>
+                                <div className="flex gap-1 shrink-0">
+                                    <button onClick={() => openEdit(f)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 active:bg-blue-50 active:text-blue-500">
+                                        <IconEdit />
+                                    </button>
+                                    <button onClick={() => setDeleteTarget(f)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
+                                        <IconTrash />
+                                    </button>
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
-
-                <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-50 text-gray-500">
-                            <tr>
-                                <th className="p-5">Nombre</th>
-                                <th>Razón social</th>
-                                <th>RFC</th>
-                                <th className="pr-5 text-center w-32">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {franquicias.length === 0 ? (
-                                <tr><td colSpan={4} className="p-5 text-center text-gray-400">No hay franquicias registradas.</td></tr>
-                            ) : (
-                                franquicias.map((f) => (
-                                    <tr key={f.id} className="hover:bg-gray-50/60 transition">
-                                        <td className="p-5 font-medium text-gray-800">{f.nombre}</td>
-                                        <td className="text-gray-600">{f.razon_social}</td>
-                                        <td className="font-mono text-xs text-gray-700">{f.rfc}</td>
-                                        <td className="pr-5 text-center">
-                                            <div className="flex items-center justify-center gap-1">
-                                                <button onClick={() => openEdit(f)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"><IconEdit /></button>
-                                                <button onClick={() => setDeleteTarget(f)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"><IconTrash /></button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                            <div className="grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 text-xs text-gray-600">
+                                <div>
+                                    <span className="block text-gray-400 font-medium mb-0.5">Razón Social</span>
+                                    <span className="font-medium text-gray-700">{f.razon_social}</span>
+                                </div>
+                                <div>
+                                    <span className="block text-gray-400 font-medium mb-0.5">RFC</span>
+                                    <span className="font-mono bg-gray-50 px-1.5 py-0.5 rounded text-gray-700">{f.rfc}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
+                        No hay franquicias registradas.
+                    </div>
+                )}
             </div>
 
+            {/* VISTA DESKTOP */}
+            <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div className="border-b border-gray-200 p-5 font-semibold">Lista de Franquicias</div>
+                <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 text-gray-500">
+                        <tr>
+                            <th className="p-5">Nombre</th>
+                            <th>Razón social</th>
+                            <th>RFC</th>
+                            <th className="pr-5 text-center w-32">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {franquicias.length > 0 ? (
+                            franquicias.map((f) => (
+                                <tr key={f.id} className="border-t border-gray-100 hover:bg-gray-50/60 transition">
+                                    <td className="p-5 font-medium text-gray-800">{f.nombre}</td>
+                                    <td className="text-gray-600">{f.razon_social}</td>
+                                    <td className="font-mono text-xs text-gray-700">{f.rfc}</td>
+                                    <td className="pr-5">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <button onClick={() => openEdit(f)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500">
+                                                <IconEdit />
+                                            </button>
+                                            <button onClick={() => setDeleteTarget(f)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={4} className="p-8 text-center text-gray-400">No hay franquicias registradas.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* MODAL EDITAR */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar franquicia</h3>
                 <form onSubmit={submitEdit} className="space-y-4">
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Nombre</label>
-                        <input type="text" value={editForm.data.nombre} onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} />
+                        <input type="text" value={editForm.data.nombre}
+                            onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} />
                         {editForm.errors.nombre && <p className="mt-1 text-xs text-red-500">{editForm.errors.nombre}</p>}
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Razón social</label>
-                        <input type="text" value={editForm.data.razon_social} onChange={(e) => editForm.setData('razon_social', e.target.value)} className={inputCls} />
+                        <input type="text" value={editForm.data.razon_social}
+                            onChange={(e) => editForm.setData('razon_social', e.target.value)} className={inputCls} />
                         {editForm.errors.razon_social && <p className="mt-1 text-xs text-red-500">{editForm.errors.razon_social}</p>}
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">RFC</label>
-                        <input type="text" value={editForm.data.rfc} onChange={(e) => editForm.setData('rfc', e.target.value.toUpperCase())} className={`${inputCls} uppercase`} />
+                        <input type="text" value={editForm.data.rfc}
+                            onChange={(e) => editForm.setData('rfc', e.target.value.toUpperCase())}
+                            className={`${inputCls} uppercase`} />
                         {editForm.errors.rfc && <p className="mt-1 text-xs text-red-500">{editForm.errors.rfc}</p>}
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={() => setEditTarget(null)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
-                        <button type="submit" disabled={editForm.processing} className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">Guardar cambios</button>
+                        <button type="button" onClick={() => setEditTarget(null)}
+                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" disabled={editForm.processing}
+                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">
+                            Guardar cambios
+                        </button>
                     </div>
                 </form>
             </Modal>
 
+            {/* MODAL ELIMINAR */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400"><IconTrash /></div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
+                    <IconTrash />
+                </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar franquicia</h3>
-                <p className="mb-6 text-sm text-gray-500">¿Estás seguro de que deseas eliminar <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>? Esta acción no se puede deshacer.</p>
+                <p className="mb-6 text-sm text-gray-500">
+                    ¿Estás seguro de eliminar{' '}
+                    <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
+                    Esta acción no se puede deshacer.
+                </p>
                 <div className="flex justify-end gap-3">
-                    <button onClick={() => setDeleteTarget(null)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
-                    <button onClick={confirmDelete} disabled={deleting} className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">Eliminar</button>
+                    <button onClick={() => setDeleteTarget(null)}
+                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button onClick={confirmDelete} disabled={deleting}
+                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">
+                        Eliminar
+                    </button>
                 </div>
             </Modal>
         </PerfilLayout>

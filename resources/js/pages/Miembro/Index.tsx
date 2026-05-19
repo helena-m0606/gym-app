@@ -16,10 +16,7 @@ const menuItems = [
     { label: 'Equipos', href: '/equipos', icon: '🛠️' },
 ];
 
-type Sucursal = {
-    id: number;
-    nombre: string;
-};
+type Sucursal = { id: number; nombre: string };
 
 type Miembro = {
     id: number;
@@ -69,6 +66,9 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 
 export default function Index({ miembros, sucursales }: { miembros: Miembro[]; sucursales: Sucursal[] }) {
     const [showForm, setShowForm] = useState(false);
+    const [busqueda, setBusqueda] = useState('');
+    const [filtroSucursal, setFiltroSucursal] = useState('');
+    const [filtroEstado, setFiltroEstado] = useState('');
 
     const { data, setData, post, processing, errors, reset } = useForm({
         sucursal_id: '',
@@ -96,6 +96,7 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
     });
 
     function openEdit(m: Miembro) {
+        editForm.clearErrors();
         editForm.setData({
             sucursal_id: String(m.sucursal_id),
             nombre: m.nombre,
@@ -128,6 +129,13 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
         });
     }
 
+    const miembrosFiltrados = miembros.filter((m) => {
+        const coincideNombre = m.nombre.toLowerCase().includes(busqueda.toLowerCase());
+        const coincideSucursal = filtroSucursal === '' || String(m.sucursal_id) === filtroSucursal;
+        const coincideEstado = filtroEstado === '' || (filtroEstado === 'activo' ? m.estado : !m.estado);
+        return coincideNombre && coincideSucursal && coincideEstado;
+    });
+
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -136,6 +144,7 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
             title="Miembros"
             subtitle="Administración de miembros del gimnasio."
         >
+            {/* FORMULARIO */}
             <div className="mb-8">
                 {!showForm ? (
                     <button onClick={() => setShowForm(true)}
@@ -151,33 +160,20 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                         </div>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
-                                <input
-                                    type="text"
-                                    placeholder="Nombre completo"
-                                    value={data.nombre}
+                                <input type="text" placeholder="Nombre completo" value={data.nombre}
                                     onChange={(e) => setData('nombre', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                />
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
                                 {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
                             </div>
-
                             <div>
-                                <input
-                                    type="email"
-                                    placeholder="Correo electrónico"
-                                    value={data.email}
+                                <input type="email" placeholder="Correo electrónico" value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                />
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
                                 {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
                             </div>
-
                             <div>
-                                <select
-                                    value={data.sucursal_id}
-                                    onChange={(e) => setData('sucursal_id', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                >
+                                <select value={data.sucursal_id} onChange={(e) => setData('sucursal_id', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700">
                                     <option value="">Seleccionar sucursal</option>
                                     {sucursales.map((s) => (
                                         <option key={s.id} value={s.id}>{s.nombre}</option>
@@ -185,33 +181,20 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                                 </select>
                                 {errors.sucursal_id && <p className="mt-1 text-xs text-red-500">{errors.sucursal_id}</p>}
                             </div>
-
                             <div>
-                                <input
-                                    type="text"
-                                    placeholder="Teléfono (10 dígitos)"
-                                    value={data.telefono}
+                                <input type="text" placeholder="Teléfono (10 dígitos)" value={data.telefono}
                                     onChange={(e) => setData('telefono', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                />
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
                                 {errors.telefono && <p className="mt-1 text-xs text-red-500">{errors.telefono}</p>}
                             </div>
-
                             <div>
-                                <input
-                                    type="date"
-                                    value={data.fecha_nacimiento}
+                                <input type="date" value={data.fecha_nacimiento}
                                     onChange={(e) => setData('fecha_nacimiento', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none focus:border-orange-400"
-                                />
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none focus:border-orange-400" />
                             </div>
-
                             <div>
-                                <select
-                                    value={data.genero}
-                                    onChange={(e) => setData('genero', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                >
+                                <select value={data.genero} onChange={(e) => setData('genero', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700">
                                     <option value="">Género (Opcional)</option>
                                     <option value="Masculino">Masculino</option>
                                     <option value="Femenino">Femenino</option>
@@ -219,159 +202,167 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                                 </select>
                             </div>
                         </div>
-
-                        <button
-                            disabled={processing}
-                            className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition"
-                        >
+                        <button disabled={processing}
+                            className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition">
                             {processing ? 'Guardando...' : 'Guardar Miembro'}
                         </button>
                     </form>
                 )}
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div className="border-b border-gray-200 p-5 font-semibold">
-                    Lista de Miembros Activos
-                </div>
-
-                <div className="block md:hidden divide-y divide-gray-100">
-                    {miembros.length === 0 ? (
-                        <div className="p-5 text-center text-sm text-gray-400">No hay miembros registrados.</div>
-                    ) : (
-                        miembros.map((m) => (
-                            <div key={m.id} className="p-5 space-y-2.5">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold text-gray-800 text-base">{m.nombre}</span>
-                                    <span className={m.estado
-                                        ? 'rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-600'
-                                        : 'rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-600'
-                                    }>
-                                        {m.estado ? 'Activo' : 'Inactivo'}
-                                    </span>
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">Email:</span> {m.email}
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">Sucursal:</span> {m.sucursal?.nombre ?? 'Sin asignar'}
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">Teléfono:</span> {m.telefono ?? 'N/A'}
-                                </div>
-                                <div className="flex justify-end gap-2 pt-2 border-t border-gray-50">
-                                    <button
-                                        onClick={() => openEdit(m)}
-                                        className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition"
-                                    >
-                                        <IconEdit />
-                                    </button>
-                                    <button
-                                        onClick={() => setDeleteTarget(m)}
-                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                                    >
-                                        <IconTrash />
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-50 text-gray-500">
-                            <tr>
-                                <th className="p-5">Nombre</th>
-                                <th>Contacto</th>
-                                <th>Sucursal</th>
-                                <th>Género</th>
-                                <th>Estado</th>
-                                <th className="pr-5 text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {miembros.length === 0 ? (
-                                <tr>
-                                    <td colSpan={6} className="p-5 text-center text-gray-400">No hay miembros registrados.</td>
-                                </tr>
-                            ) : (
-                                miembros.map((m) => (
-                                    <tr key={m.id} className="hover:bg-gray-50/60 transition">
-                                        <td className="p-5 font-medium text-gray-800">{m.nombre}</td>
-                                        <td className="space-y-0.5">
-                                            <div className="text-gray-700">{m.email}</div>
-                                            <div className="text-xs text-gray-400">{m.telefono ?? 'Sin teléfono'}</div>
-                                        </td>
-                                        <td>{m.sucursal?.nombre ?? 'Sin asignar'}</td>
-                                        <td className="text-gray-500">{m.genero ?? 'N/A'}</td>
-                                        <td>
-                                            <span className={m.estado
-                                                ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
-                                                : 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600'
-                                            }>
-                                                {m.estado ? 'Activo' : 'Inactivo'}
-                                            </span>
-                                        </td>
-                                        <td className="pr-5">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={() => openEdit(m)}
-                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                                    title="Editar"
-                                                >
-                                                    <IconEdit />
-                                                </button>
-                                                <button
-                                                    onClick={() => setDeleteTarget(m)}
-                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                                    title="Eliminar"
-                                                >
-                                                    <IconTrash />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            {/* FILTROS */}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                    type="text"
+                    placeholder="Buscar por nombre..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 sm:max-w-xs"
+                />
+                <select value={filtroSucursal} onChange={(e) => setFiltroSucursal(e.target.value)}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
+                    <option value="">Todas las sucursales</option>
+                    {sucursales.map((s) => (
+                        <option key={s.id} value={s.id}>{s.nombre}</option>
+                    ))}
+                </select>
+                <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
             </div>
 
+            {/* VISTA MÓVIL */}
+            <div className="space-y-4 md:hidden">
+                <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de Miembros</h3>
+                {miembrosFiltrados.length > 0 ? (
+                    miembrosFiltrados.map((m) => (
+                        <div key={m.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+                            <div className="flex justify-between items-start gap-2">
+                                <div>
+                                    <h4 className="font-bold text-gray-900 text-base leading-tight">{m.nombre}</h4>
+                                    <p className="text-xs text-gray-400 mt-1">{m.email}</p>
+                                </div>
+                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${
+                                    m.estado
+                                        ? 'bg-green-50 text-green-700 border border-green-100'
+                                        : 'bg-red-50 text-red-700 border border-red-100'
+                                }`}>
+                                    {m.estado ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 text-xs text-gray-600">
+                                <div>
+                                    <span className="block text-gray-400 font-medium mb-0.5">Sucursal</span>
+                                    <span className="font-medium text-gray-700">{m.sucursal?.nombre ?? 'Sin asignar'}</span>
+                                </div>
+                                <div>
+                                    <span className="block text-gray-400 font-medium mb-0.5">Teléfono</span>
+                                    <span className="font-medium text-gray-700">{m.telefono ?? 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
+                                <button onClick={() => openEdit(m)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 transition active:bg-blue-50 active:text-blue-500">
+                                    <IconEdit />
+                                </button>
+                                <button onClick={() => setDeleteTarget(m)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 transition active:bg-red-50 active:text-red-500">
+                                    <IconTrash />
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
+                        No se encontraron miembros.
+                    </div>
+                )}
+            </div>
+
+            {/* VISTA DESKTOP */}
+            <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div className="border-b border-gray-200 p-5 font-semibold">Lista de Miembros</div>
+                <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 text-gray-500">
+                        <tr>
+                            <th className="p-5">Nombre / Email</th>
+                            <th>Sucursal</th>
+                            <th>Teléfono</th>
+                            <th>Género</th>
+                            <th>Estado</th>
+                            <th className="pr-5 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {miembrosFiltrados.length > 0 ? (
+                            miembrosFiltrados.map((m) => (
+                                <tr key={m.id} className="border-t border-gray-100 hover:bg-gray-50/60 transition">
+                                    <td className="p-5">
+                                        <div className="font-medium text-gray-900">{m.nombre}</div>
+                                        <div className="text-xs text-gray-400 mt-0.5">{m.email}</div>
+                                    </td>
+                                    <td className="text-gray-600">{m.sucursal?.nombre ?? 'Sin asignar'}</td>
+                                    <td className="text-gray-600">{m.telefono ?? 'Sin teléfono'}</td>
+                                    <td className="text-gray-500">{m.genero ?? 'N/A'}</td>
+                                    <td>
+                                        <span className={`rounded-full px-3 py-1 text-xs font-medium ${
+                                            m.estado
+                                                ? 'bg-green-100 text-green-600'
+                                                : 'bg-red-100 text-red-600'
+                                        }`}>
+                                            {m.estado ? 'Activo' : 'Inactivo'}
+                                        </span>
+                                    </td>
+                                    <td className="pr-5">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <button onClick={() => openEdit(m)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500">
+                                                <IconEdit />
+                                            </button>
+                                            <button onClick={() => setDeleteTarget(m)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={6} className="p-8 text-center text-gray-400">No se encontraron miembros.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* MODAL EDITAR */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar miembro</h3>
                 <form onSubmit={submitEdit} className="space-y-4">
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Nombre completo</label>
-                        <input
-                            type="text"
-                            value={editForm.data.nombre}
+                        <input type="text" value={editForm.data.nombre}
                             onChange={(e) => editForm.setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
                         {editForm.errors.nombre && <p className="mt-1 text-xs text-red-500">{editForm.errors.nombre}</p>}
                     </div>
-
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Correo electrónico</label>
-                        <input
-                            type="email"
-                            value={editForm.data.email}
+                        <input type="email" value={editForm.data.email}
                             onChange={(e) => editForm.setData('email', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
                         {editForm.errors.email && <p className="mt-1 text-xs text-red-500">{editForm.errors.email}</p>}
                     </div>
-
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Sucursal</label>
-                            <select
-                                value={editForm.data.sucursal_id}
+                            <select value={editForm.data.sucursal_id}
                                 onChange={(e) => editForm.setData('sucursal_id', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none focus:border-orange-400"
-                            >
+                                className="w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none focus:border-orange-400 bg-white">
                                 {sucursales.map((s) => (
                                     <option key={s.id} value={s.id}>{s.nombre}</option>
                                 ))}
@@ -379,34 +370,26 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Teléfono</label>
-                            <input
-                                type="text"
-                                value={editForm.data.telefono}
+                            <input type="text" value={editForm.data.telefono}
                                 onChange={(e) => editForm.setData('telefono', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            />
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
                         </div>
                     </div>
-
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Estado</label>
-                            <select
-                                value={editForm.data.estado ? '1' : '0'}
+                            <select value={editForm.data.estado ? '1' : '0'}
                                 onChange={(e) => editForm.setData('estado', e.target.value === '1')}
-                                className="w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none focus:border-orange-400"
-                            >
+                                className="w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none focus:border-orange-400 bg-white">
                                 <option value="1">Activo</option>
                                 <option value="0">Inactivo</option>
                             </select>
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Género</label>
-                            <select
-                                value={editForm.data.genero}
+                            <select value={editForm.data.genero}
                                 onChange={(e) => editForm.setData('genero', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none focus:border-orange-400"
-                            >
+                                className="w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none focus:border-orange-400 bg-white">
                                 <option value="">No especificado</option>
                                 <option value="Masculino">Masculino</option>
                                 <option value="Femenino">Femenino</option>
@@ -414,48 +397,37 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                             </select>
                         </div>
                     </div>
-
                     <div className="flex justify-end gap-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={() => setEditTarget(null)}
-                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                        >
+                        <button type="button" onClick={() => setEditTarget(null)}
+                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
                             Cancelar
                         </button>
-                        <button
-                            type="submit"
-                            disabled={editForm.processing}
-                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
-                        >
+                        <button type="submit" disabled={editForm.processing}
+                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">
                             {editForm.processing ? 'Guardando...' : 'Guardar cambios'}
                         </button>
                     </div>
                 </form>
             </Modal>
 
+            {/* MODAL ELIMINAR */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
                     <IconTrash />
                 </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar miembro</h3>
                 <p className="mb-6 text-sm text-gray-500">
-                    ¿Estás seguro de que deseas eliminar a{' '}
+                    ¿Estás seguro de eliminar a{' '}
                     <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
                     Esta acción revocaría sus accesos y no se puede deshacer.
                 </p>
                 <div className="flex justify-end gap-3">
-                    <button
-                        onClick={() => setDeleteTarget(null)}
-                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                    >
+                    <button onClick={() => setDeleteTarget(null)}
+                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
                         Cancelar
                     </button>
-                    <button
-                        onClick={confirmDelete}
-                        disabled={deleting}
-                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
-                    >
+                    <button onClick={confirmDelete} disabled={deleting}
+                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">
                         {deleting ? 'Eliminando...' : 'Eliminar'}
                     </button>
                 </div>

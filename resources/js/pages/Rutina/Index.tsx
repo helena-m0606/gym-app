@@ -83,8 +83,10 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
     const [editTarget, setEditTarget] = useState<Rutina | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Rutina | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [busqueda, setBusqueda] = useState('');
+    const [filtroEntrenador, setFiltroEntrenador] = useState('');
+    const [filtroEjercicio, setFiltroEjercicio] = useState('');
 
-    // ── Crear ──
     const { data, setData, post, processing, errors, reset } = useForm({
         nombre: '',
         entrenador_id: '',
@@ -108,7 +110,6 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
         post('/rutinas', { onSuccess: () => { reset(); setShowForm(false); } });
     }
 
-    // ── Editar ──
     const editForm = useForm({
         nombre: '',
         entrenador_id: '',
@@ -147,7 +148,6 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
         editForm.put(`/rutinas/${editTarget.id}`, { onSuccess: () => setEditTarget(null) });
     }
 
-    // ── Eliminar ──
     function confirmDelete() {
         if (!deleteTarget) return;
         setDeleting(true);
@@ -157,13 +157,20 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
         });
     }
 
+    const rutinasFiltradas = rutinas.filter((r) => {
+        const coincideNombre = r.nombre.toLowerCase().includes(busqueda.toLowerCase());
+        const coincideEntrenador = filtroEntrenador === '' || String(r.entrenador_id) === filtroEntrenador;
+        const coincideEjercicio = filtroEjercicio === '' || r.ejercicios?.some(ej => String(ej.id) === filtroEjercicio);
+        return coincideNombre && coincideEntrenador && coincideEjercicio;
+    });
+
     return (
         <PerfilLayout
             menuItems={menuItems}
             rolLabel="🏆 Administrador — Acceso Total"
             rolColor="border-blue-200 bg-blue-50 text-blue-600"
-            title="Catálogo de Rutinas"
-            subtitle="Configuración y gestión de las plantillas de entrenamiento."
+            title="Rutinas"
+            subtitle="Gestión de las plantillas de entrenamiento del gimnasio."
         >
             {/* FORMULARIO */}
             <div className="mb-8">
@@ -184,21 +191,14 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div className="md:col-span-2">
-                                <input
-                                    type="text"
-                                    placeholder="Nombre de la rutina"
-                                    value={data.nombre}
-                                    onChange={(e) => setData('nombre', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                />
+                                <input type="text" placeholder="Nombre de la rutina"
+                                    value={data.nombre} onChange={(e) => setData('nombre', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400" />
                                 {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
                             </div>
                             <div>
-                                <select
-                                    value={data.entrenador_id}
-                                    onChange={(e) => setData('entrenador_id', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700"
-                                >
+                                <select value={data.entrenador_id} onChange={(e) => setData('entrenador_id', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700">
                                     <option value="">Seleccionar entrenador</option>
                                     {entrenadores.map((ent) => (
                                         <option key={ent.id} value={ent.id}>{ent.nombre}</option>
@@ -267,11 +267,42 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
                 )}
             </div>
 
+            {/* FILTROS */}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                    type="text"
+                    placeholder="Buscar por nombre..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 sm:max-w-xs"
+                />
+                <select
+                    value={filtroEntrenador}
+                    onChange={(e) => setFiltroEntrenador(e.target.value)}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600"
+                >
+                    <option value="">Todos los entrenadores</option>
+                    {entrenadores.map((ent) => (
+                        <option key={ent.id} value={ent.id}>{ent.nombre}</option>
+                    ))}
+                </select>
+                <select
+                    value={filtroEjercicio}
+                    onChange={(e) => setFiltroEjercicio(e.target.value)}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600"
+                >
+                    <option value="">Todos los ejercicios</option>
+                    {catalogoEjercicios.map((ej) => (
+                        <option key={ej.id} value={ej.id}>{ej.nombre}</option>
+                    ))}
+                </select>
+            </div>
+
             {/* VISTA MÓVIL */}
             <div className="space-y-4 md:hidden">
                 <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de Rutinas</h3>
-                {rutinas.length > 0 ? (
-                    rutinas.map((r) => (
+                {rutinasFiltradas.length > 0 ? (
+                    rutinasFiltradas.map((r) => (
                         <div key={r.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
                             <div className="flex justify-between items-start gap-2">
                                 <div>
@@ -308,7 +339,7 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
                     ))
                 ) : (
                     <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
-                        No hay rutinas registradas.
+                        No se encontraron rutinas.
                     </div>
                 )}
             </div>
@@ -326,8 +357,8 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
                         </tr>
                     </thead>
                     <tbody>
-                        {rutinas.length > 0 ? (
-                            rutinas.map((r) => (
+                        {rutinasFiltradas.length > 0 ? (
+                            rutinasFiltradas.map((r) => (
                                 <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50/60 align-top">
                                     <td className="p-5 font-medium text-gray-900">{r.nombre}</td>
                                     <td className="pt-5 text-gray-600">{r.entrenador_nombre}</td>
@@ -364,7 +395,7 @@ export default function Index({ rutinas, catalogoEjercicios, entrenadores }: {
                         ) : (
                             <tr>
                                 <td colSpan={4} className="p-8 text-center text-gray-400">
-                                    No hay rutinas registradas.
+                                    No se encontraron rutinas.
                                 </td>
                             </tr>
                         )}

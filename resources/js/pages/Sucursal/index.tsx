@@ -56,7 +56,6 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function SucursalesIndex({ sucursales, franquicias }: { sucursales: Sucursal[]; franquicias: Franquicia[] }) {
-    // 🎯 Integrado: Control de visibilidad del formulario de Helena
     const [showForm, setShowForm] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -69,10 +68,12 @@ export default function SucursalesIndex({ sucursales, franquicias }: { sucursale
     }
 
     const [editTarget, setEditTarget] = useState<Sucursal | null>(null);
-    const editForm = useForm({ franquicia_id: '', nombre: '', direccion: '', ciudad: '', telefono: '', activa: true as boolean });
+    const editForm = useForm({
+        franquicia_id: '', nombre: '', direccion: '', ciudad: '', telefono: '', activa: true as boolean
+    });
 
     function openEdit(s: Sucursal) {
-        // 🎯 Mantenido: Tu protección segura contra nulos (?.)
+        editForm.clearErrors();
         editForm.setData({
             franquicia_id: String(s.franquicia?.id ?? ''),
             nombre: s.nombre,
@@ -102,7 +103,6 @@ export default function SucursalesIndex({ sucursales, franquicias }: { sucursale
         });
     }
 
-    // 🎯 Integrado: Variable limpia de estilos de Helena
     const inputCls = 'w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400';
 
     return (
@@ -113,7 +113,7 @@ export default function SucursalesIndex({ sucursales, franquicias }: { sucursale
             title="Sucursales"
             subtitle="Administración de sucursales del gimnasio."
         >
-            {/* ── 🎯 Botón / Formulario crear Integrado Responsivo ── */}
+            {/* FORMULARIO */}
             <div className="mb-8">
                 {!showForm ? (
                     <button onClick={() => setShowForm(true)}
@@ -160,142 +160,190 @@ export default function SucursalesIndex({ sucursales, franquicias }: { sucursale
                 )}
             </div>
 
-            {/* ── Contenedor principal de la Lista responsiva ── */}
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div className="border-b border-gray-200 p-5 font-semibold">Lista de Sucursales</div>
+            {/* VISTA MÓVIL */}
+            <div className="space-y-4 md:hidden">
+                <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de Sucursales</h3>
+                {sucursales.length > 0 ? (
+                    sucursales.map((s) => (
+                        <div key={s.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+                            <div className="flex justify-between items-start gap-2">
+                                <div>
+                                    <h4 className="font-bold text-gray-900 text-base leading-tight">{s.nombre}</h4>
+                                    <p className="text-xs text-gray-400 mt-1">{s.franquicia?.nombre ?? 'N/A'}</p>
+                                </div>
+                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${
+                                    s.activa
+                                        ? 'bg-green-50 text-green-700 border border-green-100'
+                                        : 'bg-red-50 text-red-700 border border-red-100'
+                                }`}>
+                                    {s.activa ? 'Activa' : 'Inactiva'}
+                                </span>
+                            </div>
 
-                {/* 🎯 Mantenido: VISTA MÓVIL (Tarjetas apiladas) */}
-                <div className="block md:hidden divide-y divide-gray-100">
-                    {sucursales.length === 0 ? (
-                        <div className="p-5 text-center text-sm text-gray-400">No hay sucursales registradas.</div>
-                    ) : (
-                        sucursales.map((s) => (
-                            <div key={s.id} className="p-5 space-y-2.5">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold text-gray-800 text-base">{s.nombre}</span>
-                                    <span className={s.activa
-                                        ? 'rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-600 border border-green-200'
-                                        : 'rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 border border-red-200'
-                                    }>
-                                        {s.activa ? 'Activa' : 'Inactiva'}
-                                    </span>
+                            <div className="grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 text-xs text-gray-600">
+                                <div>
+                                    <span className="block text-gray-400 font-medium mb-0.5">Ciudad</span>
+                                    <span className="font-medium text-gray-700">{s.ciudad}</span>
                                 </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">Franquicia:</span> {s.franquicia?.nombre ?? 'N/A'}
+                                <div>
+                                    <span className="block text-gray-400 font-medium mb-0.5">Teléfono</span>
+                                    <span className="font-medium text-gray-700">{s.telefono ?? 'Sin teléfono'}</span>
                                 </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">Ciudad:</span> {s.ciudad}
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">Dirección:</span> {s.direccion}
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    <span className="font-medium text-gray-400">Teléfono:</span> {s.telefono ?? 'Sin teléfono'}
-                                </div>
-                                <div className="flex justify-end gap-2 pt-2 border-t border-gray-50">
-                                    <button onClick={() => openEdit(s)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition"><IconEdit /></button>
-                                    <button onClick={() => setDeleteTarget(s)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"><IconTrash /></button>
+                                <div className="col-span-2">
+                                    <span className="block text-gray-400 font-medium mb-0.5">Dirección</span>
+                                    <span className="font-medium text-gray-700">{s.direccion}</span>
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
 
-                {/* 🎯 Mantenido: VISTA DESKTOP (Tabla completa) */}
-                <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-50 text-gray-500">
-                            <tr>
-                                <th className="p-5">Sucursal</th>
-                                <th>Franquicia</th>
-                                <th>Ciudad</th>
-                                <th>Teléfono</th>
-                                <th>Estado</th>
-                                <th className="pr-5 text-center w-32">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {sucursales.length === 0 ? (
-                                <tr><td colSpan={6} className="p-5 text-center text-gray-400">No hay sucursales registradas.</td></tr>
-                            ) : (
-                                sucursales.map((s) => (
-                                    <tr key={s.id} className="hover:bg-gray-50/60 transition">
-                                        <td className="p-5 font-medium text-gray-800">{s.nombre}</td>
-                                        <td className="text-gray-600">{s.franquicia?.nombre ?? 'N/A'}</td>
-                                        <td className="text-gray-600">{s.ciudad}</td>
-                                        <td className="text-gray-600">{s.telefono ?? 'Sin teléfono'}</td>
-                                        <td>
-                                            <span className={s.activa
-                                                ? 'inline-block rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-600 border border-green-200'
-                                                : 'inline-block rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 border border-red-200'}>
-                                                {s.activa ? 'Activa' : 'Inactiva'}
-                                            </span>
-                                        </td>
-                                        <td className="pr-5 text-center">
-                                            <div className="flex items-center justify-center gap-1">
-                                                <button onClick={() => openEdit(s)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"><IconEdit /></button>
-                                                <button onClick={() => setDeleteTarget(s)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"><IconTrash /></button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                            <div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
+                                <button onClick={() => openEdit(s)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 active:bg-blue-50 active:text-blue-500">
+                                    <IconEdit />
+                                </button>
+                                <button onClick={() => setDeleteTarget(s)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
+                                    <IconTrash />
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
+                        No hay sucursales registradas.
+                    </div>
+                )}
             </div>
 
-            {/* Modal Editar */}
+            {/* VISTA DESKTOP */}
+            <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div className="border-b border-gray-200 p-5 font-semibold">Lista de Sucursales</div>
+                <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 text-gray-500">
+                        <tr>
+                            <th className="p-5">Sucursal / Franquicia</th>
+                            <th>Ciudad</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th className="pr-5 text-center w-32">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sucursales.length > 0 ? (
+                            sucursales.map((s) => (
+                                <tr key={s.id} className="border-t border-gray-100 hover:bg-gray-50/60 transition">
+                                    <td className="p-5">
+                                        <div className="font-medium text-gray-900">{s.nombre}</div>
+                                        <div className="text-xs text-gray-400 mt-0.5">{s.franquicia?.nombre ?? 'N/A'}</div>
+                                    </td>
+                                    <td className="text-gray-600">{s.ciudad}</td>
+                                    <td className="text-gray-600">{s.telefono ?? 'Sin teléfono'}</td>
+                                    <td>
+                                        <span className={`rounded-full px-3 py-1 text-xs font-medium ${
+                                            s.activa
+                                                ? 'bg-green-100 text-green-600'
+                                                : 'bg-red-100 text-red-600'
+                                        }`}>
+                                            {s.activa ? 'Activa' : 'Inactiva'}
+                                        </span>
+                                    </td>
+                                    <td className="pr-5">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <button onClick={() => openEdit(s)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500">
+                                                <IconEdit />
+                                            </button>
+                                            <button onClick={() => setDeleteTarget(s)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={5} className="p-8 text-center text-gray-400">No hay sucursales registradas.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* MODAL EDITAR */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar sucursal</h3>
                 <form onSubmit={submitEdit} className="space-y-4">
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Franquicia</label>
-                        <select value={editForm.data.franquicia_id} onChange={(e) => editForm.setData('franquicia_id', e.target.value)} className={inputCls}>
+                        <select value={editForm.data.franquicia_id}
+                            onChange={(e) => editForm.setData('franquicia_id', e.target.value)} className={inputCls}>
                             <option value="">Seleccionar franquicia</option>
                             {franquicias.map((f) => <option key={f.id} value={f.id}>{f.nombre}</option>)}
                         </select>
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Nombre</label>
-                        <input type="text" value={editForm.data.nombre} onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} />
+                        <input type="text" value={editForm.data.nombre}
+                            onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} />
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Dirección</label>
-                        <input type="text" value={editForm.data.direccion} onChange={(e) => editForm.setData('direccion', e.target.value)} className={inputCls} />
+                        <input type="text" value={editForm.data.direccion}
+                            onChange={(e) => editForm.setData('direccion', e.target.value)} className={inputCls} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Ciudad</label>
-                            <input type="text" value={editForm.data.ciudad} onChange={(e) => editForm.setData('ciudad', e.target.value)} className={inputCls} />
+                            <input type="text" value={editForm.data.ciudad}
+                                onChange={(e) => editForm.setData('ciudad', e.target.value)} className={inputCls} />
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Teléfono</label>
-                            <input type="text" value={editForm.data.telefono} onChange={(e) => editForm.setData('telefono', e.target.value)} className={inputCls} />
+                            <input type="text" value={editForm.data.telefono}
+                                onChange={(e) => editForm.setData('telefono', e.target.value)} className={inputCls} />
                         </div>
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Estado</label>
-                        <select value={editForm.data.activa ? '1' : '0'} onChange={(e) => editForm.setData('activa', e.target.value === '1')} className={inputCls}>
+                        <select value={editForm.data.activa ? '1' : '0'}
+                            onChange={(e) => editForm.setData('activa', e.target.value === '1')} className={inputCls}>
                             <option value="1">Activa</option>
                             <option value="0">Inactiva</option>
                         </select>
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={() => setEditTarget(null)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
-                        <button type="submit" disabled={editForm.processing} className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">Guardar cambios</button>
+                        <button type="button" onClick={() => setEditTarget(null)}
+                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" disabled={editForm.processing}
+                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">
+                            Guardar cambios
+                        </button>
                     </div>
                 </form>
             </Modal>
 
-            {/* Modal Eliminar */}
+            {/* MODAL ELIMINAR */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400"><IconTrash /></div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
+                    <IconTrash />
+                </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar sucursal</h3>
-                <p className="mb-6 text-sm text-gray-500">¿Estás seguro de que deseas eliminar <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>? Esta acción no se puede deshacer.</p>
+                <p className="mb-6 text-sm text-gray-500">
+                    ¿Estás seguro de eliminar{' '}
+                    <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
+                    Esta acción no se puede deshacer.
+                </p>
                 <div className="flex justify-end gap-3">
-                    <button onClick={() => setDeleteTarget(null)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
-                    <button onClick={confirmDelete} disabled={deleting} className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">Eliminar</button>
+                    <button onClick={() => setDeleteTarget(null)}
+                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button onClick={confirmDelete} disabled={deleting}
+                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">
+                        Eliminar
+                    </button>
                 </div>
             </Modal>
         </PerfilLayout>

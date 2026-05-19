@@ -9,14 +9,14 @@ type Clase = {
     sucursal_nombre: string;
     entrenador_id: number;
     sucursal_id: number;
-    horario: string; 
+    horario: string;
     cupo_maximo: number;
 };
 
 type Entrenador = {
     id: number;
     nombre: string;
-    sucursal_id: number; 
+    sucursal_id: number;
 };
 
 type Sucursal = {
@@ -44,13 +44,13 @@ const menuItems = [
 ];
 
 const DIAS_SEMANA = [
-    { clave: 'Lunes', nombre: 'Lunes' },
-    { clave: 'Martes', nombre: 'Martes' },
-    { clave: 'Miércoles', nombre: 'Miércoles' },
-    { clave: 'Jueves', nombre: 'Jueves' },
-    { clave: 'Viernes', nombre: 'Viernes' },
-    { clave: 'Sábado', nombre: 'Sábado' },
-    { clave: 'Domingo', nombre: 'Domingo' },
+    { clave: 'Lunes', nombre: 'Lun' },
+    { clave: 'Martes', nombre: 'Mar' },
+    { clave: 'Miércoles', nombre: 'Mié' },
+    { clave: 'Jueves', nombre: 'Jue' },
+    { clave: 'Viernes', nombre: 'Vie' },
+    { clave: 'Sábado', nombre: 'Sáb' },
+    { clave: 'Domingo', nombre: 'Dom' },
 ];
 
 function IconEdit() {
@@ -65,7 +65,7 @@ function IconEdit() {
 
 function IconClock() {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" 
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
         </svg>
@@ -98,7 +98,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 
 export default function ClasesIndex({ clases = [], entrenadores = [], sucursales = [] }: Props) {
     const { auth } = usePage().props as any;
-    
+
     const tieneSedeFija = auth?.user?.rol === 'entrenador' || auth?.user?.rol === 'gerente';
     const esEntrenador = auth?.user?.rol === 'entrenador';
     const esGerente = auth?.user?.rol === 'gerente';
@@ -108,17 +108,22 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
     const [deleteTarget, setDeleteTarget] = useState<Clase | null>(null);
     const [deleting, setDeleting] = useState(false);
 
+    // Filtros
+    const [busqueda, setBusqueda] = useState('');
+    const [filtroEntrenador, setFiltroEntrenador] = useState('');
+    const [filtroSucursal, setFiltroSucursal] = useState('');
+    const [filtrosDias, setFiltrosDias] = useState<string[]>([]);
+    const [filtroHora, setFiltroHora] = useState('');
+
     const [diasSeleccionados, setDiasSeleccionados] = useState<string[]>([]);
     const [horaSeleccionada, setHoraSeleccionada] = useState('10:00');
-
     const [diasEditar, setDiasEditar] = useState<string[]>([]);
     const [horaEditar, setHoraEditar] = useState('10:00');
-
     const [entrenadoresFiltrados, setEntrenadoresFiltrados] = useState<Entrenador[]>([]);
 
     const createForm = useForm({
         nombre: '',
-        entrenador_id: esEntrenador ? (auth?.user?.id_empleado || auth?.user?.id || '') : '', 
+        entrenador_id: esEntrenador ? (auth?.user?.id_empleado || auth?.user?.id || '') : '',
         sucursal_id: (esEntrenador || esGerente) ? (auth?.user?.sucursal_id || sucursales[0]?.id || '') : '',
         horario: '',
         cupo_maximo: '',
@@ -130,7 +135,6 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                 e => String(e.sucursal_id) === String(createForm.data.sucursal_id)
             );
             setEntrenadoresFiltrados(filtrados);
-            
             if (!esEntrenador && !filtrados.some(e => String(e.id) === String(createForm.data.entrenador_id))) {
                 createForm.setData('entrenador_id', '');
             }
@@ -148,13 +152,19 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
     }, [diasSeleccionados, horaSeleccionada]);
 
     function toggleDia(clave: string) {
-        setDiasSeleccionados(prev => 
+        setDiasSeleccionados(prev =>
             prev.includes(clave) ? prev.filter(d => d !== clave) : [...prev, clave]
         );
     }
 
     function toggleDiaEditar(clave: string) {
-        setDiasEditar(prev => 
+        setDiasEditar(prev =>
+            prev.includes(clave) ? prev.filter(d => d !== clave) : [...prev, clave]
+        );
+    }
+
+    function toggleFiltroDia(clave: string) {
+        setFiltrosDias(prev =>
             prev.includes(clave) ? prev.filter(d => d !== clave) : [...prev, clave]
         );
     }
@@ -192,21 +202,17 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
     function abrirEditar(c: Clase) {
         editForm.clearErrors();
         setEditando(c);
-        
         let diasExistentes: string[] = [];
         let horaExistente = '10:00';
-        
         if (c.horario && c.horario.includes('—')) {
             const partes = c.horario.split('—');
             diasExistentes = partes[0].split(',').map(d => d.trim());
             horaExistente = partes[1].trim();
         } else if (c.horario) {
-            diasExistentes = [c.horario]; 
+            diasExistentes = [c.horario];
         }
-
         setDiasEditar(diasExistentes);
         setHoraEditar(horaExistente);
-
         editForm.setData({
             nombre: c.nombre,
             entrenador_id: String(c.entrenador_id),
@@ -231,10 +237,7 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
     function obtenerPartesHorario(stringHorario: string) {
         if (stringHorario && stringHorario.includes('—')) {
             const partes = stringHorario.split('—');
-            return {
-                dias: partes[0].trim(),
-                hora: partes[1].trim()
-            };
+            return { dias: partes[0].trim(), hora: partes[1].trim() };
         }
         return { dias: stringHorario || 'Sin asignar', hora: '' };
     }
@@ -248,6 +251,20 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
         });
     }
 
+    // Horas únicas para el filtro
+    const horasUnicas = [...new Set(clases.map(c => obtenerPartesHorario(c.horario).hora).filter(Boolean))].sort();
+
+    // Lógica de filtrado
+    const clasesFiltradas = clases.filter((c) => {
+        const { dias, hora } = obtenerPartesHorario(c.horario);
+        const coincideNombre = c.nombre.toLowerCase().includes(busqueda.toLowerCase());
+        const coincideEntrenador = filtroEntrenador === '' || String(c.entrenador_id) === filtroEntrenador;
+        const coincideSucursal = filtroSucursal === '' || String(c.sucursal_id) === filtroSucursal;
+        const coincideDias = filtrosDias.length === 0 || filtrosDias.every(d => dias.includes(d));
+        const coincideHora = filtroHora === '' || hora === filtroHora;
+        return coincideNombre && coincideEntrenador && coincideSucursal && coincideDias && coincideHora;
+    });
+
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -256,6 +273,7 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
             title="Clases"
             subtitle="Programación de horarios y disciplinas del gimnasio."
         >
+            {/* FORMULARIO */}
             <div className="mb-8">
                 {!showForm ? (
                     <button onClick={() => setShowForm(true)}
@@ -269,30 +287,23 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                             <button type="button" onClick={() => setShowForm(false)}
                                 className="text-sm font-medium text-gray-400 hover:text-gray-600 transition">Cancelar</button>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                             <div>
                                 <label className="mb-1 block text-xs font-semibold text-gray-500">Nombre de la disciplina</label>
-                                <input
-                                    type="text"
-                                    placeholder="ej. CrossFit, Spinning..."
+                                <input type="text" placeholder="ej. CrossFit, Spinning..."
                                     value={createForm.data.nombre}
                                     onChange={e => createForm.setData('nombre', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                    required
-                                />
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
                             </div>
 
                             {!esEntrenador && (
                                 <div>
                                     <label className="mb-1 block text-xs font-semibold text-gray-500">Seleccionar Sucursal</label>
-                                    <select
-                                        value={createForm.data.sucursal_id}
+                                    <select value={createForm.data.sucursal_id}
                                         onChange={e => createForm.setData('sucursal_id', e.target.value)}
                                         disabled={esGerente}
-                                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700 disabled:bg-gray-50 disabled:text-gray-400"
-                                        required
-                                    >
+                                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700 disabled:bg-gray-50 disabled:text-gray-400" required>
                                         <option value="">Seleccionar Sede</option>
                                         {sucursales.map(s => (
                                             <option key={s.id} value={s.id}>{s.nombre}</option>
@@ -304,13 +315,10 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                             {!esEntrenador && (
                                 <div>
                                     <label className="mb-1 block text-xs font-semibold text-gray-500">Instructor del Plantel</label>
-                                    <select
-                                        value={createForm.data.entrenador_id}
+                                    <select value={createForm.data.entrenador_id}
                                         onChange={e => createForm.setData('entrenador_id', e.target.value)}
                                         disabled={!createForm.data.sucursal_id}
-                                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700 disabled:bg-gray-50 disabled:text-gray-400"
-                                        required
-                                    >
+                                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700 disabled:bg-gray-50 disabled:text-gray-400" required>
                                         <option value="">Seleccionar Instructor</option>
                                         {entrenadoresFiltrados.map(e => (
                                             <option key={e.id} value={e.id}>{e.nombre}</option>
@@ -320,15 +328,11 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                             )}
 
                             <div>
-                                <label className="mb-1 block text-xs font-semibold text-gray-500">Cupo Máximo de Alumnos</label>
-                                <input
-                                    type="number"
-                                    placeholder="ej. 25"
+                                <label className="mb-1 block text-xs font-semibold text-gray-500">Cupo Máximo</label>
+                                <input type="number" placeholder="ej. 25"
                                     value={createForm.data.cupo_maximo}
                                     onChange={e => createForm.setData('cupo_maximo', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                    required
-                                />
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
                             </div>
                         </div>
 
@@ -339,16 +343,12 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                                     {DIAS_SEMANA.map((dia) => {
                                         const activo = diasSeleccionados.includes(dia.clave);
                                         return (
-                                            <button
-                                                key={dia.clave}
-                                                type="button"
-                                                onClick={() => toggleDia(dia.clave)}
+                                            <button key={dia.clave} type="button" onClick={() => toggleDia(dia.clave)}
                                                 className={`rounded-xl px-3 py-2 text-xs font-bold transition border ${
-                                                    activo 
-                                                        ? 'bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200' 
+                                                    activo
+                                                        ? 'bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200'
                                                         : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300'
-                                                }`}
-                                            >
+                                                }`}>
                                                 {dia.nombre}
                                             </button>
                                         );
@@ -357,13 +357,9 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                             </div>
                             <div>
                                 <span className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Hora de inicio</span>
-                                <input
-                                    type="time"
-                                    value={horaSeleccionada}
+                                <input type="time" value={horaSeleccionada}
                                     onChange={e => setHoraSeleccionada(e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 outline-none focus:border-orange-400"
-                                    required
-                                />
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 outline-none focus:border-orange-400" required />
                             </div>
                         </div>
 
@@ -373,10 +369,8 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                                     <span>Horario a registrar: <strong className="text-orange-600 font-bold">{createForm.data.horario}</strong></span>
                                 ) : '*Selecciona los días y horas arriba.'}
                             </div>
-                            <button
-                                disabled={createForm.processing}
-                                className="w-full md:w-auto rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition shrink-0"
-                            >
+                            <button disabled={createForm.processing}
+                                className="w-full md:w-auto rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition shrink-0">
                                 {createForm.processing ? 'Guardando...' : 'Programar Clase'}
                             </button>
                         </div>
@@ -384,10 +378,69 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                 )}
             </div>
 
+            {/* FILTROS */}
+            <div className="mb-4 space-y-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                    <input
+                        type="text"
+                        placeholder="Buscar por nombre..."
+                        value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 sm:max-w-xs"
+                    />
+                    <select value={filtroEntrenador} onChange={(e) => setFiltroEntrenador(e.target.value)}
+                        className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
+                        <option value="">Todos los entrenadores</option>
+                        {entrenadores.map((ent) => (
+                            <option key={ent.id} value={ent.id}>{ent.nombre}</option>
+                        ))}
+                    </select>
+                    <select value={filtroSucursal} onChange={(e) => setFiltroSucursal(e.target.value)}
+                        className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
+                        <option value="">Todas las sedes</option>
+                        {sucursales.map((s) => (
+                            <option key={s.id} value={s.id}>{s.nombre}</option>
+                        ))}
+                    </select>
+                    <select value={filtroHora} onChange={(e) => setFiltroHora(e.target.value)}
+                        className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
+                        <option value="">Todos los horarios</option>
+                        {horasUnicas.map((hora) => (
+                            <option key={hora} value={hora}>{hora}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Filtro por días */}
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-medium text-gray-400">Días:</span>
+                    {DIAS_SEMANA.map((dia) => {
+                        const activo = filtrosDias.includes(dia.clave);
+                        return (
+                            <button key={dia.clave} type="button" onClick={() => toggleFiltroDia(dia.clave)}
+                                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition border ${
+                                    activo
+                                        ? 'bg-orange-500 border-orange-500 text-white'
+                                        : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300'
+                                }`}>
+                                {dia.nombre}
+                            </button>
+                        );
+                    })}
+                    {filtrosDias.length > 0 && (
+                        <button onClick={() => setFiltrosDias([])}
+                            className="text-xs text-gray-400 hover:text-gray-600 underline">
+                            Limpiar
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* VISTA MÓVIL */}
             <div className="space-y-4 md:hidden">
                 <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de Clases</h3>
-                {clases.length > 0 ? (
-                    clases.map((c) => {
+                {clasesFiltradas.length > 0 ? (
+                    clasesFiltradas.map((c) => {
                         const tiempo = obtenerPartesHorario(c.horario);
                         return (
                             <div key={c.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
@@ -416,10 +469,12 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                                 <div className="flex justify-between items-center border-t border-gray-100 pt-3">
                                     <span className="text-xs text-gray-400">Sede: <strong className="text-gray-600 font-medium">{c.sucursal_nombre}</strong></span>
                                     <div className="flex gap-2">
-                                        <button onClick={() => abrirEditar(c)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 active:bg-blue-50 active:text-blue-500">
+                                        <button onClick={() => abrirEditar(c)}
+                                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 active:bg-blue-50 active:text-blue-500">
                                             <IconEdit />
                                         </button>
-                                        <button onClick={() => setDeleteTarget(c)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
+                                        <button onClick={() => setDeleteTarget(c)}
+                                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
                                             <IconTrash />
                                         </button>
                                     </div>
@@ -429,11 +484,12 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                     })
                 ) : (
                     <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
-                        No hay clases programadas.
+                        No se encontraron clases.
                     </div>
                 )}
             </div>
 
+            {/* VISTA DESKTOP */}
             <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                 <div className="border-b border-gray-200 p-5 font-semibold">Horarios de Clases</div>
                 <table className="w-full text-left text-sm">
@@ -442,14 +498,14 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                             <th className="p-5">Disciplina / Instructor</th>
                             <th>Sucursal</th>
                             <th>Días de clase</th>
-                            <th>Horario de inicio</th>
-                            <th>Cupo Máximo</th>
+                            <th>Horario</th>
+                            <th>Cupo</th>
                             <th className="pr-5 text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {clases.length > 0 ? (
-                            clases.map((c) => {
+                        {clasesFiltradas.length > 0 ? (
+                            clasesFiltradas.map((c) => {
                                 const tiempo = obtenerPartesHorario(c.horario);
                                 return (
                                     <tr key={c.id} className="border-t border-gray-100 hover:bg-gray-50/60">
@@ -458,19 +514,21 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                                             <div className="text-xs text-gray-400 mt-0.5">{c.entrenador_nombre}</div>
                                         </td>
                                         <td className="text-gray-600">{c.sucursal_nombre}</td>
-                                        <td className="text-gray-900 font-bold">{tiempo.dias}</td>
+                                        <td className="font-bold text-gray-900">{tiempo.dias}</td>
                                         <td className="text-gray-600 font-semibold">
                                             <div className="flex items-center gap-1.5">
-                                                <IconClock /> {tiempo.hora || '10:00'}
+                                                <IconClock /> {tiempo.hora || '—'}
                                             </div>
                                         </td>
                                         <td className="text-gray-600">{c.cupo_maximo} alumnos</td>
                                         <td className="pr-5">
                                             <div className="flex items-center justify-center gap-2">
-                                                <button onClick={() => abrirEditar(c)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500" title="Editar">
+                                                <button onClick={() => abrirEditar(c)}
+                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500" title="Editar">
                                                     <IconEdit />
                                                 </button>
-                                                <button onClick={() => setDeleteTarget(c)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500" title="Eliminar">
+                                                <button onClick={() => setDeleteTarget(c)}
+                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500" title="Eliminar">
                                                     <IconTrash />
                                                 </button>
                                             </div>
@@ -481,7 +539,7 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                         ) : (
                             <tr>
                                 <td colSpan={6} className="p-8 text-center text-gray-400">
-                                    No hay clases programadas en la agenda.
+                                    No se encontraron clases.
                                 </td>
                             </tr>
                         )}
@@ -489,30 +547,24 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                 </table>
             </div>
 
+            {/* MODAL EDITAR */}
             <Modal open={!!editando} onClose={() => setEditando(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800 border-b border-gray-100 pb-2">Editar programación</h3>
                 <form onSubmit={handleEditSubmit} className="space-y-4">
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Nombre de la Disciplina</label>
-                        <input
-                            type="text"
-                            value={editForm.data.nombre}
+                        <input type="text" value={editForm.data.nombre}
                             onChange={e => editForm.setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Instructor</label>
-                            <select
-                                value={editForm.data.entrenador_id}
+                            <select value={editForm.data.entrenador_id}
                                 onChange={e => editForm.setData('entrenador_id', e.target.value)}
                                 disabled={esEntrenador}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700 disabled:bg-gray-50"
-                                required
-                            >
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700 disabled:bg-gray-50" required>
                                 <option value="">Seleccionar</option>
                                 {entrenadores.map(e => (
                                     <option key={e.id} value={e.id}>{e.nombre}</option>
@@ -521,13 +573,10 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Sucursal</label>
-                            <select
-                                value={editForm.data.sucursal_id}
+                            <select value={editForm.data.sucursal_id}
                                 onChange={e => editForm.setData('sucursal_id', e.target.value)}
                                 disabled={tieneSedeFija}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700 disabled:bg-gray-50"
-                                required
-                            >
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700 disabled:bg-gray-50" required>
                                 {sucursales.map(s => (
                                     <option key={s.id} value={s.id}>{s.nombre}</option>
                                 ))}
@@ -537,13 +586,9 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
 
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Cupo Máximo</label>
-                        <input
-                            type="number"
-                            value={editForm.data.cupo_maximo}
+                        <input type="number" value={editForm.data.cupo_maximo}
                             onChange={e => editForm.setData('cupo_maximo', parseInt(e.target.value) || 0)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
                     </div>
 
                     <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 space-y-3">
@@ -553,16 +598,12 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                                 {DIAS_SEMANA.map((dia) => {
                                     const activo = diasEditar.includes(dia.clave);
                                     return (
-                                        <button
-                                            key={dia.clave}
-                                            type="button"
-                                            onClick={() => toggleDiaEditar(dia.clave)}
+                                        <button key={dia.clave} type="button" onClick={() => toggleDiaEditar(dia.clave)}
                                             className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition border ${
-                                                activo 
-                                                    ? 'bg-orange-500 border-orange-500 text-white' 
+                                                activo
+                                                    ? 'bg-orange-500 border-orange-500 text-white'
                                                     : 'bg-white border-gray-200 text-gray-600'
-                                            }`}
-                                        >
+                                            }`}>
                                             {dia.clave}
                                         </button>
                                     );
@@ -571,32 +612,44 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-semibold text-gray-500">Hora de inicio</label>
-                            <input
-                                type="time"
-                                value={horaEditar}
+                            <input type="time" value={horaEditar}
                                 onChange={e => setHoraEditar(e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 outline-none focus:border-orange-400"
-                                required
-                            />
+                                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 outline-none focus:border-orange-400" required />
                         </div>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={() => setEditando(null)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
-                        <button type="submit" disabled={editForm.processing} className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">Guardar cambios</button>
+                        <button type="button" onClick={() => setEditando(null)}
+                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" disabled={editForm.processing}
+                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">
+                            Guardar cambios
+                        </button>
                     </div>
                 </form>
             </Modal>
 
+            {/* MODAL ELIMINAR */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
                     <IconTrash />
                 </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Cancelar clase</h3>
-                <p className="mb-6 text-sm text-gray-500">¿Estás seguro de que deseas eliminar la clase de <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?</p>
+                <p className="mb-6 text-sm text-gray-500">
+                    ¿Estás seguro de que deseas eliminar la clase de{' '}
+                    <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
+                </p>
                 <div className="flex justify-end gap-3">
-                    <button type="button" onClick={() => setDeleteTarget(null)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
-                    <button onClick={confirmDelete} disabled={deleting} className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">Eliminar clase</button>
+                    <button type="button" onClick={() => setDeleteTarget(null)}
+                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button onClick={confirmDelete} disabled={deleting}
+                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">
+                        Eliminar clase
+                    </button>
                 </div>
             </Modal>
         </PerfilLayout>

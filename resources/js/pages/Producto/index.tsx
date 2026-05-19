@@ -66,6 +66,8 @@ function StockBadge({ stock }: { stock: number }) {
 
 export default function ProductosIndex({ productos = [] }: { productos: Producto[] }) {
     const [showForm, setShowForm] = useState(false);
+    const [busqueda, setBusqueda] = useState('');
+    const [filtroStock, setFiltroStock] = useState('');
 
     const { data, setData, post, processing, errors, reset } = useForm({
         nombre: '',
@@ -76,19 +78,12 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
     function submit(e: React.FormEvent) {
         e.preventDefault();
         post('/productos', {
-            onSuccess: () => {
-                reset();
-                setShowForm(false);
-            }
+            onSuccess: () => { reset(); setShowForm(false); }
         });
     }
 
     const [editTarget, setEditTarget] = useState<Producto | null>(null);
-    const editForm = useForm({
-        nombre: '',
-        precio: '',
-        stock: '',
-    });
+    const editForm = useForm({ nombre: '', precio: '', stock: '' });
 
     function openEdit(p: Producto) {
         editForm.setData({
@@ -103,7 +98,7 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
         e.preventDefault();
         if (!editTarget) return;
         editForm.put(`/productos/${editTarget.id}`, {
-            onSuccess: () => { setEditTarget(null); router.reload(); },
+            onSuccess: () => setEditTarget(null),
         });
     }
 
@@ -119,6 +114,13 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
         });
     }
 
+    const productosFiltrados = productos.filter((p) => {
+        const coincideNombre = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
+        const estadoProducto = p.stock === 0 ? 'sin_stock' : p.stock <= STOCK_BAJO ? 'stock_bajo' : 'disponible';
+        const coincideStock = filtroStock === '' || estadoProducto === filtroStock;
+        return coincideNombre && coincideStock;
+    });
+
     const inputCls = 'w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white';
 
     return (
@@ -129,12 +131,11 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
             title="Productos"
             subtitle="Administración del catálogo de productos general."
         >
+            {/* FORMULARIO */}
             <div className="mb-8">
                 {!showForm ? (
-                    <button
-                        onClick={() => setShowForm(true)}
-                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 transition"
-                    >
+                    <button onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 transition">
                         + Añadir producto
                     </button>
                 ) : (
@@ -146,7 +147,6 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
                                 Cancelar
                             </button>
                         </div>
-
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-gray-400">Nombre del producto</label>
@@ -154,14 +154,12 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
                                     onChange={(e) => setData('nombre', e.target.value)} className={inputCls} required />
                                 {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
                             </div>
-
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-gray-400">Precio de venta</label>
                                 <input type="number" placeholder="Precio" min="0" step="0.01" value={data.precio}
                                     onChange={(e) => setData('precio', e.target.value)} className={inputCls} required />
                                 {errors.precio && <p className="mt-1 text-xs text-red-500">{errors.precio}</p>}
                             </div>
-
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-gray-400">Stock inicial</label>
                                 <input type="number" placeholder="Cantidad" min="0" value={data.stock}
@@ -169,7 +167,6 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
                                 {errors.stock && <p className="mt-1 text-xs text-red-500">{errors.stock}</p>}
                             </div>
                         </div>
-
                         <button disabled={processing}
                             className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition">
                             {processing ? 'Guardando...' : 'Registrar Producto'}
@@ -178,19 +175,37 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
                 )}
             </div>
 
-            {/* 📱 VISTA MÓVIL */}
+            {/* FILTROS */}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                    type="text"
+                    placeholder="Buscar por nombre..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 sm:max-w-xs"
+                />
+                <select
+                    value={filtroStock}
+                    onChange={(e) => setFiltroStock(e.target.value)}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600"
+                >
+                    <option value="">Todos los estados</option>
+                    <option value="disponible">Disponible</option>
+                    <option value="stock_bajo">Stock bajo</option>
+                    <option value="sin_stock">Sin stock</option>
+                </select>
+            </div>
+
+            {/* VISTA MÓVIL */}
             <div className="space-y-4 md:hidden">
                 <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de Productos</h3>
-                {productos.length > 0 ? (
-                    productos.map((p) => (
+                {productosFiltrados.length > 0 ? (
+                    productosFiltrados.map((p) => (
                         <div key={p.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
                             <div className="flex justify-between items-start gap-2">
-                                <div>
-                                    <h4 className="font-bold text-gray-900 text-base leading-tight">{p.nombre}</h4>
-                                </div>
+                                <h4 className="font-bold text-gray-900 text-base leading-tight">{p.nombre}</h4>
                                 <StockBadge stock={p.stock} />
                             </div>
-
                             <div className="grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 text-xs text-gray-600">
                                 <div>
                                     <span className="block text-gray-400 font-medium mb-0.5">Precio</span>
@@ -201,12 +216,13 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
                                     <span className="font-semibold text-gray-700">{p.stock} uds</span>
                                 </div>
                             </div>
-
                             <div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
-                                <button onClick={() => openEdit(p)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 active:bg-blue-50 active:text-blue-500">
+                                <button onClick={() => openEdit(p)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 active:bg-blue-50 active:text-blue-500">
                                     <IconEdit />
                                 </button>
-                                <button onClick={() => setDeleteTarget(p)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
+                                <button onClick={() => setDeleteTarget(p)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 active:bg-red-50 active:text-red-500">
                                     <IconTrash />
                                 </button>
                             </div>
@@ -214,16 +230,16 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
                     ))
                 ) : (
                     <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
-                        No hay productos registrados en el catálogo.
+                        No se encontraron productos.
                     </div>
                 )}
             </div>
 
-            {/* 💻 VISTA ESCRITORIO */}
+            {/* VISTA DESKTOP */}
             <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                 <div className="border-b border-gray-200 p-5 font-semibold">
                     Lista de Productos
-                    <span className="ml-2 text-sm font-normal text-gray-400">({productos.length} resultados)</span>
+                    <span className="ml-2 text-sm font-normal text-gray-400">({productosFiltrados.length} resultados)</span>
                 </div>
                 <table className="w-full text-left text-sm">
                     <thead className="bg-gray-50 text-gray-500">
@@ -235,28 +251,29 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
                             <th className="pr-5 text-center">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {productos.map((p) => (
-                            <tr key={p.id} className="hover:bg-gray-50/60 transition">
-                                <td className="p-5 font-medium text-gray-900">{p.nombre}</td>
-                                <td className="font-semibold text-gray-900">${Number(p.precio).toFixed(2)}</td>
-                                <td className="text-gray-600">{p.stock} uds</td>
-                                <td><StockBadge stock={p.stock} /></td>
-                                <td className="pr-5">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <button onClick={() => openEdit(p)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500">
-                                            <IconEdit />
-                                        </button>
-                                        <button onClick={() => setDeleteTarget(p)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
-                                            <IconTrash />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {productos.length === 0 && (
+                    <tbody>
+                        {productosFiltrados.length > 0 ? (
+                            productosFiltrados.map((p) => (
+                                <tr key={p.id} className="border-t border-gray-100 hover:bg-gray-50/60 transition">
+                                    <td className="p-5 font-medium text-gray-900">{p.nombre}</td>
+                                    <td className="font-semibold text-gray-900">${Number(p.precio).toFixed(2)}</td>
+                                    <td className="text-gray-600">{p.stock} uds</td>
+                                    <td><StockBadge stock={p.stock} /></td>
+                                    <td className="pr-5">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <button onClick={() => openEdit(p)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500">
+                                                <IconEdit />
+                                            </button>
+                                            <button onClick={() => setDeleteTarget(p)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
                             <tr>
                                 <td colSpan={5} className="p-8 text-center text-gray-400">No se encontraron productos.</td>
                             </tr>
@@ -265,63 +282,58 @@ export default function ProductosIndex({ productos = [] }: { productos: Producto
                 </table>
             </div>
 
-            {/* Modal Editar */}
+            {/* MODAL EDITAR */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800 border-b border-gray-100 pb-2">Editar producto</h3>
                 <form onSubmit={submitEdit} className="space-y-4">
-                    <div className="space-y-4">
+                    <div>
+                        <label className="mb-1 block text-xs font-medium text-gray-500">Nombre del producto</label>
+                        <input type="text" value={editForm.data.nombre}
+                            onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} required />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="mb-1 block text-xs font-medium text-gray-500">Nombre del Producto</label>
-                            <input type="text" value={editForm.data.nombre}
-                                onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} required />
+                            <label className="mb-1 block text-xs font-medium text-gray-500">Precio</label>
+                            <input type="number" min="0" step="0.01" value={editForm.data.precio}
+                                onChange={(e) => editForm.setData('precio', e.target.value)} className={inputCls} required />
                         </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-500">Precio</label>
-                                <input type="number" min="0" step="0.01" value={editForm.data.precio}
-                                    onChange={(e) => editForm.setData('precio', e.target.value)} className={inputCls} required />
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-500">Stock</label>
-                                <input type="number" min="0" value={editForm.data.stock}
-                                    onChange={(e) => editForm.setData('stock', e.target.value)} className={inputCls} required />
-                            </div>
+                        <div>
+                            <label className="mb-1 block text-xs font-medium text-gray-500">Stock</label>
+                            <input type="number" min="0" value={editForm.data.stock}
+                                onChange={(e) => editForm.setData('stock', e.target.value)} className={inputCls} required />
                         </div>
                     </div>
-
                     <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
                         <button type="button" onClick={() => setEditTarget(null)}
-                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
                             Cancelar
                         </button>
                         <button type="submit" disabled={editForm.processing}
-                            className="w-full md:w-auto rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60 transition">
+                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">
                             Guardar cambios
                         </button>
                     </div>
                 </form>
             </Modal>
 
-            {/* Modal Eliminar */}
+            {/* MODAL ELIMINAR */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
                     <IconTrash />
                 </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar producto</h3>
                 <p className="mb-6 text-sm text-gray-500">
-                    ¿Estás seguro de que deseas eliminar{' '}
+                    ¿Estás seguro de eliminar{' '}
                     <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
                     Esta acción no se puede deshacer.
                 </p>
                 <div className="flex justify-end gap-3">
                     <button onClick={() => setDeleteTarget(null)}
-                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
                         Cancelar
                     </button>
                     <button onClick={confirmDelete} disabled={deleting}
-                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60 transition">
+                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">
                         Eliminar
                     </button>
                 </div>

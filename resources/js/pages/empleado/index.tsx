@@ -72,6 +72,9 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 
 export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Props) {
     const [showForm, setShowForm] = useState(false);
+    const [busqueda, setBusqueda] = useState('');
+    const [filtroSucursal, setFiltroSucursal] = useState('');
+    const [filtroRol, setFiltroRol] = useState('');
 
     const createForm = useForm({
         name: '',
@@ -145,6 +148,13 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
         });
     }
 
+    const empleadosFiltrados = empleados.filter((emp) => {
+        const coincideNombre = emp.nombre.toLowerCase().includes(busqueda.toLowerCase());
+        const coincideSucursal = filtroSucursal === '' || String(emp.sucursal_id) === filtroSucursal;
+        const coincideRol = filtroRol === '' || emp.rol === filtroRol;
+        return coincideNombre && coincideSucursal && coincideRol;
+    });
+
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -153,6 +163,7 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
             title="Empleados"
             subtitle="Administración de empleados del gimnasio."
         >
+            {/* FORMULARIO */}
             <div className="mb-8">
                 {!showForm ? (
                     <button onClick={() => setShowForm(true)}
@@ -166,92 +177,88 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
                             <button type="button" onClick={() => setShowForm(false)}
                                 className="text-sm font-medium text-gray-400 hover:text-gray-600 transition">Cancelar</button>
                         </div>
-
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
-                                <input
-                                    type="text"
-                                    placeholder="Nombre completo"
+                                <input type="text" placeholder="Nombre completo"
                                     value={createForm.data.name}
                                     onChange={e => createForm.setData('name', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                    required
-                                />
-                                {createForm.errors.name && (
-                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.name}</span>
-                                )}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
+                                {createForm.errors.name && <span className="mt-1 block text-xs text-red-500">{createForm.errors.name}</span>}
                             </div>
                             <div>
-                                <input
-                                    type="email"
-                                    placeholder="Correo electrónico"
+                                <input type="email" placeholder="Correo electrónico"
                                     value={createForm.data.email}
                                     onChange={e => createForm.setData('email', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                    required
-                                />
-                                {createForm.errors.email && (
-                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.email}</span>
-                                )}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
+                                {createForm.errors.email && <span className="mt-1 block text-xs text-red-500">{createForm.errors.email}</span>}
                             </div>
                             <div>
-                                <input
-                                    type="password"
-                                    placeholder="Contraseña de acceso"
+                                <input type="password" placeholder="Contraseña de acceso"
                                     value={createForm.data.password}
                                     onChange={e => createForm.setData('password', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                    required
-                                />
-                                {createForm.errors.password && (
-                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.password}</span>
-                                )}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
+                                {createForm.errors.password && <span className="mt-1 block text-xs text-red-500">{createForm.errors.password}</span>}
                             </div>
                             <div>
-                                <select
-                                    value={createForm.data.rol}
+                                <select value={createForm.data.rol}
                                     onChange={e => createForm.setData('rol', e.target.value as any)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700"
-                                >
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700">
                                     <option value="recepcionista">Recepcionista</option>
                                     <option value="entrenador">Entrenador</option>
                                     <option value="gerente">Gerente</option>
                                 </select>
-                                {createForm.errors.rol && (
-                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.rol}</span>
-                                )}
+                                {createForm.errors.rol && <span className="mt-1 block text-xs text-red-500">{createForm.errors.rol}</span>}
                             </div>
                             <div>
-                                <select
-                                    value={createForm.data.sucursal_id}
+                                <select value={createForm.data.sucursal_id}
                                     onChange={e => createForm.setData('sucursal_id', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700"
-                                >
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700">
                                     <option value="">Seleccionar sucursal</option>
                                     {sucursales.map(s => (
                                         <option key={s.id} value={s.id}>{s.nombre}</option>
                                     ))}
                                 </select>
-                                {createForm.errors.sucursal_id && (
-                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.sucursal_id}</span>
-                                )}
+                                {createForm.errors.sucursal_id && <span className="mt-1 block text-xs text-red-500">{createForm.errors.sucursal_id}</span>}
                             </div>
                         </div>
-
-                        <button
-                            disabled={createForm.processing}
-                            className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition"
-                        >
+                        <button disabled={createForm.processing}
+                            className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition">
                             {createForm.processing ? 'Guardando...' : 'Guardar Empleado'}
                         </button>
                     </form>
                 )}
             </div>
 
+            {/* FILTROS */}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                    type="text"
+                    placeholder="Buscar por nombre..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 sm:max-w-xs"
+                />
+                <select value={filtroSucursal} onChange={(e) => setFiltroSucursal(e.target.value)}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
+                    <option value="">Todas las sucursales</option>
+                    {sucursales.map((s) => (
+                        <option key={s.id} value={s.id}>{s.nombre}</option>
+                    ))}
+                </select>
+                <select value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
+                    <option value="">Todos los puestos</option>
+                    <option value="recepcionista">Recepcionista</option>
+                    <option value="entrenador">Entrenador</option>
+                    <option value="gerente">Gerente</option>
+                </select>
+            </div>
+
+            {/* VISTA MÓVIL */}
             <div className="space-y-4 md:hidden">
                 <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de empleados</h3>
-                {empleados && empleados.length > 0 ? (
-                    empleados.map((emp) => (
+                {empleadosFiltrados.length > 0 ? (
+                    empleadosFiltrados.map((emp) => (
                         <div key={emp.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
                             <div className="flex justify-between items-start gap-2">
                                 <div>
@@ -266,7 +273,6 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
                                     {emp.rol}
                                 </span>
                             </div>
-                            
                             <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3 text-xs">
                                 <div>
                                     <span className="block text-gray-400 font-medium mb-0.5">Sucursal</span>
@@ -279,20 +285,13 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
                                     </span>
                                 </div>
                             </div>
-
                             <div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
-                                <button
-                                    onClick={() => openEdit(emp)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 transition"
-                                    title="Editar"
-                                >
+                                <button onClick={() => openEdit(emp)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 transition active:bg-blue-50 active:text-blue-500">
                                     <IconEdit />
                                 </button>
-                                <button
-                                    onClick={() => setDeleteTarget(emp)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 transition"
-                                    title="Eliminar"
-                                >
+                                <button onClick={() => setDeleteTarget(emp)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 transition active:bg-red-50 active:text-red-500">
                                     <IconTrash />
                                 </button>
                             </div>
@@ -300,16 +299,14 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
                     ))
                 ) : (
                     <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
-                        No hay empleados registrados en el staff.
+                        No se encontraron empleados.
                     </div>
                 )}
             </div>
 
+            {/* VISTA DESKTOP */}
             <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-                <div className="border-b border-gray-200 p-5 font-semibold">
-                    Lista de empleados
-                </div>
-
+                <div className="border-b border-gray-200 p-5 font-semibold">Lista de empleados</div>
                 <table className="w-full text-left text-sm">
                     <thead className="bg-gray-50 text-gray-500">
                         <tr>
@@ -321,8 +318,8 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
                         </tr>
                     </thead>
                     <tbody>
-                        {empleados && empleados.length > 0 ? (
-                            empleados.map((emp) => (
+                        {empleadosFiltrados.length > 0 ? (
+                            empleadosFiltrados.map((emp) => (
                                 <tr key={emp.id} className="border-t border-gray-100 hover:bg-gray-50/60">
                                     <td className="p-5">
                                         <div className="font-medium text-gray-900">{emp.nombre}</div>
@@ -343,18 +340,12 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
                                     </td>
                                     <td className="pr-5">
                                         <div className="flex items-center justify-center gap-2">
-                                            <button
-                                                onClick={() => openEdit(emp)}
-                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                                title="Editar"
-                                            >
+                                            <button onClick={() => openEdit(emp)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500">
                                                 <IconEdit />
                                             </button>
-                                            <button
-                                                onClick={() => setDeleteTarget(emp)}
-                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                                title="Eliminar"
-                                            >
+                                            <button onClick={() => setDeleteTarget(emp)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
                                                 <IconTrash />
                                             </button>
                                         </div>
@@ -364,7 +355,7 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
                         ) : (
                             <tr>
                                 <td colSpan={5} className="p-8 text-center text-gray-400">
-                                    No hay empleados registrados en el staff.
+                                    No se encontraron empleados.
                                 </td>
                             </tr>
                         )}
@@ -372,142 +363,97 @@ export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Prop
                 </table>
             </div>
 
+            {/* MODAL EDITAR */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar empleado</h3>
                 <form onSubmit={handleEditSubmit} className="space-y-4">
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Nombre Completo</label>
-                        <input
-                            type="text"
-                            value={editForm.data.name}
+                        <input type="text" value={editForm.data.name}
                             onChange={e => editForm.setData('name', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
-                        {editForm.errors.name && (
-                            <span className="mt-1 block text-xs text-red-500">{editForm.errors.name}</span>
-                        )}
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
+                        {editForm.errors.name && <span className="mt-1 block text-xs text-red-500">{editForm.errors.name}</span>}
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Correo Electrónico</label>
-                        <input
-                            type="email"
-                            value={editForm.data.email}
+                        <input type="email" value={editForm.data.email}
                             onChange={e => editForm.setData('email', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
-                        {editForm.errors.email && (
-                            <span className="mt-1 block text-xs text-red-500">{editForm.errors.email}</span>
-                        )}
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
+                        {editForm.errors.email && <span className="mt-1 block text-xs text-red-500">{editForm.errors.email}</span>}
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Puesto / Rol</label>
-                            <select
-                                value={editForm.data.rol}
+                            <select value={editForm.data.rol}
                                 onChange={e => editForm.setData('rol', e.target.value as any)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white"
-                            >
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white">
                                 <option value="recepcionista">Recepcionista</option>
                                 <option value="entrenador">Entrenador</option>
                                 <option value="gerente">Gerente</option>
                             </select>
-                            {editForm.errors.rol && (
-                                <span className="mt-1 block text-xs text-red-500">{editForm.errors.rol}</span>
-                            )}
+                            {editForm.errors.rol && <span className="mt-1 block text-xs text-red-500">{editForm.errors.rol}</span>}
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Sucursal</label>
-                            <select
-                                value={editForm.data.sucursal_id}
+                            <select value={editForm.data.sucursal_id}
                                 onChange={e => editForm.setData('sucursal_id', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white"
-                            >
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white">
                                 {sucursales.map(s => (
                                     <option key={s.id} value={s.id}>{s.nombre}</option>
                                 ))}
                             </select>
-                            {editForm.errors.sucursal_id && (
-                                <span className="mt-1 block text-xs text-red-500">{editForm.errors.sucursal_id}</span>
-                            )}
+                            {editForm.errors.sucursal_id && <span className="mt-1 block text-xs text-red-500">{editForm.errors.sucursal_id}</span>}
                         </div>
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Salario Mensual ($ MXN)</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            value={editForm.data.salario}
+                        <input type="number" step="0.01" value={editForm.data.salario}
                             onChange={e => editForm.setData('salario', parseFloat(e.target.value) || 0)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
-                        {editForm.errors.salario && (
-                            <span className="mt-1 block text-xs text-red-500">{editForm.errors.salario}</span>
-                        )}
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" required />
+                        {editForm.errors.salario && <span className="mt-1 block text-xs text-red-500">{editForm.errors.salario}</span>}
                     </div>
-
                     <div>
                         <label className="mb-0.5 block text-xs font-medium text-gray-500">Nueva Contraseña</label>
-                        <input
-                            type="password"
-                            placeholder="Dejar en blanco para no cambiar"
+                        <input type="password" placeholder="Dejar en blanco para no cambiar"
                             value={editForm.data.password}
                             onChange={e => editForm.setData('password', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {editForm.errors.password && (
-                            <span className="mt-1 block text-xs text-red-500">{editForm.errors.password}</span>
-                        )}
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400" />
+                        {editForm.errors.password && <span className="mt-1 block text-xs text-red-500">{editForm.errors.password}</span>}
                         <p className="mt-1 text-[11px] text-gray-400 leading-tight">
                             *Si escribes una clave aquí, reemplazará el acceso actual del empleado (Mín. 8 caracteres).
                         </p>
                     </div>
-
                     <div className="flex justify-end gap-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={() => setEditTarget(null)}
-                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                        >
+                        <button type="button" onClick={() => setEditTarget(null)}
+                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
                             Cancelar
                         </button>
-                        <button
-                            type="submit"
-                            disabled={editForm.processing}
-                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
-                        >
+                        <button type="submit" disabled={editForm.processing}
+                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">
                             Guardar cambios
                         </button>
                     </div>
                 </form>
             </Modal>
 
+            {/* MODAL ELIMINAR */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
                     <IconTrash />
                 </div>
-
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Dar de baja empleado</h3>
                 <p className="mb-6 text-sm text-gray-500">
                     ¿Estás seguro de que deseas dar de baja a{' '}
                     <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
                     Se revocará inmediatamente su acceso y credenciales del sistema.
                 </p>
-
                 <div className="flex justify-end gap-3">
-                    <button
-                        onClick={() => setDeleteTarget(null)}
-                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                    >
+                    <button onClick={() => setDeleteTarget(null)}
+                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
                         Cancelar
                     </button>
-                    <button
-                        onClick={confirmDelete}
-                        disabled={deleting}
-                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
-                    >
+                    <button onClick={confirmDelete} disabled={deleting}
+                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">
                         Eliminar
                     </button>
                 </div>

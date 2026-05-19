@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import PerfilLayout from '@/layouts/perfil-layout';
 
 const menuItems = [
@@ -49,14 +48,6 @@ export default function Dashboard({
             title="Dashboard General"
             subtitle="Sistema de administración del gimnasio."
         >
-            <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
-                <Link
-                    href="/miembros"
-                    className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600"
-                >
-                    + Nuevo Miembro
-                </Link>
-            </div>
 
             <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">

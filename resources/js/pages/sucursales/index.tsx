@@ -16,22 +16,12 @@ const menuItems = [
     { label: 'Equipos', href: '/equipos', icon: '🛠️' },
 ];
 
-type Franquicia = {
-    id: number;
-    nombre: string;
-};
-
+type Franquicia = { id: number; nombre: string };
 type Sucursal = {
-    id: number;
-    nombre: string;
-    direccion: string;
-    ciudad: string;
-    telefono: string | null;
-    activa: boolean;
-    franquicia: Franquicia;
+    id: number; nombre: string; direccion: string;
+    ciudad: string; telefono: string | null; activa: boolean; franquicia: Franquicia;
 };
 
-// ── Icono lápiz ───────────────────────────────────────────────────────────────
 function IconEdit() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -42,7 +32,6 @@ function IconEdit() {
     );
 }
 
-// ── Icono papelera ────────────────────────────────────────────────────────────
 function IconTrash() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -55,7 +44,6 @@ function IconTrash() {
     );
 }
 
-// ── Modal base ────────────────────────────────────────────────────────────────
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
     if (!open) return null;
     return (
@@ -68,46 +56,25 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
     );
 }
 
-export default function SucursalesIndex({
-    sucursales,
-    franquicias,
-}: {
-    sucursales: Sucursal[];
-    franquicias: Franquicia[];
-}) {
-    // ── Crear ──────────────────────────────────────────────────────────────────
+export default function SucursalesIndex({ sucursales, franquicias }: { sucursales: Sucursal[]; franquicias: Franquicia[] }) {
+    const [showForm, setShowForm] = useState(false);
+
     const { data, setData, post, processing, errors, reset } = useForm({
-        franquicia_id: '',
-        nombre: '',
-        direccion: '',
-        ciudad: '',
-        telefono: '',
+        franquicia_id: '', nombre: '', direccion: '', ciudad: '', telefono: '',
     });
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        post('/sucursales', { onSuccess: () => reset() });
+        post('/sucursales', { onSuccess: () => { reset(); setShowForm(false); } });
     }
 
-    // ── Editar ─────────────────────────────────────────────────────────────────
     const [editTarget, setEditTarget] = useState<Sucursal | null>(null);
-    const editForm = useForm({
-        franquicia_id: '',
-        nombre: '',
-        direccion: '',
-        ciudad: '',
-        telefono: '',
-        activa: true as boolean,
-    });
+    const editForm = useForm({ franquicia_id: '', nombre: '', direccion: '', ciudad: '', telefono: '', activa: true as boolean });
 
     function openEdit(s: Sucursal) {
         editForm.setData({
-            franquicia_id: String(s.franquicia.id),
-            nombre: s.nombre,
-            direccion: s.direccion,
-            ciudad: s.ciudad,
-            telefono: s.telefono ?? '',
-            activa: s.activa,
+            franquicia_id: String(s.franquicia.id), nombre: s.nombre,
+            direccion: s.direccion, ciudad: s.ciudad, telefono: s.telefono ?? '', activa: s.activa,
         });
         setEditTarget(s);
     }
@@ -115,12 +82,9 @@ export default function SucursalesIndex({
     function submitEdit(e: React.FormEvent) {
         e.preventDefault();
         if (!editTarget) return;
-        editForm.put(`/sucursales/${editTarget.id}`, {
-            onSuccess: () => setEditTarget(null),
-        });
+        editForm.put(`/sucursales/${editTarget.id}`, { onSuccess: () => setEditTarget(null) });
     }
 
-    // ── Eliminar ───────────────────────────────────────────────────────────────
     const [deleteTarget, setDeleteTarget] = useState<Sucursal | null>(null);
     const [deleting, setDeleting] = useState(false);
 
@@ -133,7 +97,8 @@ export default function SucursalesIndex({
         });
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
+    const inputCls = 'w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400';
+
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -142,76 +107,52 @@ export default function SucursalesIndex({
             title="Sucursales"
             subtitle="Administración de sucursales del gimnasio."
         >
-            {/* ── Formulario crear ── */}
-            <form
-                onSubmit={submit}
-                className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-            >
-                <h3 className="mb-5 text-lg font-semibold">Registrar nueva sucursal</h3>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                        <select
-                            value={data.franquicia_id}
-                            onChange={(e) => setData('franquicia_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        >
-                            <option value="">Seleccionar franquicia</option>
-                            {franquicias.map((f) => (
-                                <option key={f.id} value={f.id}>{f.nombre}</option>
-                            ))}
-                        </select>
-                        {errors.franquicia_id && <p className="mt-1 text-xs text-red-500">{errors.franquicia_id}</p>}
-                    </div>
-
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Nombre de la sucursal"
-                            value={data.nombre}
-                            onChange={(e) => setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <input
-                            type="text"
-                            placeholder="Dirección"
-                            value={data.direccion}
-                            onChange={(e) => setData('direccion', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                    </div>
-
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Ciudad"
-                            value={data.ciudad}
-                            onChange={(e) => setData('ciudad', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                    </div>
-
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Teléfono"
-                            value={data.telefono}
-                            onChange={(e) => setData('telefono', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                    </div>
-                </div>
-
-                <button
-                    disabled={processing}
-                    className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
-                >
-                    {processing ? 'Guardando...' : 'Guardar Sucursal'}
-                </button>
-            </form>
+            {/* ── Botón / Formulario crear ── */}
+            <div className="mb-8">
+                {!showForm ? (
+                    <button onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600">
+                        + Añadir sucursal
+                    </button>
+                ) : (
+                    <form onSubmit={submit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">Registrar nueva sucursal</h3>
+                            <button type="button" onClick={() => setShowForm(false)}
+                                className="text-sm text-gray-400 hover:text-gray-600">Cancelar</button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <select value={data.franquicia_id} onChange={(e) => setData('franquicia_id', e.target.value)} className={inputCls}>
+                                    <option value="">Seleccionar franquicia</option>
+                                    {franquicias.map((f) => <option key={f.id} value={f.id}>{f.nombre}</option>)}
+                                </select>
+                                {errors.franquicia_id && <p className="mt-1 text-xs text-red-500">{errors.franquicia_id}</p>}
+                            </div>
+                            <div>
+                                <input type="text" placeholder="Nombre de la sucursal" value={data.nombre}
+                                    onChange={(e) => setData('nombre', e.target.value)} className={inputCls} />
+                            </div>
+                            <div className="md:col-span-2">
+                                <input type="text" placeholder="Dirección" value={data.direccion}
+                                    onChange={(e) => setData('direccion', e.target.value)} className={inputCls} />
+                            </div>
+                            <div>
+                                <input type="text" placeholder="Ciudad" value={data.ciudad}
+                                    onChange={(e) => setData('ciudad', e.target.value)} className={inputCls} />
+                            </div>
+                            <div>
+                                <input type="text" placeholder="Teléfono" value={data.telefono}
+                                    onChange={(e) => setData('telefono', e.target.value)} className={inputCls} />
+                            </div>
+                        </div>
+                        <button disabled={processing}
+                            className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60">
+                            {processing ? 'Guardando...' : 'Guardar Sucursal'}
+                        </button>
+                    </form>
+                )}
+            </div>
 
             {/* ── Tabla ── */}
             <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -237,25 +178,18 @@ export default function SucursalesIndex({
                                 <td>
                                     <span className={s.activa
                                         ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600'
-                                        : 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600'
-                                    }>
+                                        : 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600'}>
                                         {s.activa ? 'Activa' : 'Inactiva'}
                                     </span>
                                 </td>
                                 <td className="pr-5">
                                     <div className="flex items-center justify-center gap-2">
-                                        <button
-                                            onClick={() => openEdit(s)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                            title="Editar"
-                                        >
+                                        <button onClick={() => openEdit(s)}
+                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500">
                                             <IconEdit />
                                         </button>
-                                        <button
-                                            onClick={() => setDeleteTarget(s)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                            title="Eliminar"
-                                        >
+                                        <button onClick={() => setDeleteTarget(s)}
+                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
                                             <IconTrash />
                                         </button>
                                     </div>
@@ -272,89 +206,41 @@ export default function SucursalesIndex({
                 <form onSubmit={submitEdit} className="space-y-4">
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Franquicia</label>
-                        <select
-                            value={editForm.data.franquicia_id}
-                            onChange={(e) => editForm.setData('franquicia_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        >
+                        <select value={editForm.data.franquicia_id} onChange={(e) => editForm.setData('franquicia_id', e.target.value)} className={inputCls}>
                             <option value="">Seleccionar franquicia</option>
-                            {franquicias.map((f) => (
-                                <option key={f.id} value={f.id}>{f.nombre}</option>
-                            ))}
+                            {franquicias.map((f) => <option key={f.id} value={f.id}>{f.nombre}</option>)}
                         </select>
-                        {editForm.errors.franquicia_id && <p className="mt-1 text-xs text-red-500">{editForm.errors.franquicia_id}</p>}
                     </div>
-
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Nombre</label>
-                        <input
-                            type="text"
-                            value={editForm.data.nombre}
-                            onChange={(e) => editForm.setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {editForm.errors.nombre && <p className="mt-1 text-xs text-red-500">{editForm.errors.nombre}</p>}
+                        <input type="text" value={editForm.data.nombre} onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} />
                     </div>
-
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Dirección</label>
-                        <input
-                            type="text"
-                            value={editForm.data.direccion}
-                            onChange={(e) => editForm.setData('direccion', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {editForm.errors.direccion && <p className="mt-1 text-xs text-red-500">{editForm.errors.direccion}</p>}
+                        <input type="text" value={editForm.data.direccion} onChange={(e) => editForm.setData('direccion', e.target.value)} className={inputCls} />
                     </div>
-
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Ciudad</label>
-                            <input
-                                type="text"
-                                value={editForm.data.ciudad}
-                                onChange={(e) => editForm.setData('ciudad', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            />
-                            {editForm.errors.ciudad && <p className="mt-1 text-xs text-red-500">{editForm.errors.ciudad}</p>}
+                            <input type="text" value={editForm.data.ciudad} onChange={(e) => editForm.setData('ciudad', e.target.value)} className={inputCls} />
                         </div>
-
                         <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Teléfono</label>
-                            <input
-                                type="text"
-                                value={editForm.data.telefono}
-                                onChange={(e) => editForm.setData('telefono', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            />
+                            <input type="text" value={editForm.data.telefono} onChange={(e) => editForm.setData('telefono', e.target.value)} className={inputCls} />
                         </div>
                     </div>
-
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Estado</label>
-                        <select
-                            value={editForm.data.activa ? '1' : '0'}
-                            onChange={(e) => editForm.setData('activa', e.target.value === '1')}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        >
+                        <select value={editForm.data.activa ? '1' : '0'} onChange={(e) => editForm.setData('activa', e.target.value === '1')} className={inputCls}>
                             <option value="1">Activa</option>
                             <option value="0">Inactiva</option>
                         </select>
                     </div>
-
                     <div className="flex justify-end gap-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={() => setEditTarget(null)}
-                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={editForm.processing}
-                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
-                        >
+                        <button type="button" onClick={() => setEditTarget(null)}
+                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
+                        <button type="submit" disabled={editForm.processing}
+                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">
                             {editForm.processing ? 'Guardando...' : 'Guardar cambios'}
                         </button>
                     </div>
@@ -363,29 +249,18 @@ export default function SucursalesIndex({
 
             {/* ── Modal Eliminar ── */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
-                    <IconTrash />
-                </div>
-
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400"><IconTrash /></div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar sucursal</h3>
                 <p className="mb-6 text-sm text-gray-500">
                     ¿Estás seguro de que deseas eliminar{' '}
                     <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
                     Esta acción no se puede deshacer.
                 </p>
-
                 <div className="flex justify-end gap-3">
-                    <button
-                        onClick={() => setDeleteTarget(null)}
-                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        onClick={confirmDelete}
-                        disabled={deleting}
-                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
-                    >
+                    <button onClick={() => setDeleteTarget(null)}
+                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
+                    <button onClick={confirmDelete} disabled={deleting}
+                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">
                         {deleting ? 'Eliminando...' : 'Eliminar'}
                     </button>
                 </div>

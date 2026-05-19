@@ -16,12 +16,7 @@ const menuItems = [
     { label: 'Equipos', href: '/equipos', icon: '🛠️' },
 ];
 
-type Franquicia = {
-    id: number;
-    nombre: string;
-    razon_social: string;
-    rfc: string;
-};
+type Franquicia = { id: number; nombre: string; razon_social: string; rfc: string };
 
 function IconEdit() {
     return (
@@ -45,17 +40,11 @@ function IconTrash() {
     );
 }
 
-// Modal base
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
     if (!open) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-                onClick={onClose}
-            />
-            {/* Panel */}
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
             <div className="relative z-10 w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
                 {children}
             </div>
@@ -64,19 +53,17 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function FranquiciasIndex({ franquicias }: { franquicias: Franquicia[] }) {
-    // ── Crear ──
+    const [showForm, setShowForm] = useState(false);
+
     const { data, setData, post, processing, errors, reset } = useForm({
-        nombre: '',
-        razon_social: '',
-        rfc: '',
+        nombre: '', razon_social: '', rfc: '',
     });
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        post('/franquicias', { onSuccess: () => reset() });
+        post('/franquicias', { onSuccess: () => { reset(); setShowForm(false); } });
     }
 
-    // ── Editar ──
     const [editTarget, setEditTarget] = useState<Franquicia | null>(null);
     const editForm = useForm({ nombre: '', razon_social: '', rfc: '' });
 
@@ -88,12 +75,9 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
     function submitEdit(e: React.FormEvent) {
         e.preventDefault();
         if (!editTarget) return;
-        editForm.put(`/franquicias/${editTarget.id}`, {
-            onSuccess: () => setEditTarget(null),
-        });
+        editForm.put(`/franquicias/${editTarget.id}`, { onSuccess: () => setEditTarget(null) });
     }
 
-    // ── Eliminar ───
     const [deleteTarget, setDeleteTarget] = useState<Franquicia | null>(null);
     const [deleting, setDeleting] = useState(false);
 
@@ -105,6 +89,9 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
             onError: () => setDeleting(false),
         });
     }
+
+    const inputCls = 'w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400';
+
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -113,61 +100,50 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
             title="Franquicias"
             subtitle="Administración de franquicias."
         >
-            {/* ── Formulario crear ── */}
-            <form
-                onSubmit={submit}
-                className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-            >
-                <h3 className="mb-5 text-lg font-semibold">Registrar franquicia</h3>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Nombre"
-                            value={data.nombre}
-                            onChange={(e) => setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
-                    </div>
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Razón social"
-                            value={data.razon_social}
-                            onChange={(e) => setData('razon_social', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {errors.razon_social && <p className="mt-1 text-xs text-red-500">{errors.razon_social}</p>}
-                    </div>
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="RFC"
-                            value={data.rfc}
-                            onChange={(e) => setData('rfc', e.target.value.toUpperCase())}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm uppercase outline-none focus:border-orange-400"
-                        />
-                        {errors.rfc && <p className="mt-1 text-xs text-red-500">{errors.rfc}</p>}
-                    </div>
-                </div>
-
-                <button
-                    disabled={processing}
-                    className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
-                >
-                    {processing ? 'Guardando...' : 'Guardar Franquicia'}
-                </button>
-            </form>
+            {/* ── Botón / Formulario crear ── */}
+            <div className="mb-8">
+                {!showForm ? (
+                    <button onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600">
+                        + Añadir franquicia
+                    </button>
+                ) : (
+                    <form onSubmit={submit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">Registrar franquicia</h3>
+                            <button type="button" onClick={() => setShowForm(false)}
+                                className="text-sm text-gray-400 hover:text-gray-600">Cancelar</button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div>
+                                <input type="text" placeholder="Nombre" value={data.nombre}
+                                    onChange={(e) => setData('nombre', e.target.value)} className={inputCls} />
+                                {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
+                            </div>
+                            <div>
+                                <input type="text" placeholder="Razón social" value={data.razon_social}
+                                    onChange={(e) => setData('razon_social', e.target.value)} className={inputCls} />
+                                {errors.razon_social && <p className="mt-1 text-xs text-red-500">{errors.razon_social}</p>}
+                            </div>
+                            <div>
+                                <input type="text" placeholder="RFC" value={data.rfc}
+                                    onChange={(e) => setData('rfc', e.target.value.toUpperCase())}
+                                    className={`${inputCls} uppercase`} />
+                                {errors.rfc && <p className="mt-1 text-xs text-red-500">{errors.rfc}</p>}
+                            </div>
+                        </div>
+                        <button disabled={processing}
+                            className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60">
+                            {processing ? 'Guardando...' : 'Guardar Franquicia'}
+                        </button>
+                    </form>
+                )}
+            </div>
 
             {/* ── Tabla ── */}
             <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-                <div className="border-b border-gray-200 p-5 font-semibold">
-                    Lista de Franquicias
-                </div>
-
-                <table className="min-w-[700px] w-full text-left text-sm">
+                <div className="border-b border-gray-200 p-5 font-semibold">Lista de Franquicias</div>
+                <table className="min-w-[650px] w-full text-left text-sm">
                     <thead className="bg-gray-50 text-gray-500">
                         <tr>
                             <th className="p-5">Nombre</th>
@@ -184,20 +160,12 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                                 <td>{f.rfc}</td>
                                 <td className="pr-5">
                                     <div className="flex items-center justify-center gap-2">
-                                        {/* Editar */}
-                                        <button
-                                            onClick={() => openEdit(f)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                            title="Editar"
-                                        >
+                                        <button onClick={() => openEdit(f)}
+                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500">
                                             <IconEdit />
                                         </button>
-                                        {/* Eliminar */}
-                                        <button
-                                            onClick={() => setDeleteTarget(f)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                            title="Eliminar"
-                                        >
+                                        <button onClick={() => setDeleteTarget(f)}
+                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
                                             <IconTrash />
                                         </button>
                                     </div>
@@ -214,48 +182,30 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                 <form onSubmit={submitEdit} className="space-y-4">
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Nombre</label>
-                        <input
-                            type="text"
-                            value={editForm.data.nombre}
-                            onChange={(e) => editForm.setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
+                        <input type="text" value={editForm.data.nombre}
+                            onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} />
                         {editForm.errors.nombre && <p className="mt-1 text-xs text-red-500">{editForm.errors.nombre}</p>}
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Razón social</label>
-                        <input
-                            type="text"
-                            value={editForm.data.razon_social}
-                            onChange={(e) => editForm.setData('razon_social', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
+                        <input type="text" value={editForm.data.razon_social}
+                            onChange={(e) => editForm.setData('razon_social', e.target.value)} className={inputCls} />
                         {editForm.errors.razon_social && <p className="mt-1 text-xs text-red-500">{editForm.errors.razon_social}</p>}
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">RFC</label>
-                        <input
-                            type="text"
-                            value={editForm.data.rfc}
+                        <input type="text" value={editForm.data.rfc}
                             onChange={(e) => editForm.setData('rfc', e.target.value.toUpperCase())}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm uppercase outline-none focus:border-orange-400"
-                        />
+                            className={`${inputCls} uppercase`} />
                         {editForm.errors.rfc && <p className="mt-1 text-xs text-red-500">{editForm.errors.rfc}</p>}
                     </div>
-
                     <div className="flex justify-end gap-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={() => setEditTarget(null)}
-                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                        >
+                        <button type="button" onClick={() => setEditTarget(null)}
+                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
                             Cancelar
                         </button>
-                        <button
-                            type="submit"
-                            disabled={editForm.processing}
-                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
-                        >
+                        <button type="submit" disabled={editForm.processing}
+                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">
                             {editForm.processing ? 'Guardando...' : 'Guardar cambios'}
                         </button>
                     </div>
@@ -264,30 +214,22 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
 
             {/* ── Modal Eliminar ── */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                {/* Ícono de advertencia */}
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
                     <IconTrash />
                 </div>
-
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar franquicia</h3>
                 <p className="mb-6 text-sm text-gray-500">
                     ¿Estás seguro de que deseas eliminar{' '}
                     <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
                     Esta acción no se puede deshacer.
                 </p>
-
                 <div className="flex justify-end gap-3">
-                    <button
-                        onClick={() => setDeleteTarget(null)}
-                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                    >
+                    <button onClick={() => setDeleteTarget(null)}
+                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
                         Cancelar
                     </button>
-                    <button
-                        onClick={confirmDelete}
-                        disabled={deleting}
-                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
-                    >
+                    <button onClick={confirmDelete} disabled={deleting}
+                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">
                         {deleting ? 'Eliminando...' : 'Eliminar'}
                     </button>
                 </div>

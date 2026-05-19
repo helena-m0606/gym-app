@@ -27,7 +27,6 @@ type Producto = {
     stock: number;
     categoria: string;
     descripcion: string | null;
-    activo: boolean;
     sucursal: Sucursal;
 };
 
@@ -72,6 +71,9 @@ function StockBadge({ stock }: { stock: number }) {
 }
 
 export default function ProductosIndex({ productos, sucursales }: { productos: Producto[]; sucursales: Sucursal[] }) {
+    // ── Mostrar/ocultar formulario ─────────────────────────────────────────────
+    const [showForm, setShowForm] = useState(false);
+
     // ── Filtros ────────────────────────────────────────────────────────────────
     const [filterSucursal, setFilterSucursal] = useState('');
     const [filterCategoria, setFilterCategoria] = useState('');
@@ -94,7 +96,12 @@ export default function ProductosIndex({ productos, sucursales }: { productos: P
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        post('/productos', { onSuccess: () => reset() });
+        post('/productos', {
+            onSuccess: () => {
+                reset();
+                setShowForm(false);
+            }
+        });
     }
 
     // ── Editar ─────────────────────────────────────────────────────────────────
@@ -106,7 +113,6 @@ export default function ProductosIndex({ productos, sucursales }: { productos: P
         stock: '',
         categoria: '',
         descripcion: '',
-        activo: true as boolean,
     });
 
     function openEdit(p: Producto) {
@@ -117,7 +123,6 @@ export default function ProductosIndex({ productos, sucursales }: { productos: P
             stock: String(p.stock),
             categoria: p.categoria,
             descripcion: p.descripcion ?? '',
-            activo: p.activo,
         });
         setEditTarget(p);
     }
@@ -153,55 +158,73 @@ export default function ProductosIndex({ productos, sucursales }: { productos: P
             title="Productos"
             subtitle="Administración de productos por sucursal."
         >
-            {/* ── Formulario crear ── */}
-            <form onSubmit={submit} className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h3 className="mb-5 text-lg font-semibold">Registrar nuevo producto</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                        <select value={data.sucursal_id} onChange={(e) => setData('sucursal_id', e.target.value)} className={inputCls}>
-                            <option value="">Seleccionar sucursal</option>
-                            {sucursales.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-                        </select>
-                        {errors.sucursal_id && <p className="mt-1 text-xs text-red-500">{errors.sucursal_id}</p>}
-                    </div>
+            {/* ── Botón / Formulario crear ── */}
+            <div className="mb-8">
+                {!showForm ? (
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600"
+                    >
+                        + Añadir producto
+                    </button>
+                ) : (
+                    <form onSubmit={submit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">Registrar nuevo producto</h3>
+                            <button type="button" onClick={() => setShowForm(false)}
+                                className="text-sm text-gray-400 hover:text-gray-600">
+                                Cancelar
+                            </button>
+                        </div>
 
-                    <div>
-                        <input type="text" placeholder="Nombre del producto" value={data.nombre}
-                            onChange={(e) => setData('nombre', e.target.value)} className={inputCls} />
-                        {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
-                    </div>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <select value={data.sucursal_id} onChange={(e) => setData('sucursal_id', e.target.value)} className={inputCls}>
+                                    <option value="">Seleccionar sucursal</option>
+                                    {sucursales.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+                                </select>
+                                {errors.sucursal_id && <p className="mt-1 text-xs text-red-500">{errors.sucursal_id}</p>}
+                            </div>
 
-                    <div>
-                        <select value={data.categoria} onChange={(e) => setData('categoria', e.target.value)} className={inputCls}>
-                            <option value="">Seleccionar categoría</option>
-                            {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                        {errors.categoria && <p className="mt-1 text-xs text-red-500">{errors.categoria}</p>}
-                    </div>
+                            <div>
+                                <input type="text" placeholder="Nombre del producto" value={data.nombre}
+                                    onChange={(e) => setData('nombre', e.target.value)} className={inputCls} />
+                                {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
+                            </div>
 
-                    <div>
-                        <input type="number" placeholder="Precio" min="0" step="0.01" value={data.precio}
-                            onChange={(e) => setData('precio', e.target.value)} className={inputCls} />
-                        {errors.precio && <p className="mt-1 text-xs text-red-500">{errors.precio}</p>}
-                    </div>
+                            <div>
+                                <select value={data.categoria} onChange={(e) => setData('categoria', e.target.value)} className={inputCls}>
+                                    <option value="">Seleccionar categoría</option>
+                                    {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                                {errors.categoria && <p className="mt-1 text-xs text-red-500">{errors.categoria}</p>}
+                            </div>
 
-                    <div>
-                        <input type="number" placeholder="Stock inicial" min="0" value={data.stock}
-                            onChange={(e) => setData('stock', e.target.value)} className={inputCls} />
-                        {errors.stock && <p className="mt-1 text-xs text-red-500">{errors.stock}</p>}
-                    </div>
+                            <div>
+                                <input type="number" placeholder="Precio" min="0" step="0.01" value={data.precio}
+                                    onChange={(e) => setData('precio', e.target.value)} className={inputCls} />
+                                {errors.precio && <p className="mt-1 text-xs text-red-500">{errors.precio}</p>}
+                            </div>
 
-                    <div>
-                        <input type="text" placeholder="Descripción (opcional)" value={data.descripcion}
-                            onChange={(e) => setData('descripcion', e.target.value)} className={inputCls} />
-                    </div>
-                </div>
+                            <div>
+                                <input type="number" placeholder="Stock inicial" min="0" value={data.stock}
+                                    onChange={(e) => setData('stock', e.target.value)} className={inputCls} />
+                                {errors.stock && <p className="mt-1 text-xs text-red-500">{errors.stock}</p>}
+                            </div>
 
-                <button disabled={processing}
-                    className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60">
-                    {processing ? 'Guardando...' : 'Guardar Producto'}
-                </button>
-            </form>
+                            <div>
+                                <input type="text" placeholder="Descripción (opcional)" value={data.descripcion}
+                                    onChange={(e) => setData('descripcion', e.target.value)} className={inputCls} />
+                            </div>
+                        </div>
+
+                        <button disabled={processing}
+                            className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60">
+                            {processing ? 'Guardando...' : 'Guardar Producto'}
+                        </button>
+                    </form>
+                )}
+            </div>
 
             {/* ── Filtros ── */}
             <div className="mb-4 flex flex-wrap gap-3">
@@ -268,7 +291,7 @@ export default function ProductosIndex({ productos, sucursales }: { productos: P
                         ))}
                         {filtered.length === 0 && (
                             <tr>
-                                <td colSpan={8} className="p-8 text-center text-gray-400">No se encontraron productos.</td>
+                                <td colSpan={7} className="p-8 text-center text-gray-400">No se encontraron productos.</td>
                             </tr>
                         )}
                     </tbody>
@@ -314,7 +337,7 @@ export default function ProductosIndex({ productos, sucursales }: { productos: P
                                 onChange={(e) => editForm.setData('stock', e.target.value)} className={inputCls} />
                         </div>
 
-                        <div className="col-span-2">
+                        <div>
                             <label className="mb-1 block text-xs font-medium text-gray-500">Descripción</label>
                             <input type="text" value={editForm.data.descripcion}
                                 onChange={(e) => editForm.setData('descripcion', e.target.value)} className={inputCls} />

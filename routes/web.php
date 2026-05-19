@@ -11,6 +11,7 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GerenteController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\ClaseController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -106,6 +107,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('gerente/dashboard', [GerenteController::class, 'dashboard'])
         ->name('gerente.dashboard');
+
+    Route::get('clases', [ClaseController::class, 'index'])
+        ->name('clases.index');
+
+    Route::post('clases', [ClaseController::class, 'store'])
+        ->name('clases.store');
+
+    Route::put('clases/{id}', [ClaseController::class, 'update'])
+        ->name('clases.update');
+
+    Route::delete('clases/{id}', [ClaseController::class, 'destroy'])
+        ->name('clases.destroy');
+    
 });
 
 require __DIR__.'/settings.php';

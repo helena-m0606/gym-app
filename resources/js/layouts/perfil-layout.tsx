@@ -94,7 +94,7 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
                 </aside>
 
                 {/* NAVBAR MÓVIL */}
-                <div className="lg:hidden">
+                <div className="lg:hidden sticky top-0 z-40">
                     <div className="flex items-center bg-white border-b border-gray-200 px-4 py-3 shadow-sm gap-3">
                         <button
                             onClick={() => setMenuAbierto(!menuAbierto)}
@@ -102,7 +102,7 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
                         >
                             ☰
                         </button>
-                       <h1 className="flex items-center gap-2 text-xl font-bold tracking-widest">
+                        <h1 className="flex items-center gap-2 text-xl font-bold tracking-widest">
                             <img src="/TittanGYM.png" alt="Logo" className="h-7 w-7 object-contain" />
                             <span className="text-orange-500">Titan</span>GYM
                         </h1>

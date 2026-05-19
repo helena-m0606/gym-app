@@ -217,13 +217,6 @@ export default function Index({ miembros, sucursales }: { miembros: Miembro[]; s
                     onChange={(e) => setBusqueda(e.target.value)}
                     className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 sm:max-w-xs"
                 />
-                <select value={filtroSucursal} onChange={(e) => setFiltroSucursal(e.target.value)}
-                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
-                    <option value="">Todas las sucursales</option>
-                    {sucursales.map((s) => (
-                        <option key={s.id} value={s.id}>{s.nombre}</option>
-                    ))}
-                </select>
                 <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}
                     className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-orange-400 text-gray-600">
                     <option value="">Todos los estados</option>

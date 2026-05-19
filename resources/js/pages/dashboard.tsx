@@ -1,9 +1,9 @@
-import { Link } from '@inertiajs/react';
 import PerfilLayout from '@/layouts/perfil-layout';
 
 const menuItems = [
     { label: 'Dashboard', href: '/dashboard', icon: '📊' },
     { label: 'Miembros', href: '/miembros', icon: '👥' },
+    { label: 'Empleados', href: '/empleados', icon: '💼' },
     { label: 'Sucursales', href: '/sucursales', icon: '🏢' },
     { label: 'Franquicias', href: '/franquicias', icon: '🏬' },
     { label: 'Membresías', href: '/membresias', icon: '💳' },
@@ -49,15 +49,9 @@ export default function Dashboard({
             title="Dashboard General"
             subtitle="Sistema de administración del gimnasio."
         >
-            <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
-                <Link
-                    href="/miembros"
-                    className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600"
-                >
-                    + Nuevo Miembro
-                </Link>
-            </div>
+            <div className="mb-8 h-4" />
 
+            {/* TARJETAS ESTADÍSTICAS */}
             <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <p className="text-gray-500">Miembros Activos</p>
@@ -73,6 +67,7 @@ export default function Dashboard({
                 </div>
             </section>
 
+            {/* TABLAS INFORMATIVAS */}
             <section className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
                 <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
                     <div className="border-b border-gray-200 p-5 font-semibold">Clases de Hoy</div>
@@ -85,7 +80,7 @@ export default function Dashboard({
                             </tr>
                         </thead>
                         <tbody>
-                            {clasesHoy.length > 0 ? clasesHoy.map((clase, i) => (
+                            {clasesHoy && clasesHoy.length > 0 ? clasesHoy.map((clase, i) => (
                                 <tr key={i} className="border-t border-gray-100">
                                     <td className="p-5 font-medium">{clase.nombre}</td>
                                     <td>{new Date(clase.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</td>
@@ -111,7 +106,7 @@ export default function Dashboard({
                             </tr>
                         </thead>
                         <tbody>
-                            {pagosRecientes.map((pago, i) => (
+                            {pagosRecientes && pagosRecientes.length > 0 ? pagosRecientes.map((pago, i) => (
                                 <tr key={i} className="border-t border-gray-100">
                                     <td className="p-5 font-medium">{pago.nombre}</td>
                                     <td>${pago.monto}</td>
@@ -119,7 +114,11 @@ export default function Dashboard({
                                         {pago.estado}
                                     </td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td className="p-5 text-gray-400" colSpan={3}>No hay pagos registrados</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

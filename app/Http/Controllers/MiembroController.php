@@ -10,8 +10,11 @@ class MiembroController extends Controller
 {
     public function index()
     {
-        return Inertia::render('miembros/index', [
-            'miembros' => Miembro::with('sucursal')->latest()->get(),
+        return Inertia::render('Miembros/Index', [
+
+            'miembros' => Miembro::with('sucursal')
+                ->latest()
+                ->get(),
 
             'sucursales' => Sucursal::select('id', 'nombre')
                 ->orderBy('nombre')
@@ -39,6 +42,30 @@ class MiembroController extends Controller
             'genero' => $validated['genero'] ?? null,
             'estado' => true,
         ]);
+
+        return redirect()->route('miembros.index');
+    }
+
+    public function update(Request $request, Miembro $miembro)
+    {
+        $validated = $request->validate([
+            'sucursal_id'      => 'required|exists:sucursales,id',
+            'nombre'           => 'required|string|max:50',
+            'email'            => 'required|email|max:50|unique:miembros,email,' . $miembro->id,
+            'telefono'         => 'nullable|string|max:10',
+            'fecha_nacimiento' => 'nullable|date',
+            'genero'           => 'nullable|string|max:9',
+            'estado'           => 'boolean',
+        ]);
+
+        $miembro->update($validated);
+
+        return redirect()->route('miembros.index');
+    }
+
+    public function destroy(Miembro $miembro)
+    {
+        $miembro->delete();
 
         return redirect()->route('miembros.index');
     }

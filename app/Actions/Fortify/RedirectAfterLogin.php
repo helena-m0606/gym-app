@@ -10,11 +10,13 @@ class RedirectAfterLogin implements LoginResponse
     {
         $user = $request->user();
 
-        $url = match($user->rol) {
+        $url = match($user->rol)
+        {
             'admin' => '/dashboard',
             'entrenador' => '/entrenador/dashboard',
             'recepcionista' => '/recepcionista/dashboard',
             'miembro' => '/miembro/dashboard',
+            'gerente' => '/gerente/dashboard',
             default => '/dashboard',
         };
 

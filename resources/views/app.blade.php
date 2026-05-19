@@ -3,7 +3,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
     <head>
         <meta charset="utf-8">
-       <link rel="shortcut icon" href="{{ asset('TitanGYM.png') }}?v=2">
+       <link rel="shortcut icon" href="{{ asset('TittanGYM.png') }}?v=2">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}

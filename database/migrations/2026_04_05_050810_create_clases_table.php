@@ -23,7 +23,7 @@ return new class extends Migration
 
             $table->string('nombre', 150);
             $table->integer('capacidad');
-            $table->timestamp('fecha');
+            $table->string('fecha', 150);
         });
     }
 

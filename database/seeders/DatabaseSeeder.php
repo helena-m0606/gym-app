@@ -134,6 +134,7 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Verano Activo', 'descuento_porcentaje' => 15.00, 'fecha_inicio' => '2026-06-01', 'fecha_fin' => '2026-08-31'],
             ['nombre' => 'Regreso a Clases', 'descuento_porcentaje' => 10.00, 'fecha_inicio' => '2026-08-01', 'fecha_fin' => '2026-08-31'],
             ['nombre' => 'Black Friday', 'descuento_porcentaje' => 30.00, 'fecha_inicio' => '2026-11-25', 'fecha_fin' => '2026-11-30'],
+            ['nombre' => 'Descuento Especial','descuento_porcentaje' => 10.00,'fecha_inicio' => '2026-01-01','fecha_fin' => '2030-12-31',]
         ]);
 
         // 7. CATEGORÍAS DE EQUIPO
@@ -294,21 +295,13 @@ class DatabaseSeeder extends Seeder
 
         // 22. MEMBRESÍAS (mayoría activas, algunas vencidas, duraciones variadas)
         DB::table('membresias')->insert([
-            // Pedro - Anual activa (lleva 4 meses)
             ['miembro_id' => 1, 'tipo_membresia_id' => 5, 'fecha_inicio' => '2026-01-10', 'fecha_fin' => '2027-01-10', 'activa' => true],
-            // Laura - Trimestral por vencer en días
             ['miembro_id' => 2, 'tipo_membresia_id' => 3, 'fecha_inicio' => '2026-02-05', 'fecha_fin' => '2026-05-20', 'activa' => true],
-            // Miguel - Mensual Plus activa (reciente)
             ['miembro_id' => 3, 'tipo_membresia_id' => 2, 'fecha_inicio' => '2026-05-01', 'fecha_fin' => '2026-05-31', 'activa' => true],
-            // Diana - Semestral activa (lleva 4 meses)
             ['miembro_id' => 4, 'tipo_membresia_id' => 4, 'fecha_inicio' => '2026-01-20', 'fecha_fin' => '2026-07-20', 'activa' => true],
-            // Fernando - Mensual Básico activa (nueva)
             ['miembro_id' => 5, 'tipo_membresia_id' => 1, 'fecha_inicio' => '2026-05-01', 'fecha_fin' => '2026-05-31', 'activa' => true],
-            // Valeria - Mensual vencida (2 meses sin renovar)
             ['miembro_id' => 6, 'tipo_membresia_id' => 1, 'fecha_inicio' => '2026-02-15', 'fecha_fin' => '2026-03-17', 'activa' => false],
-            // Alejandro - Mensual Plus activa (nueva)
             ['miembro_id' => 7, 'tipo_membresia_id' => 2, 'fecha_inicio' => '2026-05-01', 'fecha_fin' => '2026-05-31', 'activa' => true],
-            // Gabriela - Mensual Básico activa (muy nueva)
             ['miembro_id' => 8, 'tipo_membresia_id' => 1, 'fecha_inicio' => '2026-05-10', 'fecha_fin' => '2026-06-09', 'activa' => true],
         ]);
 
@@ -341,13 +334,13 @@ class DatabaseSeeder extends Seeder
             ['pago_id' => 8, 'fecha' => '2026-05-10', 'total' => 399.00],
         ]);
 
-        // 26. CLASES (fechas futuras)
+        // 26. CLASES (🎯 CORREGIDO: Adaptado al nuevo formato libre text VARCHAR)
         DB::table('clases')->insert([
-            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Yoga Matutino', 'capacidad' => 15, 'fecha' => '2026-05-16 07:00:00'],
-            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Spinning Intenso', 'capacidad' => 20, 'fecha' => '2026-05-16 09:00:00'],
-            ['entrenador_id' => 4, 'sucursal_id' => 2, 'nombre' => 'CrossFit Básico', 'capacidad' => 12, 'fecha' => '2026-05-17 08:00:00'],
-            ['entrenador_id' => 4, 'sucursal_id' => 2, 'nombre' => 'Pilates', 'capacidad' => 10, 'fecha' => '2026-05-17 10:00:00'],
-            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Zumba', 'capacidad' => 25, 'fecha' => '2026-05-17 18:00:00'],
+            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Yoga Matutino', 'capacidad' => 15, 'fecha' => 'Lunes, Miércoles — 07:00'],
+            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Spinning Intenso', 'capacidad' => 20, 'fecha' => 'Martes, Jueves — 09:00'],
+            ['entrenador_id' => 4, 'sucursal_id' => 2, 'nombre' => 'CrossFit Básico', 'capacidad' => 12, 'fecha' => 'Lunes, Miércoles, Viernes — 08:00'],
+            ['entrenador_id' => 4, 'sucursal_id' => 2, 'nombre' => 'Pilates', 'capacidad' => 10, 'fecha' => 'Martes, Jueves — 10:00'],
+            ['entrenador_id' => 2, 'sucursal_id' => 1, 'nombre' => 'Zumba', 'capacidad' => 25, 'fecha' => 'Viernes, Sábado — 18:00'],
         ]);
 
         // 27. RESERVAS DE CLASE

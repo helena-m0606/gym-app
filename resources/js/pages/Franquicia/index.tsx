@@ -1,5 +1,4 @@
-import { useForm } from '@inertiajs/react';
-import { router } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PerfilLayout from '@/layouts/perfil-layout';
 
@@ -16,12 +15,7 @@ const menuItems = [
     { label: 'Equipos', href: '/equipos', icon: '🛠️' },
 ];
 
-type Franquicia = {
-    id: number;
-    nombre: string;
-    razon_social: string;
-    rfc: string;
-};
+type Franquicia = { id: number; nombre: string; razon_social: string; rfc: string };
 
 function IconEdit() {
     return (
@@ -58,15 +52,16 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function FranquiciasIndex({ franquicias }: { franquicias: Franquicia[] }) {
+    // 🎯 Integrado: Control de visibilidad del formulario de Helena
+    const [showForm, setShowForm] = useState(false);
+
     const { data, setData, post, processing, errors, reset } = useForm({
-        nombre: '',
-        razon_social: '',
-        rfc: '',
+        nombre: '', razon_social: '', rfc: '',
     });
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        post('/franquicias', { onSuccess: () => reset() });
+        post('/franquicias', { onSuccess: () => { reset(); setShowForm(false); } });
     }
 
     const [editTarget, setEditTarget] = useState<Franquicia | null>(null);
@@ -80,9 +75,7 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
     function submitEdit(e: React.FormEvent) {
         e.preventDefault();
         if (!editTarget) return;
-        editForm.put(`/franquicias/${editTarget.id}`, {
-            onSuccess: () => setEditTarget(null),
-        });
+        editForm.put(`/franquicias/${editTarget.id}`, { onSuccess: () => setEditTarget(null) });
     }
 
     const [deleteTarget, setDeleteTarget] = useState<Franquicia | null>(null);
@@ -97,6 +90,9 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
         });
     }
 
+    // 🎯 Integrado: Variable limpia de estilos de Helena
+    const inputCls = 'w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400';
+
     return (
         <PerfilLayout
             menuItems={menuItems}
@@ -105,87 +101,78 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
             title="Franquicias"
             subtitle="Administración de franquicias."
         >
-            {/* ── Formulario crear ── */}
-            <form onSubmit={submit} className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h3 className="mb-5 text-lg font-semibold">Registrar franquicia</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Nombre"
-                            value={data.nombre}
-                            onChange={(e) => setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
-                    </div>
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Razón social"
-                            value={data.razon_social}
-                            onChange={(e) => setData('razon_social', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
-                        {errors.razon_social && <p className="mt-1 text-xs text-red-500">{errors.razon_social}</p>}
-                    </div>
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="RFC"
-                            value={data.rfc}
-                            onChange={(e) => setData('rfc', e.target.value.toUpperCase())}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm uppercase outline-none focus:border-orange-400"
-                        />
-                        {errors.rfc && <p className="mt-1 text-xs text-red-500">{errors.rfc}</p>}
-                    </div>
-                </div>
-                <button
-                    disabled={processing}
-                    className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
-                >
-                    {processing ? 'Guardando...' : 'Guardar Franquicia'}
-                </button>
-            </form>
+            {/* ── 🎯 Botón / Formulario Crear Integrado Estéticamente ── */}
+            <div className="mb-8">
+                {!showForm ? (
+                    <button onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 transition">
+                        + Añadir franquicia
+                    </button>
+                ) : (
+                    <form onSubmit={submit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-800">Registrar franquicia</h3>
+                            <button type="button" onClick={() => setShowForm(false)}
+                                className="text-sm font-medium text-gray-400 hover:text-gray-600 transition">Cancelar</button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div>
+                                <input type="text" placeholder="Nombre" value={data.nombre}
+                                    onChange={(e) => setData('nombre', e.target.value)} className={inputCls} />
+                                {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
+                            </div>
+                            <div>
+                                <input type="text" placeholder="Razón social" value={data.razon_social}
+                                    onChange={(e) => setData('razon_social', e.target.value)} className={inputCls} />
+                                {errors.razon_social && <p className="mt-1 text-xs text-red-500">{errors.razon_social}</p>}
+                            </div>
+                            <div>
+                                <input type="text" placeholder="RFC" value={data.rfc}
+                                    onChange={(e) => setData('rfc', e.target.value.toUpperCase())}
+                                    className={`${inputCls} uppercase`} />
+                                {errors.rfc && <p className="mt-1 text-xs text-red-500">{errors.rfc}</p>}
+                            </div>
+                        </div>
+                        <button disabled={processing}
+                            className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition">
+                            {processing ? 'Guardando...' : 'Guardar Franquicia'}
+                        </button>
+                    </form>
+                )}
+            </div>
 
-            {/* ── Contenedor principal de la Lista ── */}
+            {/* ── Contenedor principal de la Lista responsiva ── */}
             <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
                 <div className="border-b border-gray-200 p-5 font-semibold">
                     Lista de Franquicias
                 </div>
 
-                {/* 🎯 VISTA MÓVIL: Se activa en pantallas chicas (hidden md:block) */}
+                {/* 🎯 VISTA MÓVIL: Tarjetas */}
                 <div className="block md:hidden divide-y divide-gray-100">
-                    {franquicias.map((f) => (
-                        <div key={f.id} className="p-5 space-y-2">
-                            <div className="flex items-center justify-between">
-                                <span className="font-bold text-gray-800 text-base">{f.nombre}</span>
-                                <div className="flex gap-1">
-                                    <button
-                                        onClick={() => openEdit(f)}
-                                        className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition"
-                                    >
-                                        <IconEdit />
-                                    </button>
-                                    <button
-                                        onClick={() => setDeleteTarget(f)}
-                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                                    >
-                                        <IconTrash />
-                                    </button>
+                    {franquicias.length === 0 ? (
+                        <div className="p-5 text-center text-sm text-gray-400">No hay franquicias registradas.</div>
+                    ) : (
+                        franquicias.map((f) => (
+                            <div key={f.id} className="p-5 space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="font-bold text-gray-800 text-base">{f.nombre}</span>
+                                    <div className="flex gap-1">
+                                        <button onClick={() => openEdit(f)} className="p-2 text-gray-400 hover:text-blue-500 rounded-lg transition"><IconEdit /></button>
+                                        <button onClick={() => setDeleteTarget(f)} className="p-2 text-gray-400 hover:text-red-500 rounded-lg transition"><IconTrash /></button>
+                                    </div>
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                    <span className="font-medium text-gray-400">Razón Social:</span> {f.razon_social}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                    <span className="font-medium text-gray-400">RFC:</span> <span className="font-mono bg-gray-50 px-1.5 py-0.5 rounded text-xs text-gray-700">{f.rfc}</span>
                                 </div>
                             </div>
-                            <div className="text-sm text-gray-600">
-                                <span className="font-medium text-gray-400">Razón Social:</span> {f.razon_social}
-                            </div>
-                            <div className="text-sm text-gray-600">
-                                <span className="font-medium text-gray-400">RFC:</span> <span className="font-mono bg-gray-50 px-1.5 py-0.5 rounded text-xs">{f.rfc}</span>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
 
-                {/* 🎯 VISTA DESKTOP: Oculta en móviles, se dibuja en pantallas grandes (hidden md:block) */}
+                {/* 🎯 VISTA DESKTOP: Tabla */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50 text-gray-500">
@@ -193,117 +180,65 @@ export default function FranquiciasIndex({ franquicias }: { franquicias: Franqui
                                 <th className="p-5">Nombre</th>
                                 <th>Razón social</th>
                                 <th>RFC</th>
-                                <th className="pr-5 text-center">Acciones</th>
+                                <th className="pr-5 text-center w-32">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {franquicias.map((f) => (
-                                <tr key={f.id} className="hover:bg-gray-50/60 transition">
-                                    <td className="p-5 font-medium text-gray-800">{f.nombre}</td>
-                                    <td>{f.razon_social}</td>
-                                    <td className="font-mono text-xs">{f.rfc}</td>
-                                    <td className="pr-5">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <button
-                                                onClick={() => openEdit(f)}
-                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                                title="Editar"
-                                            >
-                                                <IconEdit />
-                                            </button>
-                                            <button
-                                                onClick={() => setDeleteTarget(f)}
-                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                                title="Eliminar"
-                                            >
-                                                <IconTrash />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                            {franquicias.length === 0 ? (
+                                <tr><td colSpan={4} className="p-5 text-center text-gray-400">No hay franquicias registradas.</td></tr>
+                            ) : (
+                                franquicias.map((f) => (
+                                    <tr key={f.id} className="hover:bg-gray-50/60 transition">
+                                        <td className="p-5 font-medium text-gray-800">{f.nombre}</td>
+                                        <td className="text-gray-600">{f.razon_social}</td>
+                                        <td className="font-mono text-xs text-gray-700">{f.rfc}</td>
+                                        <td className="pr-5 text-center">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <button onClick={() => openEdit(f)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"><IconEdit /></button>
+                                                <button onClick={() => setDeleteTarget(f)} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500"><IconTrash /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            {/* ── Modales existentes (Idénticos) ── */}
+            {/* Modales */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar franquicia</h3>
                 <form onSubmit={submitEdit} className="space-y-4">
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Nombre</label>
-                        <input
-                            type="text"
-                            value={editForm.data.nombre}
-                            onChange={(e) => editForm.setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
+                        <input type="text" value={editForm.data.nombre} onChange={(e) => editForm.setData('nombre', e.target.value)} className={inputCls} />
                         {editForm.errors.nombre && <p className="mt-1 text-xs text-red-500">{editForm.errors.nombre}</p>}
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">Razón social</label>
-                        <input
-                            type="text"
-                            value={editForm.data.razon_social}
-                            onChange={(e) => editForm.setData('razon_social', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                        />
+                        <input type="text" value={editForm.data.razon_social} onChange={(e) => editForm.setData('razon_social', e.target.value)} className={inputCls} />
                         {editForm.errors.razon_social && <p className="mt-1 text-xs text-red-500">{editForm.errors.razon_social}</p>}
                     </div>
                     <div>
                         <label className="mb-1 block text-xs font-medium text-gray-500">RFC</label>
-                        <input
-                            type="text"
-                            value={editForm.data.rfc}
-                            onChange={(e) => editForm.setData('rfc', e.target.value.toUpperCase())}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm uppercase outline-none focus:border-orange-400"
-                        />
+                        <input type="text" value={editForm.data.rfc} onChange={(e) => editForm.setData('rfc', e.target.value.toUpperCase())} className={`${inputCls} uppercase`} />
                         {editForm.errors.rfc && <p className="mt-1 text-xs text-red-500">{editForm.errors.rfc}</p>}
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={() => setEditTarget(null)}
-                            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={editForm.processing}
-                            className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
-                        >
-                            {editForm.processing ? 'Guardando...' : 'Guardar cambios'}
-                        </button>
+                        <button type="button" onClick={() => setEditTarget(null)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
+                        <button type="submit" disabled={editForm.processing} className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60">Guardar cambios</button>
                     </div>
                 </form>
             </Modal>
 
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
-                    <IconTrash />
-                </div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400"><IconTrash /></div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar franquicia</h3>
-                <p className="mb-6 text-sm text-gray-500">
-                    ¿Estás seguro de que deseas eliminar{' '}
-                    <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>?
-                    Esta acción no se puede deshacer.
-                </p>
+                <p className="mb-6 text-sm text-gray-500">¿Estás seguro de que deseas eliminar <span className="font-semibold text-gray-700">{deleteTarget?.nombre}</span>? Esta acción no se puede deshacer.</p>
                 <div className="flex justify-end gap-3">
-                    <button
-                        onClick={() => setDeleteTarget(null)}
-                        className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        onClick={confirmDelete}
-                        disabled={deleting}
-                        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
-                    >
-                        {deleting ? 'Eliminando...' : 'Eliminar'}
-                    </button>
+                    <button onClick={() => setDeleteTarget(null)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
+                    <button onClick={confirmDelete} disabled={deleting} className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60">Eliminar</button>
                 </div>
             </Modal>
         </PerfilLayout>

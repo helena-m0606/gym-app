@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClaseController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\RutinaController;
+use App\Http\Controllers\ProductoController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -119,6 +120,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::delete('rutinas/{rutina}', [RutinaController::class, 'destroy'])
         ->name('rutinas.destroy');
+
+Route::get('productos', [ProductoController::class, 'index'])
+    ->name('productos.index');
+
+Route::post('productos', [ProductoController::class, 'store'])
+    ->name('productos.store');
+
+Route::put('productos/{producto}', [ProductoController::class, 'update'])
+    ->name('productos.update');
+
+Route::delete('productos/{producto}', [ProductoController::class, 'destroy'])
+    ->name('productos.destroy');
 
 });
 

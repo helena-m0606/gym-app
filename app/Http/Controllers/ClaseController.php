@@ -16,8 +16,8 @@ class ClaseController extends Controller
             ->select(
                 'clases.id',
                 'clases.nombre',
-                'clases.fecha as horario',          // Traduce "fecha" a "horario" para React
-                'clases.capacidad as cupo_maximo',  // Traduce "capacidad" a "cupo_maximo" para React
+                'clases.fecha as horario',
+                'clases.capacidad as cupo_maximo',
                 'clases.entrenador_id',
                 'clases.sucursal_id',
                 'empleados.nombre as entrenador_nombre',

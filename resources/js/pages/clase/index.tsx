@@ -30,6 +30,19 @@ type Props = {
     sucursales: Sucursal[];
 };
 
+const menuItems = [
+    { label: 'Dashboard', href: '/dashboard', icon: '📊' },
+    { label: 'Miembros', href: '/miembros', icon: '👥' },
+    { label: 'Sucursales', href: '/sucursales', icon: '🏢' },
+    { label: 'Franquicias', href: '/franquicias', icon: '🏬' },
+    { label: 'Membresías', href: '/membresias', icon: '💳' },
+    { label: 'Pagos', href: '/pagos', icon: '💰' },
+    { label: 'Clases', href: '/clases', icon: '🏋️' },
+    { label: 'Rutinas', href: '/rutinas', icon: '📈' },
+    { label: 'Productos', href: '/productos', icon: '🛒' },
+    { label: 'Equipos', href: '/equipos', icon: '🛠️' },
+];
+
 const DIAS_SEMANA = [
     { clave: 'Lunes', nombre: 'Lunes' },
     { clave: 'Martes', nombre: 'Martes' },
@@ -90,6 +103,7 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
     const esEntrenador = auth?.user?.rol === 'entrenador';
     const esGerente = auth?.user?.rol === 'gerente';
 
+    const [showForm, setShowForm] = useState(false);
     const [editando, setEditando] = useState<Clase | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Clase | null>(null);
     const [deleting, setDeleting] = useState(false);
@@ -156,6 +170,7 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                 createForm.reset('nombre', 'cupo_maximo');
                 setDiasSeleccionados([]);
                 setHoraSeleccionada('10:00');
+                setShowForm(false);
             },
         });
     }
@@ -235,128 +250,140 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
 
     return (
         <PerfilLayout
+            menuItems={menuItems}
             rolLabel={esEntrenador ? "🏋️ Entrenador Local" : esGerente ? "🏢 Gerente de Sede" : "🏆 Administrador General"}
             rolColor={esEntrenador ? "border-emerald-200 bg-emerald-50 text-emerald-600" : esGerente ? "border-purple-200 bg-purple-50 text-purple-600" : "border-blue-200 bg-blue-50 text-blue-600"}
             title="Clases"
             subtitle="Programación de horarios y disciplinas del gimnasio."
         >
-            {/* Formulario Crear */}
-            <form onSubmit={handleCreateSubmit} className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-5">
-                <h3 className="text-lg font-semibold border-b border-gray-100 pb-2">Registrar nueva clase</h3>
-                
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <div>
-                        <label className="mb-1 block text-xs font-semibold text-gray-500">Nombre de la disciplina</label>
-                        <input
-                            type="text"
-                            placeholder="ej. CrossFit, Spinning..."
-                            value={createForm.data.nombre}
-                            onChange={e => createForm.setData('nombre', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
-                    </div>
-
-                    {!esEntrenador && (
-                        <div>
-                            <label className="mb-1 block text-xs font-semibold text-gray-500">Seleccionar Sucursal</label>
-                            <select
-                                value={createForm.data.sucursal_id}
-                                onChange={e => createForm.setData('sucursal_id', e.target.value)}
-                                disabled={esGerente}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700 disabled:bg-gray-50 disabled:text-gray-400"
-                                required
-                            >
-                                <option value="">Seleccionar Sede</option>
-                                {sucursales.map(s => (
-                                    <option key={s.id} value={s.id}>{s.nombre}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    {!esEntrenador && (
-                        <div>
-                            <label className="mb-1 block text-xs font-semibold text-gray-500">Instructor del Plantel</label>
-                            <select
-                                value={createForm.data.entrenador_id}
-                                onChange={e => createForm.setData('entrenador_id', e.target.value)}
-                                disabled={!createForm.data.sucursal_id}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700 disabled:bg-gray-50 disabled:text-gray-400"
-                                required
-                            >
-                                <option value="">Seleccionar Instructor</option>
-                                {entrenadoresFiltrados.map(e => (
-                                    <option key={e.id} value={e.id}>{e.nombre}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    <div>
-                        <label className="mb-1 block text-xs font-semibold text-gray-500">Cupo Máximo de Alumnos</label>
-                        <input
-                            type="number"
-                            placeholder="ej. 25"
-                            value={createForm.data.cupo_maximo}
-                            onChange={e => createForm.setData('cupo_maximo', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-3 bg-gray-50/60 p-4 rounded-xl border border-gray-100">
-                    <div className="md:col-span-2">
-                        <span className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Días de clase</span>
-                        <div className="flex flex-wrap gap-1.5">
-                            {DIAS_SEMANA.map((dia) => {
-                                const activo = diasSeleccionados.includes(dia.clave);
-                                return (
-                                    <button
-                                        key={dia.clave}
-                                        type="button"
-                                        onClick={() => toggleDia(dia.clave)}
-                                        className={`rounded-xl px-3 py-2 text-xs font-bold transition border ${
-                                            activo 
-                                                ? 'bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200' 
-                                                : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300'
-                                        }`}
-                                    >
-                                        {dia.nombre}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                    <div>
-                        <span className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Hora de inicio</span>
-                        <input
-                            type="time"
-                            value={horaSeleccionada}
-                            onChange={e => setHoraSeleccionada(e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 outline-none focus:border-orange-400"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div className="flex justify-between items-center pt-2">
-                    <div className="text-xs text-gray-400">
-                        {createForm.data.horario ? (
-                            <span>Horario a registrar: <strong className="text-orange-600 font-bold">{createForm.data.horario}</strong></span>
-                        ) : '*Selecciona los días y horas arriba.'}
-                    </div>
-                    <button
-                        disabled={createForm.processing}
-                        className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 shrink-0"
-                    >
-                        {createForm.processing ? 'Guardando...' : 'Programar Clase'}
+            <div className="mb-8">
+                {!showForm ? (
+                    <button onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 transition">
+                        + Programar clase
                     </button>
-                </div>
-            </form>
+                ) : (
+                    <form onSubmit={handleCreateSubmit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-5">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                            <h3 className="text-lg font-semibold text-gray-800">Registrar nueva clase</h3>
+                            <button type="button" onClick={() => setShowForm(false)}
+                                className="text-sm font-medium text-gray-400 hover:text-gray-600 transition">Cancelar</button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            <div>
+                                <label className="mb-1 block text-xs font-semibold text-gray-500">Nombre de la disciplina</label>
+                                <input
+                                    type="text"
+                                    placeholder="ej. CrossFit, Spinning..."
+                                    value={createForm.data.nombre}
+                                    onChange={e => createForm.setData('nombre', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                    required
+                                />
+                            </div>
 
-            {/* 📱 VISTA MÓVIL */}
+                            {!esEntrenador && (
+                                <div>
+                                    <label className="mb-1 block text-xs font-semibold text-gray-500">Seleccionar Sucursal</label>
+                                    <select
+                                        value={createForm.data.sucursal_id}
+                                        onChange={e => createForm.setData('sucursal_id', e.target.value)}
+                                        disabled={esGerente}
+                                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700 disabled:bg-gray-50 disabled:text-gray-400"
+                                        required
+                                    >
+                                        <option value="">Seleccionar Sede</option>
+                                        {sucursales.map(s => (
+                                            <option key={s.id} value={s.id}>{s.nombre}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {!esEntrenador && (
+                                <div>
+                                    <label className="mb-1 block text-xs font-semibold text-gray-500">Instructor del Plantel</label>
+                                    <select
+                                        value={createForm.data.entrenador_id}
+                                        onChange={e => createForm.setData('entrenador_id', e.target.value)}
+                                        disabled={!createForm.data.sucursal_id}
+                                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 text-gray-700 disabled:bg-gray-50 disabled:text-gray-400"
+                                        required
+                                    >
+                                        <option value="">Seleccionar Instructor</option>
+                                        {entrenadoresFiltrados.map(e => (
+                                            <option key={e.id} value={e.id}>{e.nombre}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="mb-1 block text-xs font-semibold text-gray-500">Cupo Máximo de Alumnos</label>
+                                <input
+                                    type="number"
+                                    placeholder="ej. 25"
+                                    value={createForm.data.cupo_maximo}
+                                    onChange={e => createForm.setData('cupo_maximo', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-3 bg-gray-50/60 p-4 rounded-xl border border-gray-100">
+                            <div className="md:col-span-2">
+                                <span className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Días de clase</span>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {DIAS_SEMANA.map((dia) => {
+                                        const activo = diasSeleccionados.includes(dia.clave);
+                                        return (
+                                            <button
+                                                key={dia.clave}
+                                                type="button"
+                                                onClick={() => toggleDia(dia.clave)}
+                                                className={`rounded-xl px-3 py-2 text-xs font-bold transition border ${
+                                                    activo 
+                                                        ? 'bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200' 
+                                                        : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300'
+                                                }`}
+                                            >
+                                                {dia.nombre}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            <div>
+                                <span className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Hora de inicio</span>
+                                <input
+                                    type="time"
+                                    value={horaSeleccionada}
+                                    onChange={e => setHoraSeleccionada(e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 outline-none focus:border-orange-400"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pt-2">
+                            <div className="text-xs text-gray-400">
+                                {createForm.data.horario ? (
+                                    <span>Horario a registrar: <strong className="text-orange-600 font-bold">{createForm.data.horario}</strong></span>
+                                ) : '*Selecciona los días y horas arriba.'}
+                            </div>
+                            <button
+                                disabled={createForm.processing}
+                                className="w-full md:w-auto rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition shrink-0"
+                            >
+                                {createForm.processing ? 'Guardando...' : 'Programar Clase'}
+                            </button>
+                        </div>
+                    </form>
+                )}
+            </div>
+
             <div className="space-y-4 md:hidden">
                 <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de Clases</h3>
                 {clases.length > 0 ? (
@@ -407,7 +434,6 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                 )}
             </div>
 
-            {/* 💻 VISTA ESCRITORIO */}
             <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                 <div className="border-b border-gray-200 p-5 font-semibold">Horarios de Clases</div>
                 <table className="w-full text-left text-sm">
@@ -463,7 +489,6 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                 </table>
             </div>
 
-            {/* Modal Editar */}
             <Modal open={!!editando} onClose={() => setEditando(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800 border-b border-gray-100 pb-2">Editar programación</h3>
                 <form onSubmit={handleEditSubmit} className="space-y-4">
@@ -563,7 +588,6 @@ export default function ClasesIndex({ clases = [], entrenadores = [], sucursales
                 </form>
             </Modal>
 
-            {/* Modal Eliminar */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
                     <IconTrash />

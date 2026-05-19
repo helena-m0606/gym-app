@@ -1,56 +1,61 @@
 <?php
+
 namespace App\Http\Controllers;
-use App\Models\Producto;
-use App\Models\Sucursal;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ProductoController extends Controller
 {
     public function index()
     {
-        return Inertia::render('productos/index', [
-            'productos' => Producto::with('sucursal')->orderBy('id', 'desc')->get(),
-            'sucursales' => Sucursal::select('id', 'nombre')->orderBy('nombre')->get(),
+        return Inertia::render('Producto/index', [
+            // Traemos solo lo que existe en la tabla
+            'productos' => DB::table('productos')->orderBy('id', 'desc')->get(),
+            'sucursales' => DB::table('sucursales')->select('id', 'nombre')->orderBy('nombre')->get(),
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'sucursal_id' => 'required|exists:sucursales,id',
-            'nombre'      => 'required|string|max:150',
-            'precio'      => 'required|numeric|min:0',
-            'stock'       => 'required|integer|min:0',
-            'categoria'   => 'required|string|max:50',
-            'descripcion' => 'nullable|string',
+        $request->validate([
+            'nombre' => 'required|string|max:150',
+            'precio' => 'required|numeric|min:0',
+            'stock'  => 'required|integer|min:0',
         ]);
 
-        Producto::create($validated);
+        // Insert explícito: SIN created_at ni updated_at
+        DB::table('productos')->insert([
+            'nombre' => $request->nombre,
+            'precio' => $request->precio,
+            'stock'  => $request->stock,
+        ]);
 
         return redirect()->route('productos.index');
     }
 
-    public function update(Request $request, Producto $producto)
+    public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'sucursal_id' => 'required|exists:sucursales,id',
-            'nombre'      => 'required|string|max:150',
-            'precio'      => 'required|numeric|min:0',
-            'stock'       => 'required|integer|min:0',
-            'categoria'   => 'required|string|max:50',
-            'descripcion' => 'nullable|string'
+        $request->validate([
+            'nombre' => 'required|string|max:150',
+            'precio' => 'required|numeric|min:0',
+            'stock'  => 'required|integer|min:0',
         ]);
 
-        $producto->update($validated);
+        // Update explícito
+        DB::table('productos')->where('id', $id)->update([
+            'nombre' => $request->nombre,
+            'precio' => $request->precio,
+            'stock'  => $request->stock,
+        ]);
 
         return redirect()->route('productos.index');
     }
 
-    public function destroy(Producto $producto)
+    public function destroy($id)
     {
-        $producto->delete();
-
+        DB::table('productos')->where('id', $id)->delete();
         return redirect()->route('productos.index');
     }
 }

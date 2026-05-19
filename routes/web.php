@@ -9,6 +9,7 @@ use App\Http\Controllers\MiembroPerfilController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductoController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -81,6 +82,18 @@ Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboar
 
 Route::get('entrenador/dashboard', [EntrenadorController::class, 'dashboard'])
     ->name('entrenador.dashboard');
+
+Route::get('productos', [ProductoController::class, 'index'])
+    ->name('productos.index');
+
+Route::post('productos', [ProductoController::class, 'store'])
+    ->name('productos.store');
+
+Route::put('productos/{producto}', [ProductoController::class, 'update'])
+    ->name('productos.update');
+
+Route::delete('productos/{producto}', [ProductoController::class, 'destroy'])
+    ->name('productos.destroy');
 
 });
 

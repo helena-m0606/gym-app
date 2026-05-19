@@ -152,19 +152,7 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'FitMachines S.A.', 'telefono' => '5556781234', 'email' => 'info@fitmachines.mx'],
         ]);
 
-        // 9. PRODUCTOS
-        DB::table('productos')->insert([
-            ['nombre' => 'Proteína Whey 1kg', 'precio' => 450.00, 'stock' => 50],
-            ['nombre' => 'Barra de proteína', 'precio' => 45.00, 'stock' => 200],
-            ['nombre' => 'Guantes de gym', 'precio' => 180.00, 'stock' => 30],
-            ['nombre' => 'Botella de agua 1L', 'precio' => 120.00, 'stock' => 80],
-            ['nombre' => 'Camiseta deportiva', 'precio' => 250.00, 'stock' => 40],
-            ['nombre' => 'Shorts deportivo', 'precio' => 220.00, 'stock' => 35],
-            ['nombre' => 'Creatina 500g', 'precio' => 380.00, 'stock' => 25],
-            ['nombre' => 'Rodillera deportiva', 'precio' => 150.00, 'stock' => 20],
-        ]);
-
-        // 10. EJERCICIOS
+        // 9. EJERCICIOS
         DB::table('ejercicios')->insert([
             ['nombre' => 'Press de banca', 'descripcion' => 'Ejercicio de empuje para pecho con barra'],
             ['nombre' => 'Sentadilla', 'descripcion' => 'Ejercicio compuesto para tren inferior'],
@@ -178,12 +166,24 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Remo con barra', 'descripcion' => 'Ejercicio de tirón para espalda media'],
         ]);
 
-        // 11. SUCURSALES
+        // 10. SUCURSALES
         DB::table('sucursales')->insert([
             ['franquicia_id' => 1, 'nombre' => 'FitLife Zapopan', 'direccion' => 'Av. Patria 1234', 'ciudad' => 'Zapopan', 'telefono' => '3312341234', 'activa' => true, 'created_at' => now(), 'updated_at' => now()],
             ['franquicia_id' => 1, 'nombre' => 'FitLife Providencia', 'direccion' => 'Av. Providencia 567', 'ciudad' => 'Guadalajara', 'telefono' => '3398765432', 'activa' => true, 'created_at' => now(), 'updated_at' => now()],
             ['franquicia_id' => 2, 'nombre' => 'PowerGym San Pedro', 'direccion' => 'Av. Garza García 890', 'ciudad' => 'San Pedro', 'telefono' => '8181234567', 'activa' => true, 'created_at' => now(), 'updated_at' => now()],
             ['franquicia_id' => 3, 'nombre' => 'IronBody Polanco', 'direccion' => 'Av. Presidente Masaryk 321', 'ciudad' => 'Ciudad de México', 'telefono' => '5551234567', 'activa' => true, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+
+         // 11. PRODUCTOS
+        DB::table('productos')->insert([
+            ['sucursal_id' => 1, 'nombre' => 'Proteína Whey 1kg', 'categoria' => 'Suplementos', 'precio' => 450.00, 'stock' => 50],
+            ['sucursal_id' => 1, 'nombre' => 'Barra de proteína', 'categoria' => 'Suplementos', 'precio' => 45.00, 'stock' => 200],
+            ['sucursal_id' => 1, 'nombre' => 'Guantes de gym', 'categoria' => 'Accesorios', 'precio' => 180.00, 'stock' => 30],
+            ['sucursal_id' => 1, 'nombre' => 'Botella de agua 1L', 'categoria' => 'Accesorios', 'precio' => 120.00, 'stock' => 80],
+            ['sucursal_id' => 1, 'nombre' => 'Camiseta deportiva', 'categoria' => 'Ropa', 'precio' => 250.00, 'stock' => 40],
+            ['sucursal_id' => 2, 'nombre' => 'Shorts deportivo', 'categoria' => 'Ropa', 'precio' => 220.00, 'stock' => 35],
+            ['sucursal_id' => 2, 'nombre' => 'Creatina 500g', 'categoria' => 'Suplementos', 'precio' => 380.00, 'stock' => 25],
+            ['sucursal_id' => 2, 'nombre' => 'Rodillera deportiva', 'categoria' => 'Accesorios', 'precio' => 150.00, 'stock' => 20],
         ]);
 
         // 12. HORARIOS DE SUCURSAL

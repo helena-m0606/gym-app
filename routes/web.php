@@ -165,6 +165,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::delete('equipos/{equipo}', [App\Http\Controllers\EquipoController::class, 'destroy'])
         ->name('equipos.destroy');
+
+    Route::get('recepcionista/dashboard', [RecepcionistaController::class, 'dashboard'])
+        ->name('recepcionista.dashboard');
+
+    Route::get('recepcionista/miembros', [RecepcionistaController::class, 'miembros'])
+        ->name('recepcionista.miembros');
+
+    Route::get('recepcionista/clases', [RecepcionistaController::class, 'clases'])
+        ->name('recepcionista.clases');
+
+    Route::get('recepcionista/pagos', [RecepcionistaController::class, 'pagos'])
+        ->name('recepcionista.pagos');
 });
 
 require __DIR__.'/settings.php';

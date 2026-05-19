@@ -1,49 +1,99 @@
 import { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 
-// 🏢 EL MENÚ SE QUEDA AQUÍ DE RAÍZ Y PARA SIEMPRE (Global para todo el ERP)
-const globalMenuItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-    { label: 'Miembros', href: '/miembros', icon: '👥' },
-    { label: 'Sucursales', href: '/sucursales', icon: '🏢' },
-    { label: 'Franquicias', href: '/franquicias', icon: '🏬' },
-    { label: 'Membresías', href: '/membresias', icon: '💳' },
-    { label: 'Pagos', href: '/pagos', icon: '💰' },
-    { label: 'Clases', href: '/clases', icon: '🏋️' },
-    { label: 'Rutinas', href: '/rutinas', icon: '📈' },
-    { label: 'Productos', href: '/productos', icon: '🛒' },
-    { label: 'Equipos', href: '/equipos', icon: '🛠️' },
-];
+const menusPorRol: Record<string, { label: string; href: string; icon: string }[]> = {
+    admin: [
+        { label: 'Dashboard', href: '/dashboard', icon: '📊' },
+        { label: 'Miembros', href: '/miembros', icon: '👥' },
+        { label: 'Empleados', href: '/empleados', icon: '💼' },
+        { label: 'Sucursales', href: '/sucursales', icon: '🏢' },
+        { label: 'Franquicias', href: '/franquicias', icon: '🏬' },
+        { label: 'Membresías', href: '/membresias', icon: '💳' },
+        { label: 'Pagos', href: '/pagos', icon: '💰' },
+        { label: 'Clases', href: '/clases', icon: '🏋️' },
+        { label: 'Rutinas', href: '/rutinas', icon: '📈' },
+        { label: 'Productos', href: '/productos', icon: '🛒' },
+        { label: 'Equipos', href: '/equipos', icon: '🛠️' },
+    ],
+    recepcionista: [
+        { label: 'Dashboard', href: '/recepcionista/dashboard', icon: '📊' },
+        { label: 'Miembros', href: '/recepcionista/miembros', icon: '👥' },
+        { label: 'Clases', href: '/recepcionista/clases', icon: '🏋️' },
+        { label: 'Pagos', href: '/recepcionista/pagos', icon: '💰' },
+    ],
+    entrenador: [
+        { label: 'Dashboard', href: '/entrenador/dashboard', icon: '📊' },
+        { label: 'Mis Clases', href: '/entrenador/clases', icon: '🏋️' },
+        { label: 'Rutinas', href: '/entrenador/rutinas', icon: '📈' },
+        { label: 'Mis Miembros', href: '/entrenador/miembros', icon: '👥' },
+    ],
+    gerente: [
+        { label: 'Dashboard', href: '/gerente/dashboard', icon: '📊' },
+        { label: 'Miembros', href: '/gerente/miembros', icon: '👥' },
+        { label: 'Empleados', href: '/gerente/empleados', icon: '💼' },
+        { label: 'Clases', href: '/gerente/clases', icon: '🏋️' },
+        { label: 'Pagos', href: '/gerente/pagos', icon: '💰' },
+        { label: 'Reportes', href: '/gerente/reportes', icon: '📈' },
+    ],
+    miembro: [
+        { label: 'Dashboard', href: '/miembro/dashboard', icon: '🏠' },
+        { label: 'Mi Rutina', href: '/miembro/rutina', icon: '💪' },
+        { label: 'Clases', href: '/miembro/clases', icon: '🗓️' },
+        { label: 'Mi Progreso', href: '/miembro/progreso', icon: '📈' },
+        { label: 'Membresía', href: '/miembro/membresia', icon: '💳' },
+        { label: 'Notificaciones', href: '/miembro/notificaciones', icon: '🔔' },
+    ],
+};
+
+const labelsPorRol: Record<string, { label: string; color: string }> = {
+    admin: { label: '🏆 Administrador — Acceso Total', color: 'border-blue-200 bg-blue-50 text-blue-600' },
+    recepcionista: { label: '🗂️ Recepcionista — Acceso Operativo', color: 'border-green-200 bg-green-50 text-green-600' },
+    entrenador: { label: '🏋️ Entrenador', color: 'border-emerald-200 bg-emerald-50 text-emerald-600' },
+    gerente: { label: '🏢 Gerente', color: 'border-purple-200 bg-purple-50 text-purple-600' },
+    miembro: { label: '👤 Miembro', color: 'border-yellow-200 bg-yellow-50 text-yellow-600' },
+};
 
 type PerfilLayoutProps = {
     children: React.ReactNode;
-    rolLabel: string;
-    rolColor: string;
+    rolLabel?: string;
+    rolColor?: string;
     title?: string;
     subtitle?: string;
-    // 💡 Dejamos menuItems opcional por si otras vistas aún lo mandan, para que no truene nada
-    menuItems?: any[]; 
+    menuItems?: any[];
 };
 
 export default function PerfilLayout({ children, rolLabel, rolColor, title, subtitle }: PerfilLayoutProps) {
-    // Usamos el hook de Inertia para saber en qué URL estamos parados actualmente
     const { url } = usePage();
+    const { auth } = usePage().props as any;
+    const rol = auth?.user?.rol ?? 'admin';
     const [menuAbierto, setMenuAbierto] = useState(false);
 
-    // 💼 Componente interno del botón de Empleados
-    const BotonEmpleados = ({ onClick }: { onClick?: () => void }) => (
-        <Link
-            href="/empleados"
-            onClick={onClick}
-            className={
-                url.startsWith('/empleados')
-                    ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
-                    : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-            }
-        >
-            <span className="mr-2">💼</span>
-            Empleados
-        </Link>
+    const menuItems = menusPorRol[rol] ?? menusPorRol.admin;
+    const rolInfo = labelsPorRol[rol] ?? labelsPorRol.admin;
+    const labelFinal = rolLabel ?? rolInfo.label;
+    const colorFinal = rolColor ?? rolInfo.color;
+
+    const renderMenu = (onClickItem?: () => void) => (
+        <>
+            {menuItems.map((item) => {
+                const isActive = url.startsWith(item.href);
+                return (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onClickItem}
+                        className={
+                            isActive
+                                ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
+                                : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        }
+                    >
+                        <span className="mr-2">{item.icon}</span>
+                        {item.label}
+                    </Link>
+                );
+            })}
+        </>
     );
 
     return (
@@ -57,29 +107,7 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
                         <span className="text-orange-500">Titan</span>GYM
                     </h1>
                     <nav className="space-y-2 text-sm flex-1">
-                        {globalMenuItems.map((item) => {
-                            if (item.href === '/empleados') return null;
-
-                            const isActive = url.startsWith(item.href);
-                            return (
-                                <div key={item.href} className="space-y-2">
-                                    <Link
-                                        href={item.href}
-                                        className={
-                                            isActive
-                                                ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
-                                                : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                                        }
-                                    >
-                                        <span className="mr-2">{item.icon}</span>
-                                        {item.label}
-                                    </Link>
-
-                                    {/* Mantiene a empleados fijo abajo de miembros */}
-                                    {item.href === '/miembros' && <BotonEmpleados />}
-                                </div>
-                            );
-                        })}
+                        {renderMenu()}
                     </nav>
                     <div className="mt-auto pt-4 border-t border-gray-200">
                         <Link
@@ -109,7 +137,7 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
                     </div>
                 </div>
 
-                {/* DRAWER OVERLAY (EL MENÚ DE TU CAPTURA) */}
+                {/* DRAWER OVERLAY */}
                 {menuAbierto && (
                     <div className="lg:hidden fixed inset-0 z-50 flex">
                         <div
@@ -130,33 +158,7 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
                                 </button>
                             </div>
                             <nav className="space-y-1 text-sm flex-1">
-                                {/* 🎯 CORREGIDO: Aquí mapea ahora la lista global fija */}
-                                {globalMenuItems.map((item) => {
-                                    if (item.href === '/empleados') return null;
-
-                                    const isActive = url.startsWith(item.href);
-                                    return (
-                                        <div key={item.href} className="space-y-1">
-                                            <Link
-                                                href={item.href}
-                                                onClick={() => setMenuAbierto(false)}
-                                                className={
-                                                    isActive
-                                                        ? 'block rounded-xl bg-orange-100 px-4 py-3 font-medium text-orange-600'
-                                                        : 'block rounded-xl px-4 py-3 text-gray-600 hover:bg-gray-100'
-                                                }
-                                            >
-                                                <span className="mr-2">{item.icon}</span>
-                                                {item.label}
-                                            </Link>
-
-                                            {/* Empleados también fijo en el menú móvil */}
-                                            {item.href === '/miembros' && (
-                                                <BotonEmpleados onClick={() => setMenuAbierto(false)} />
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                {renderMenu(() => setMenuAbierto(false))}
                             </nav>
                             <div className="pt-4 border-t border-gray-200">
                                 <Link
@@ -174,8 +176,8 @@ export default function PerfilLayout({ children, rolLabel, rolColor, title, subt
 
                 <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto">
                     <div className="mb-8">
-                        <span className={`rounded-full border px-4 py-2 text-sm ${rolColor}`}>
-                            {rolLabel}
+                        <span className={`rounded-full border px-4 py-2 text-sm ${colorFinal}`}>
+                            {labelFinal}
                         </span>
                         {title && <h2 className="mt-6 text-3xl font-bold">{title}</h2>}
                         {subtitle && <p className="text-gray-500">{subtitle}</p>}

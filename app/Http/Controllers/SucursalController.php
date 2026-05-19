@@ -13,7 +13,6 @@ class SucursalController extends Controller
     {
         return Inertia::render('Sucursal/index', [
             'sucursales' => Sucursal::with('franquicia')->latest()->get(),
-
             'franquicias' => Franquicia::select('id', 'nombre')
                 ->orderBy('nombre')
                 ->get(),
@@ -39,7 +38,7 @@ class SucursalController extends Controller
             'activa' => true,
         ]);
 
-        return redirect()->route('Sucursal.index');
+        return redirect()->route('sucursales.index');
     }
 
     public function update(Request $request, Sucursal $sucursal)

@@ -2,6 +2,19 @@ import { useState, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import PerfilLayout from '@/layouts/perfil-layout';
 
+const menuItems = [
+    { label: 'Dashboard', href: '/dashboard', icon: '📊' },
+    { label: 'Miembros', href: '/miembros', icon: '👥' },
+    { label: 'Sucursales', href: '/sucursales', icon: '🏢' },
+    { label: 'Franquicias', href: '/franquicias', icon: '🏬' },
+    { label: 'Membresías', href: '/membresias', icon: '💳' },
+    { label: 'Pagos', href: '/pagos', icon: '💰' },
+    { label: 'Clases', href: '/clases', icon: '🏋️' },
+    { label: 'Rutinas', href: '/rutinas', icon: '📈' },
+    { label: 'Productos', href: '/productos', icon: '🛒' },
+    { label: 'Equipos', href: '/equipos', icon: '🛠️' },
+];
+
 type Empleado = {
     id: number;
     nombre: string;
@@ -57,24 +70,27 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
     );
 }
 
-export default function EmpleadosIndex({ empleados, sucursales }: Props) {
-    // ── Registrar Empleado ──
+export default function EmpleadosIndex({ empleados = [], sucursales = [] }: Props) {
+    const [showForm, setShowForm] = useState(false);
+
     const createForm = useForm({
         name: '',
         email: '',
         password: '',
         rol: 'recepcionista',
-        sucursal_id: sucursales[0]?.id || '',
+        sucursal_id: sucursales.length > 0 ? String(sucursales[0].id) : '',
     });
 
     function handleCreateSubmit(e: React.FormEvent) {
         e.preventDefault();
         createForm.post('/empleados', {
-            onSuccess: () => createForm.reset('name', 'email', 'password'),
+            onSuccess: () => {
+                createForm.reset('name', 'email', 'password');
+                setShowForm(false);
+            },
         });
     }
 
-    // ── Editar Empleado ──
     const [editTarget, setEditTarget] = useState<Empleado | null>(null);
     const editForm = useForm({
         name: '',
@@ -117,7 +133,6 @@ export default function EmpleadosIndex({ empleados, sucursales }: Props) {
         });
     }
 
-    // ── Eliminar Empleado ──
     const [deleteTarget, setDeleteTarget] = useState<Empleado | null>(null);
     const [deleting, setDeleting] = useState(false);
 
@@ -132,94 +147,107 @@ export default function EmpleadosIndex({ empleados, sucursales }: Props) {
 
     return (
         <PerfilLayout
+            menuItems={menuItems}
             rolLabel="🏆 Administrador — Acceso Total"
             rolColor="border-blue-200 bg-blue-50 text-blue-600"
             title="Empleados"
             subtitle="Administración de empleados del gimnasio."
         >
-            {/* ── Formulario Crear ── */}
-            <form onSubmit={handleCreateSubmit} className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h3 className="mb-5 text-lg font-semibold">Registrar empleado</h3>
+            <div className="mb-8">
+                {!showForm ? (
+                    <button onClick={() => setShowForm(true)}
+                        className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 transition">
+                        + Añadir empleado
+                    </button>
+                ) : (
+                    <form onSubmit={handleCreateSubmit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-800">Registrar nuevo empleado</h3>
+                            <button type="button" onClick={() => setShowForm(false)}
+                                className="text-sm font-medium text-gray-400 hover:text-gray-600 transition">Cancelar</button>
+                        </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div>
-                        <input
-                            type="text"
-                            placeholder="Nombre completo"
-                            value={createForm.data.name}
-                            onChange={e => createForm.setData('name', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
-                        {createForm.errors.name && (
-                            <span className="mt-1 block text-xs text-red-500">{createForm.errors.name}</span>
-                        )}
-                    </div>
-                    <div>
-                        <input
-                            type="email"
-                            placeholder="Correo electrónico"
-                            value={createForm.data.email}
-                            onChange={e => createForm.setData('email', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
-                        {createForm.errors.email && (
-                            <span className="mt-1 block text-xs text-red-500">{createForm.errors.email}</span>
-                        )}
-                    </div>
-                    <div>
-                        <input
-                            type="password"
-                            placeholder="Contraseña de acceso"
-                            value={createForm.data.password}
-                            onChange={e => createForm.setData('password', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                            required
-                        />
-                        {createForm.errors.password && (
-                            <span className="mt-1 block text-xs text-red-500">{createForm.errors.password}</span>
-                        )}
-                    </div>
-                    <div>
-                        <select
-                            value={createForm.data.rol}
-                            onChange={e => createForm.setData('rol', e.target.value as any)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700"
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Nombre completo"
+                                    value={createForm.data.name}
+                                    onChange={e => createForm.setData('name', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                    required
+                                />
+                                {createForm.errors.name && (
+                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.name}</span>
+                                )}
+                            </div>
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Correo electrónico"
+                                    value={createForm.data.email}
+                                    onChange={e => createForm.setData('email', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                    required
+                                />
+                                {createForm.errors.email && (
+                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.email}</span>
+                                )}
+                            </div>
+                            <div>
+                                <input
+                                    type="password"
+                                    placeholder="Contraseña de acceso"
+                                    value={createForm.data.password}
+                                    onChange={e => createForm.setData('password', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                    required
+                                />
+                                {createForm.errors.password && (
+                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.password}</span>
+                                )}
+                            </div>
+                            <div>
+                                <select
+                                    value={createForm.data.rol}
+                                    onChange={e => createForm.setData('rol', e.target.value as any)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700"
+                                >
+                                    <option value="recepcionista">Recepcionista</option>
+                                    <option value="entrenador">Entrenador</option>
+                                    <option value="gerente">Gerente</option>
+                                </select>
+                                {createForm.errors.rol && (
+                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.rol}</span>
+                                )}
+                            </div>
+                            <div>
+                                <select
+                                    value={createForm.data.sucursal_id}
+                                    onChange={e => createForm.setData('sucursal_id', e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700"
+                                >
+                                    <option value="">Seleccionar sucursal</option>
+                                    {sucursales.map(s => (
+                                        <option key={s.id} value={s.id}>{s.nombre}</option>
+                                    ))}
+                                </select>
+                                {createForm.errors.sucursal_id && (
+                                    <span className="mt-1 block text-xs text-red-500">{createForm.errors.sucursal_id}</span>
+                                )}
+                            </div>
+                        </div>
+
+                        <button
+                            disabled={createForm.processing}
+                            className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition"
                         >
-                            <option value="recepcionista">Recepcionista</option>
-                            <option value="entrenador">Entrenador</option>
-                            <option value="gerente">Gerente</option>
-                        </select>
-                        {createForm.errors.rol && (
-                            <span className="mt-1 block text-xs text-red-500">{createForm.errors.rol}</span>
-                        )}
-                    </div>
-                    <div>
-                        <select
-                            value={createForm.data.sucursal_id}
-                            onChange={e => createForm.setData('sucursal_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400 bg-white text-gray-700"
-                        >
-                            {sucursales.map(s => (
-                                <option key={s.id} value={s.id}>{s.nombre}</option>
-                            ))}
-                        </select>
-                        {createForm.errors.sucursal_id && (
-                            <span className="mt-1 block text-xs text-red-500">{createForm.errors.sucursal_id}</span>
-                        )}
-                    </div>
-                </div>
+                            {createForm.processing ? 'Guardando...' : 'Guardar Empleado'}
+                        </button>
+                    </form>
+                )}
+            </div>
 
-                <button
-                    disabled={createForm.processing}
-                    className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
-                >
-                    {createForm.processing ? 'Guardando...' : 'Guardar Empleado'}
-                </button>
-            </form>
-
-            {/* 📱 1. VISTA MÓVIL */}
             <div className="space-y-4 md:hidden">
                 <h3 className="text-base font-semibold text-gray-700 px-1 mb-2">Lista de empleados</h3>
                 {empleados && empleados.length > 0 ? (
@@ -255,14 +283,14 @@ export default function EmpleadosIndex({ empleados, sucursales }: Props) {
                             <div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
                                 <button
                                     onClick={() => openEdit(emp)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 transition active:bg-blue-50 active:text-blue-500"
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-600 transition"
                                     title="Editar"
                                 >
                                     <IconEdit />
                                 </button>
                                 <button
                                     onClick={() => setDeleteTarget(emp)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 transition active:bg-red-50 active:text-red-500"
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-400 transition"
                                     title="Eliminar"
                                 >
                                     <IconTrash />
@@ -277,7 +305,6 @@ export default function EmpleadosIndex({ empleados, sucursales }: Props) {
                 )}
             </div>
 
-            {/* 💻 2. VISTA ESCRITORIO */}
             <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                 <div className="border-b border-gray-200 p-5 font-semibold">
                     Lista de empleados
@@ -286,7 +313,6 @@ export default function EmpleadosIndex({ empleados, sucursales }: Props) {
                 <table className="w-full text-left text-sm">
                     <thead className="bg-gray-50 text-gray-500">
                         <tr>
-                            {/* 🎯 Cambiamos las cabeceras para que coincida con el nuevo orden agrupado */}
                             <th className="p-5">Nombre / Email</th>
                             <th>Rol / Puesto</th>
                             <th>Sucursal</th>
@@ -298,7 +324,6 @@ export default function EmpleadosIndex({ empleados, sucursales }: Props) {
                         {empleados && empleados.length > 0 ? (
                             empleados.map((emp) => (
                                 <tr key={emp.id} className="border-t border-gray-100 hover:bg-gray-50/60">
-                                    {/* 🎯 CORREGIDO: Agrupamos Nombre y Email juntos en una sola celda */}
                                     <td className="p-5">
                                         <div className="font-medium text-gray-900">{emp.nombre}</div>
                                         <div className="text-xs text-gray-400 mt-0.5">{emp.email}</div>
@@ -347,7 +372,6 @@ export default function EmpleadosIndex({ empleados, sucursales }: Props) {
                 </table>
             </div>
 
-            {/* ── Modal Editar ── */}
             <Modal open={!!editTarget} onClose={() => setEditTarget(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar empleado</h3>
                 <form onSubmit={handleEditSubmit} className="space-y-4">
@@ -460,9 +484,8 @@ export default function EmpleadosIndex({ empleados, sucursales }: Props) {
                 </form>
             </Modal>
 
-            {/* ── Modal Eliminar ── */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
                     <IconTrash />
                 </div>
 

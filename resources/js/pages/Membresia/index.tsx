@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import PerfilLayout from '@/layouts/perfil-layout';
 
@@ -65,6 +65,8 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 export default function MembresiasIndex({ membresias, tiposMembresia, miembros }: Props) {
+    const [showForm, setShowForm] = useState(false);
+
     const [editando, setEditando] = useState<Membresia | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Membresia | null>(null);
     const [deleting, setDeleting] = useState(false);
@@ -132,7 +134,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
 
     function submitTipo(e: React.FormEvent) {
         e.preventDefault();
-        tipoForm.post('/tipos-membresia', { onSuccess: () => tipoForm.reset() });
+        tipoForm.post('/tipos-membresia', { onSuccess: () => { tipoForm.reset(); setShowForm(false); } });
     }
 
     function abrirEditarTipo(t: TipoMembresia) {
@@ -162,7 +164,6 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
 
     const hoy = new Date();
 
-    // Lógica compartida de filtrado para reutilizar en móvil y web
     const membresiasFiltradas = membresias.filter((m) => {
         const vence = new Date(m.fecha_fin);
         const diff = Math.ceil((vence.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
@@ -181,56 +182,67 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
             title="Membresías"
             subtitle="Gestión de planes y membresías de los miembros."
         >
-            {/* ── 1. SECCIÓN: TIPOS DE MEMBRESÍA (PLANES) ── */}
             <div className="mb-10">
                 <h2 className="mb-4 text-xl font-bold text-gray-800">Tipos de Membresía</h2>
 
-                <form onSubmit={submitTipo} className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <h3 className="mb-5 text-lg font-semibold">Registrar nuevo tipo</h3>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        <div>
-                            <input
-                                type="text"
-                                placeholder="Nombre (ej. Mensual Plus)"
-                                value={tipoForm.data.nombre}
-                                onChange={(e) => tipoForm.setData('nombre', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                required
-                            />
-                            {tipoForm.errors.nombre && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.nombre}</p>}
-                        </div>
-                        <div>
-                            <input
-                                type="number"
-                                placeholder="Duración en días (ej. 30)"
-                                value={tipoForm.data.duracion_dias}
-                                onChange={(e) => tipoForm.setData('duracion_dias', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                required
-                            />
-                            {tipoForm.errors.duracion_dias && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.duracion_dias}</p>}
-                        </div>
-                        <div>
-                            <input
-                                type="number"
-                                placeholder="Precio (ej. 599)"
-                                value={tipoForm.data.precio}
-                                onChange={(e) => tipoForm.setData('precio', e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
-                                required
-                            />
-                            {tipoForm.errors.precio && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.precio}</p>}
-                        </div>
-                    </div>
-                    <button
-                        disabled={tipoForm.processing}
-                        className="mt-5 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60"
-                    >
-                        {tipoForm.processing ? 'Guardando...' : 'Guardar Tipo'}
-                    </button>
-                </form>
+                <div className="mb-6">
+                    {!showForm ? (
+                        <button onClick={() => setShowForm(true)}
+                            className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 transition">
+                            + Añadir tipo
+                        </button>
+                    ) : (
+                        <form onSubmit={submitTipo} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                            <div className="mb-5 flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-gray-800">Registrar nuevo tipo</h3>
+                                <button type="button" onClick={() => setShowForm(false)}
+                                    className="text-sm font-medium text-gray-400 hover:text-gray-600 transition">Cancelar</button>
+                            </div>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div>
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre (ej. Mensual Plus)"
+                                        value={tipoForm.data.nombre}
+                                        onChange={(e) => tipoForm.setData('nombre', e.target.value)}
+                                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                        required
+                                    />
+                                    {tipoForm.errors.nombre && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.nombre}</p>}
+                                </div>
+                                <div>
+                                    <input
+                                        type="number"
+                                        placeholder="Duración en días (ej. 30)"
+                                        value={tipoForm.data.duracion_dias}
+                                        onChange={(e) => tipoForm.setData('duracion_dias', e.target.value)}
+                                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                        required
+                                    />
+                                    {tipoForm.errors.duracion_dias && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.duracion_dias}</p>}
+                                </div>
+                                <div>
+                                    <input
+                                        type="number"
+                                        placeholder="Precio (ej. 599)"
+                                        value={tipoForm.data.precio}
+                                        onChange={(e) => tipoForm.setData('precio', e.target.value)}
+                                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                                        required
+                                    />
+                                    {tipoForm.errors.precio && <p className="mt-1 text-xs text-red-500">{tipoForm.errors.precio}</p>}
+                                </div>
+                            </div>
+                            <button
+                                disabled={tipoForm.processing}
+                                className="mt-5 w-full md:w-auto rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-sm hover:bg-orange-600 disabled:opacity-60 transition"
+                            >
+                                {tipoForm.processing ? 'Guardando...' : 'Guardar Tipo'}
+                            </button>
+                        </form>
+                    )}
+                </div>
 
-                {/* 📱 Tipos en Móvil */}
                 <div className="space-y-3 md:hidden">
                     {tiposMembresia.map((t) => (
                         <div key={t.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm flex justify-between items-center">
@@ -250,7 +262,6 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                     ))}
                 </div>
 
-                {/* 💻 Tipos en Escritorio */}
                 <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                     <div className="border-b border-gray-200 p-5 font-semibold">Lista de Tipos</div>
                     <table className="w-full text-left text-sm">
@@ -266,7 +277,7 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                             {tiposMembresia.map((t) => (
                                 <tr key={t.id} className="border-t border-gray-100 hover:bg-gray-50/60">
                                     <td className="p-5 font-medium">{t.nombre}</td>
-                                    <td className="text-gray-600">{t.duracion_dias} días</td>
+                                    <td className="text-gray-600">{t.duracion_dias} days</td>
                                     <td className="font-medium text-gray-900">${t.precio}</td>
                                     <td className="pr-5">
                                         <div className="flex items-center justify-center gap-2">
@@ -285,7 +296,6 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </div>
             </div>
 
-            {/* ── 2. SECCIÓN: MEMBRESÍAS DE MIEMBROS ── */}
             <div>
                 <h2 className="mb-4 text-xl font-bold text-gray-800">Membresías de Miembros</h2>
 
@@ -319,7 +329,6 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                     </select>
                 </div>
 
-                {/* 📱 Suscripciones en Móvil (Tarjetas) */}
                 <div className="space-y-4 md:hidden">
                     {membresiasFiltradas.length > 0 ? (
                         membresiasFiltradas.map((m) => {
@@ -375,7 +384,6 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                     )}
                 </div>
 
-                {/* 💻 Suscripciones en Escritorio (Tabla Agrupada) */}
                 <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
                     <div className="border-b border-gray-200 p-5 font-semibold">Lista de Membresías</div>
                     <table className="w-full text-left text-sm">
@@ -397,7 +405,6 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
 
                                 return (
                                     <tr key={m.id} className="border-t border-gray-100 hover:bg-gray-50/60">
-                                        {/* 🎯 Agrupamos Miembro y Tipo de plan abajo en chiquito */}
                                         <td className="p-5">
                                             <div className="font-medium text-gray-900">{m.miembro}</div>
                                             <div className="text-xs text-gray-400 mt-0.5">{m.tipo}</div>
@@ -433,7 +440,6 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </div>
             </div>
 
-            {/* ── MODAL EDITAR MEMBRESÍA ── */}
             <Modal open={!!editando} onClose={() => setEditando(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar membresía — {editando?.miembro}</h3>
                 <form onSubmit={guardarEdicion} className="space-y-4">
@@ -476,9 +482,8 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </form>
             </Modal>
 
-            {/* ── MODAL ELIMINAR MEMBRESÍA ── */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
                     <IconTrash />
                 </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar membresía</h3>
@@ -499,7 +504,6 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </div>
             </Modal>
 
-            {/* ── MODAL EDITAR TIPO ── */}
             <Modal open={!!editandoTipo} onClose={() => setEditandoTipo(null)}>
                 <h3 className="mb-5 text-lg font-semibold text-gray-800">Editar tipo — {editandoTipo?.nombre}</h3>
                 <form onSubmit={guardarEdicionTipo} className="space-y-4">
@@ -536,9 +540,8 @@ export default function MembresiasIndex({ membresias, tiposMembresia, miembros }
                 </form>
             </Modal>
 
-            {/* ── MODAL ELIMINAR TIPO ── */}
             <Modal open={!!deleteTipoTarget} onClose={() => setDeleteTipoTarget(null)}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-400">
                     <IconTrash />
                 </div>
                 <h3 className="mb-1 text-lg font-semibold text-gray-800">Eliminar tipo</h3>

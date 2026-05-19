@@ -73,6 +73,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('membresias', [MembresiaController::class, 'store'])
         ->name('membresias.store');
 
+    Route::put('membresias/{membresia}', [MembresiaController::class, 'update'])
+        ->name('membresias.update');
+
+    Route::delete('membresias/{membresia}', [MembresiaController::class, 'destroy'])
+        ->name('membresias.destroy');
+
+    Route::post('tipos-membresia', [MembresiaController::class, 'storeTipo'])
+        ->name('tipos-membresia.store');
+
+    Route::put('tipos-membresia/{tipo}', [MembresiaController::class, 'updateTipo'])
+        ->name('tipos-membresia.update');
+
+    Route::delete('tipos-membresia/{tipo}', [MembresiaController::class, 'destroyTipo'])
+        ->name('tipos-membresia.destroy');
+
     Route::get('pagos', [PagoController::class, 'index'])
         ->name('pagos.index');
 

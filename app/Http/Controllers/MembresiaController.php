@@ -83,7 +83,6 @@ class MembresiaController extends Controller
         return redirect()->back();
     }
 
-    // CRUD TIPOS DE MEMBRESÍA
     public function storeTipo(Request $request)
     {
         $request->validate([

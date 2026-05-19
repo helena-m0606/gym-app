@@ -153,6 +153,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::delete('productos/{producto}', [ProductoController::class, 'destroy'])
         ->name('productos.destroy');
+
+    Route::get('equipos', [App\Http\Controllers\EquipoController::class, 'index'])
+        ->name('equipos.index');
+    
+    Route::post('equipos', [App\Http\Controllers\EquipoController::class, 'store'])
+        ->name('equipos.store');
+    
+    Route::put('equipos/{equipo}', [App\Http\Controllers\EquipoController::class, 'update'])
+        ->name('equipos.update');
+    
+    Route::delete('equipos/{equipo}', [App\Http\Controllers\EquipoController::class, 'destroy'])
+        ->name('equipos.destroy');
 });
 
 require __DIR__.'/settings.php';

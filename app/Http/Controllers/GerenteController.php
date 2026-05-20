@@ -54,7 +54,7 @@ class GerenteController extends Controller
 
         $sucursal = DB::table('sucursales')->find($sucursalId);
 
-        return Inertia::render('gerente/dashboard', [
+        return Inertia::render('Gerentes/dashboard', [
             'sucursal' => $sucursal,
             'miembrosActivos' => $miembrosActivos,
             'checkinsHoy' => $checkinsHoy,

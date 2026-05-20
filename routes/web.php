@@ -11,8 +11,10 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClaseController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\GerenteController;
 use App\Http\Controllers\RutinaController;
 use App\Http\Controllers\ProductoController;
+
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,6 +44,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('miembro/dashboard', [MiembroPerfilController::class, 'dashboard'])
         ->name('miembro.dashboard');
+
+    Route::get('miembro/clases', [MiembroPerfilController::class, 'clases'])->name('miembro.clases');
+
+    Route::get('miembro/membresia', [MiembroPerfilController::class, 'membresia'])->name('miembro.membresia');
+
+    Route::get('miembro/notificaciones', [MiembroPerfilController::class, 'notificaciones'])->name('miembro.notificaciones');
+
+    Route::get('gerente/dashboard', [GerenteController::class, 'dashboard'])->name('gerente.dashboard');
 
     Route::get('sucursales', [SucursalController::class, 'index'])
         ->name('sucursales.index');
